@@ -1,6 +1,5 @@
 package net.runelite.client.plugins.tscripts.ui.debug;
 
-import lombok.Getter;
 import net.runelite.client.plugins.tscripts.runtime.Runtime;
 
 import javax.swing.*;
@@ -15,12 +14,10 @@ import java.util.Map;
 import java.util.Vector;
 
 public class VariableInspector extends JFrame {
-    @Getter
     private static VariableInspector instance;
-    private JTable variableTable;
-    private DefaultTableModel tableModel;
+    private final JTable variableTable;
+    private final DefaultTableModel tableModel;
     private final Runtime runtime;
-    private boolean isFrozen = false;
     private int selectedRow = -1;
     private final List<Integer> frozenRows = new ArrayList<>();
 
@@ -33,12 +30,12 @@ public class VariableInspector extends JFrame {
     public static void update(Map<String, Object> variableMap) {
         if(instance == null)
             return;
-        getInstance().updateVariables(variableMap);
+        instance.updateVariables(variableMap);
     }
 
     private VariableInspector(Runtime runtime) {
         setTitle("Variable Inspector");
-        setSize(300, 300);
+        setSize(300, 350);
         setAlwaysOnTop(true);
 
         // Set up the table model
@@ -109,8 +106,7 @@ public class VariableInspector extends JFrame {
             // Add new rows for each variable
             for (Map.Entry<String, Object> entry : newVariableMap.entrySet()) {
                 Vector<Object> row = new Vector<>();
-                isFrozen = runtime.getVariableMap().isFrozen(entry.getKey());
-                if (isFrozen)
+                if (runtime.getVariableMap().isFrozen(entry.getKey()))
                     frozenRows.add(tableModel.getRowCount());
                 row.add(entry.getKey());
                 row.add(entry.getValue());

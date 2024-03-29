@@ -54,14 +54,15 @@ public class VariableMap
             unfreeze(key);
         else
             freeze(key);
+        pollVariableInspector();
     }
 
-    public void freeze(String key)
+    private void freeze(String key)
     {
         frozenVariables.add(key);
     }
 
-    public void unfreeze(String key)
+    private void unfreeze(String key)
     {
         frozenVariables.remove(key);
     }
