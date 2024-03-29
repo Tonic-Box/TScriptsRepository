@@ -49,6 +49,25 @@ public class GGame implements GroupDefinition
                 function -> Static.getClientThread().invoke(() -> Static.getClient().runScript(915, function.getArg(0, manager))),
                 "sets current the tab"
         );
+        addMethod(methods, "menuAction",
+                ImmutableMap.<Integer, Pair<String,Type>>builder()
+                        .put(0, Pair.of("option", Type.STRING))
+                        .put(1, Pair.of("target", Type.STRING))
+                        .put(2, Pair.of("identifier", Type.INT))
+                        .put(3, Pair.of("opcode", Type.INT))
+                        .put(4, Pair.of("param0", Type.INT))
+                        .put(5, Pair.of("param1", Type.INT))
+                        .build(),
+                function -> Static.getClientThread().invoke(() -> Static.getClient().invokeMenuAction(
+                        function.getArg(0, manager),
+                        function.getArg(1, manager),
+                        function.getArg(2, manager),
+                        function.getArg(3, manager),
+                        function.getArg(4, manager),
+                        function.getArg(5, manager)
+                )),
+                "Invokes a menu action"
+        );
         return methods;
     }
 }

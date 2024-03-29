@@ -5,6 +5,8 @@ import net.runelite.client.plugins.tscripts.TScriptsPlugin;
 import net.runelite.client.plugins.tscripts.lexer.Lexer;
 import net.runelite.client.plugins.tscripts.lexer.Scope.Scope;
 import net.runelite.client.plugins.tscripts.lexer.Tokenizer;
+import net.runelite.client.plugins.tscripts.ui.debug.CFGVisualizer;
+import net.runelite.client.plugins.tscripts.ui.debug.VariableInspector;
 import net.runelite.client.plugins.tscripts.util.Logging;
 import net.runelite.client.util.ImageUtil;
 import org.fife.ui.autocomplete.AutoCompletion;
@@ -131,9 +133,9 @@ class ScriptEditor extends JFrame implements ActionListener {
         //The menu
         run.addActionListener(this);
         JCheckBox alwaysOnTop = new JCheckBox("Always on top  ");
-        JButton button = new JButton("CFG Visualizer");
-        button.setToolTipText("Control-Flow Graph");
-        button.addActionListener(e -> {
+        JButton cfgButton = new JButton("CFG Visualizer");
+        cfgButton.setToolTipText("Control-Flow Graph");
+        cfgButton.addActionListener(e -> {
             new Thread(() -> {
                 try
                 {
@@ -149,13 +151,28 @@ class ScriptEditor extends JFrame implements ActionListener {
                 }
             }).start();
         });
+        JButton variableInspectorButton = new JButton("Variables");
+        variableInspectorButton.setToolTipText("Live Variable Inspector");
+        variableInspectorButton.addActionListener(e -> {
+            new Thread(() -> {
+                try
+                {
+                    VariableInspector.getInstance(plugin.getRuntime()).setVisible(true);
+                }
+                catch (Exception ex)
+                {
+                    Logging.errorLog(ex);
+                }
+            }).start();
+        });
         alwaysOnTop.addActionListener(this);
         //Add them
         JMenuBar menu = new JMenuBar();
         menu.add(run);
         menu.add(running);
         menu.add(Box.createHorizontalGlue());
-        menu.add(button);
+        menu.add(cfgButton);
+        menu.add(variableInspectorButton);
         menu.add(alwaysOnTop);
         //Apply the menu
         frame.setJMenuBar(menu);

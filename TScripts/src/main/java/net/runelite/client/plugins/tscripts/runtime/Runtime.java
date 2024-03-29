@@ -10,15 +10,14 @@ import net.runelite.client.plugins.tscripts.lexer.models.Element;
 import net.runelite.client.plugins.tscripts.lexer.variable.VariableAssignment;
 import net.runelite.client.plugins.tscripts.util.Logging;
 import java.util.Arrays;
-import java.util.HashMap;
-import java.util.Map;
 
 /**
  * Responsible for executing scripts.
  */
 public class Runtime
 {
-    private final Map<String, Object> variableMap = new HashMap<>();
+    @Getter
+    private final VariableMap variableMap = new VariableMap();
     @Getter
     private final MethodManager methodManager;
     private boolean _die = false;
@@ -291,12 +290,12 @@ public class Runtime
             String string = (String) object;
             if (string.startsWith("$"))
             {
-                return variableMap.getOrDefault(string, "");
+                return variableMap.get(string);
             }
             else if (string.startsWith("!$"))
             {
                 String varName = string.substring(1);
-                Object value = variableMap.getOrDefault(varName, "");
+                Object value = variableMap.get(varName);
                 return (value instanceof Boolean) ? !((Boolean) value) : value;
             }
             else

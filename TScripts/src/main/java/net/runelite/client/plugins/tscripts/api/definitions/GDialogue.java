@@ -23,7 +23,7 @@ public class GDialogue implements GroupDefinition
     {
         List<MethodDefinition> methods = new ArrayList<>();
         addMethod(methods, "continueDialogue", ImmutableMap.of(),
-                function -> Dialog.continueSpace(),
+                function -> Api.continueDialogue(),
                 "Continues the dialogue by pressing the space bar"
         );
         addMethod(methods, "isDialogueOpen", Type.BOOL, ImmutableMap.of(),
@@ -32,4 +32,6 @@ public class GDialogue implements GroupDefinition
         );
         return methods;
     }
+
+
 }

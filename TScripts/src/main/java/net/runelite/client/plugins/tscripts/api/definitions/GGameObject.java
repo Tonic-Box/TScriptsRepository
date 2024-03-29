@@ -1,17 +1,16 @@
 package net.runelite.client.plugins.tscripts.api.definitions;
 
 import com.google.common.collect.ImmutableMap;
-import net.runelite.api.GameObject;
-import net.runelite.api.InventoryID;
-import net.runelite.api.Item;
-import net.runelite.api.ItemContainer;
+import net.runelite.api.*;
 import net.runelite.api.queries.GameObjectQuery;
+import net.runelite.api.queries.TileObjectQuery;
 import net.runelite.client.plugins.tscripts.api.Api;
 import net.runelite.client.plugins.tscripts.api.MethodManager;
 import net.runelite.client.plugins.tscripts.types.GroupDefinition;
 import net.runelite.client.plugins.tscripts.types.MethodDefinition;
 import net.runelite.client.plugins.tscripts.types.Pair;
 import net.runelite.client.plugins.tscripts.types.Type;
+import net.unethicalite.api.entities.TileObjects;
 import net.unethicalite.client.Static;
 
 import java.util.ArrayList;
@@ -36,23 +35,8 @@ public class GGameObject implements GroupDefinition
                 ),
                 function ->
                 {
-                    GameObject object = null;
-
                     Object identifier = function.getArg(0, manager);
-                    if(identifier instanceof Integer)
-                    {
-                        object = new GameObjectQuery()
-                                .idEquals((int) identifier)
-                                .result(Static.getClient())
-                                .nearestTo(Static.getClient().getLocalPlayer());
-                    }
-                    else if (identifier instanceof String)
-                    {
-                        object = new GameObjectQuery()
-                                .nameEquals((String) identifier)
-                                .result(Static.getClient())
-                                .nearestTo(Static.getClient().getLocalPlayer());
-                    }
+                    TileObject object = Api.getObject(identifier);
 
                     if(object == null)
                         return;
@@ -86,21 +70,7 @@ public class GGameObject implements GroupDefinition
                     if (item == null)
                         return;
 
-                    GameObject object = null;
-                    if(_object instanceof Integer)
-                    {
-                        object = new GameObjectQuery()
-                                .idEquals((int) _object)
-                                .result(Static.getClient())
-                                .nearestTo(Static.getClient().getLocalPlayer());
-                    }
-                    else if (_object instanceof String)
-                    {
-                        object = new GameObjectQuery()
-                                .nameEquals((String) _object)
-                                .result(Static.getClient())
-                                .nearestTo(Static.getClient().getLocalPlayer());
-                    }
+                    TileObject object = Api.getObject(_object);
                     if(object == null)
                         return;
 

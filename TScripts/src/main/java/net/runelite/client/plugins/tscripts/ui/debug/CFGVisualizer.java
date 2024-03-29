@@ -1,4 +1,4 @@
-package net.runelite.client.plugins.tscripts.ui;
+package net.runelite.client.plugins.tscripts.ui.debug;
 
 import com.google.gson.JsonArray;
 import com.google.gson.JsonElement;

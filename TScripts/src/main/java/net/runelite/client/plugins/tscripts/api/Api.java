@@ -7,7 +7,10 @@ import net.runelite.api.widgets.WidgetID;
 import net.runelite.api.widgets.WidgetInfo;
 import net.runelite.client.plugins.tscripts.util.Logging;
 import net.unethicalite.api.entities.NPCs;
+import net.unethicalite.api.entities.TileObjects;
 import net.unethicalite.api.items.Inventory;
+import net.unethicalite.api.magic.Spell;
+import net.unethicalite.api.magic.SpellBook;
 import net.unethicalite.api.widgets.Widgets;
 import net.unethicalite.client.Static;
 import java.util.Arrays;
@@ -84,37 +87,6 @@ public class Api
         }
     }
 
-    public static boolean isDialogueOpen() {
-        if (Widgets.get(WidgetID.DIALOG_NPC_GROUP_ID, 5) != null) {
-            return true;
-        }
-        else if (Static.getClient().getWidget(633, 0) != null) {
-            return true;
-        }
-        else if (Widgets.get(WidgetID.DIALOG_PLAYER_GROUP_ID, 5) != null) {
-            return true;
-        }
-        else if (Static.getClient().getWidget(WidgetInfo.DIALOG_SPRITE) != null) {
-            return true;
-        }
-        else if (Static.getClient().getWidget(WidgetInfo.DIALOG2_SPRITE) != null) {
-            return true;
-        }
-        else if (Static.getClient().getWidget(WidgetInfo.MINIGAME_DIALOG_CONTINUE) != null) {
-            Widget w = Static.getClient().getWidget(WidgetInfo.MINIGAME_DIALOG_CONTINUE);
-            return w != null && w.getText() != null && w.getText().equals("Click here to continue");
-        }
-        else if (Static.getClient().getWidget(WidgetInfo.DIALOG_NOTIFICATION_CONTINUE) != null) {
-            Widget w = Static.getClient().getWidget(WidgetInfo.DIALOG_NOTIFICATION_CONTINUE);
-            return w != null && w.getText() != null && w.getText().equals("Click here to continue");
-        }
-        else if (Static.getClient().getWidget(WidgetInfo.LEVEL_UP_CONTINUE) != null) {
-            Widget w = Static.getClient().getWidget(WidgetInfo.LEVEL_UP_CONTINUE);
-            return w != null && w.getText() != null && w.getText().equals("Click here to continue");
-        }
-        return false;
-    }
-
     public static Item getItem(Object identifier)
     {
         ItemContainer container = Static.getClient().getItemContainer(InventoryID.INVENTORY);
@@ -175,5 +147,141 @@ public class Api
                     .nearestTo(Static.getClient().getLocalPlayer());
         }
         return npc;
+    }
+
+    /**
+     * Generic continue any pause dialogue
+     * @return true if there was a dialogue to continue
+     */
+    public static boolean continueDialogue() {
+        return invoke(() -> {
+            if (Widgets.get(WidgetID.DIALOG_NPC_GROUP_ID, 5) != null) {
+                TPackets.sendResumePauseWidget(WidgetInfo.PACK(WidgetID.DIALOG_NPC_GROUP_ID, 5), -1);
+                return true;
+            }
+            else if (Widgets.get(633, 0) != null) {
+                TPackets.sendResumePauseWidget(WidgetInfo.PACK(633, 0), -1);
+                return true;
+            }
+            else if (Widgets.get(WidgetID.DIALOG_PLAYER_GROUP_ID, 5) != null) {
+                TPackets.sendResumePauseWidget(WidgetInfo.PACK(WidgetID.DIALOG_PLAYER_GROUP_ID, 5), -1);
+                return true;
+            }
+            else if (Widgets.get(WidgetInfo.DIALOG_SPRITE) != null) {
+                TPackets.sendResumePauseWidget(WidgetInfo.DIALOG_SPRITE.getId(), -1);
+                return true;
+            }
+            else if (Widgets.get(WidgetInfo.DIALOG2_SPRITE) != null) {
+                TPackets.sendResumePauseWidget(WidgetInfo.DIALOG2_SPRITE_CONTINUE.getId(), -1);
+                return true;
+            }
+            else if (Widgets.get(WidgetInfo.MINIGAME_DIALOG_CONTINUE) != null) {
+                Widget w = Widgets.get(WidgetInfo.MINIGAME_DIALOG_CONTINUE);
+                if(w != null && w.getText() != null && w.getText().equals("Click here to continue"))
+                {
+                    TPackets.sendResumePauseWidget(WidgetInfo.MINIGAME_DIALOG_CONTINUE.getId(), -1);
+                    return true;
+                }
+            }
+            else if (Widgets.get(WidgetInfo.DIALOG_NOTIFICATION_CONTINUE) != null) {
+                Widget w = Widgets.get(WidgetInfo.DIALOG_NOTIFICATION_CONTINUE);
+                if(w != null && w.getText() != null && w.getText().equals("Click here to continue"))
+                {
+                    TPackets.sendResumePauseWidget(WidgetInfo.DIALOG_NOTIFICATION_CONTINUE.getId(), -1);
+                    return true;
+                }
+            }
+            else if (Widgets.get(WidgetInfo.LEVEL_UP_CONTINUE) != null) {
+                Widget w = Widgets.get(WidgetInfo.LEVEL_UP_CONTINUE);
+                if(w != null && w.getText() != null && w.getText().equals("Click here to continue"))
+                {
+                    TPackets.sendResumePauseWidget(WidgetInfo.LEVEL_UP_CONTINUE.getId(), -1);
+                    return true;
+                }
+            }
+            return false;
+        });
+    }
+
+    public static boolean isDialogueOpen() {
+        if (Widgets.get(WidgetID.DIALOG_NPC_GROUP_ID, 5) != null) {
+            return true;
+        }
+        else if (Widgets.get(633, 0) != null) {
+            return true;
+        }
+        else if (Widgets.get(WidgetID.DIALOG_PLAYER_GROUP_ID, 5) != null) {
+            return true;
+        }
+        else if (Widgets.get(WidgetInfo.DIALOG_SPRITE) != null) {
+            return true;
+        }
+        else if (Widgets.get(WidgetInfo.DIALOG2_SPRITE) != null) {
+            return true;
+        }
+        else if (Widgets.get(WidgetInfo.MINIGAME_DIALOG_CONTINUE) != null) {
+            Widget w = Widgets.get(WidgetInfo.MINIGAME_DIALOG_CONTINUE);
+            return w != null && w.getText() != null && w.getText().equals("Click here to continue");
+        }
+        else if (Widgets.get(WidgetInfo.DIALOG_NOTIFICATION_CONTINUE) != null) {
+            Widget w = Widgets.get(WidgetInfo.DIALOG_NOTIFICATION_CONTINUE);
+            return w != null && w.getText() != null && w.getText().equals("Click here to continue");
+        }
+        else if (Widgets.get(WidgetInfo.LEVEL_UP_CONTINUE) != null) {
+            Widget w = Widgets.get(WidgetInfo.LEVEL_UP_CONTINUE);
+            return w != null && w.getText() != null && w.getText().equals("Click here to continue");
+        }
+        return false;
+    }
+
+    public static Spell getSpell(String spellName) {
+        SpellBook spellbook = SpellBook.getCurrent();
+        if(spellbook == null)
+            return null;
+
+        Spell spell;
+
+        switch(spellbook)
+        {
+            case STANDARD:
+                spell = Api.getSpell(SpellBook.Standard.class, spellName);
+                break;
+            case ANCIENT:
+                spell = Api.getSpell(SpellBook.Ancient.class, spellName);
+                break;
+            case LUNAR:
+                spell = Api.getSpell(SpellBook.Lunar.class, spellName);
+                break;
+            default:
+                return null;
+        }
+        return spell;
+    }
+
+    private static <T extends Enum<T> & Spell> Spell getSpell(Class<T> spellEnum, String spellName) {
+        spellName = spellName.toUpperCase().replace(" ", "_");
+        for (T spell : spellEnum.getEnumConstants()) {
+            if (spell.name().equalsIgnoreCase(spellName)) {
+                return spell;
+            }
+        }
+        return null;
+    }
+
+    public static TileObject getObject(Object identifier)
+    {
+        if(identifier instanceof Integer)
+        {
+            return TileObjects.query()
+                    .filter(o -> o.getId() == (int) identifier)
+                    .results().nearest();
+        }
+        else if (identifier instanceof String)
+        {
+            return TileObjects.query()
+                    .filter(o -> o.getName().equals(identifier))
+                    .results().nearest();
+        }
+        return null;
     }
 }

@@ -115,7 +115,7 @@ public class TScriptsPanel extends PluginPanel
 
             JPanel copyMenuPanel = new JPanel(new FlowLayout(FlowLayout.LEFT,2,0));
             copyMenuPanel.setBackground(ColorScheme.DARK_GRAY_COLOR);
-            JLabel cmtext = new JLabel("Ext Menus");
+            JLabel cmtext = new JLabel("Helper Menus");
             cmtext.setBorder(new EmptyBorder(0, 5, 0, 8));
             copyMenu.setBorder(new EmptyBorder(1, 10, 1, 10));
             copyMenu.setActivated(config.copyMenus());
@@ -128,8 +128,8 @@ public class TScriptsPanel extends PluginPanel
             JPanel southPanel = new JPanel(new BorderLayout());
             southPanel.setBorder(new EmptyBorder(5, 0, 0, 0));
 
-            bottomPanel.add(hotkeyPanel, BorderLayout.WEST);
-            bottomPanel.add(copyMenuPanel, BorderLayout.EAST);
+            bottomPanel.add(hotkeyPanel, BorderLayout.NORTH);
+            bottomPanel.add(copyMenuPanel, BorderLayout.SOUTH);
 
             southPanel.add(bottomPanel, BorderLayout.NORTH);
 
@@ -178,7 +178,6 @@ public class TScriptsPanel extends PluginPanel
                     }
                     else if(!f.exists()) {
                         if(f.mkdir()) {
-                            //plugin.configHandler.addNewScript(name);
                             System.out.println("[TScripts] new profile `" + name + "` created");
                             current_profile = name;
                             plugin.profile = name;

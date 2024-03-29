@@ -3,8 +3,8 @@ package net.runelite.client.plugins.tscripts;
 import com.google.inject.Provides;
 import lombok.Getter;
 import lombok.extern.slf4j.Slf4j;
-import net.runelite.api.Client;
-import net.runelite.api.GameState;
+import net.runelite.api.*;
+import net.runelite.api.events.MenuEntryAdded;
 import net.runelite.api.events.MenuOptionClicked;
 import net.runelite.client.RuneLite;
 import net.runelite.client.callback.ClientThread;
@@ -17,9 +17,11 @@ import net.runelite.client.plugins.PluginDescriptor;
 import net.runelite.client.plugins.tscripts.api.MethodManager;
 import net.runelite.client.plugins.tscripts.runtime.Runtime;
 import net.runelite.client.plugins.tscripts.ui.TScriptsPanel;
+import net.runelite.client.plugins.tscripts.ui.debug.VariableInspector;
 import net.runelite.client.plugins.tscripts.util.CompletionSupplier;
 import net.runelite.client.plugins.tscripts.util.ConfigHandler;
 import net.runelite.client.plugins.tscripts.util.Logging;
+import net.runelite.client.plugins.tscripts.util.TextUtil;
 import net.runelite.client.plugins.tscripts.util.packets.PacketBuffer;
 import net.runelite.client.plugins.tscripts.types.PacketDefinition;
 import net.runelite.client.plugins.tscripts.util.packets.PacketMapReader;
@@ -32,8 +34,6 @@ import net.unethicalite.api.events.PacketSent;
 import net.unethicalite.client.Static;
 import org.fife.ui.autocomplete.CompletionProvider;
 import org.pf4j.Extension;
-import java.awt.*;
-import java.awt.datatransfer.StringSelection;
 import java.awt.image.BufferedImage;
 import java.io.File;
 import java.nio.file.Files;
@@ -353,14 +353,133 @@ public class TScriptsPlugin  extends Plugin {
     }
 
     @Subscribe
+    public void onMenuEntryAdded(MenuEntryAdded entry) {
+        if (config.copyMenus()) //menuAction("Talk-to", "<col=ffff00>Woodsman tutor", 22692, 9, 0, 0);
+        {
+            String color = "<col=00ff00>";
+            int opcode = entry.getType();
+            String name = TextUtil.sanitize(entry.getTarget()).split(" \\(")[0].trim();
+            if(opcode == MenuAction.EXAMINE_NPC.getId())
+            {
+                MenuEntry npcMenu = client.createMenuEntry(1)
+                        .setOption("Dev Helper ")
+                        .setTarget(color + name + " ")
+                        .setType(MenuAction.RUNELITE_SUBMENU);
+
+                client.createMenuEntry(1)
+                        .setOption("Copy name ")
+                        .setTarget(color + name + " ")
+                        .setType(MenuAction.RUNELITE)
+                        .setParent(npcMenu)
+                        .onClick(c -> Logging.copyToClipboard(name));
+
+                NPC npc = client.getCachedNPCs()[entry.getIdentifier()];
+
+                client.createMenuEntry(1)
+                        .setOption("Copy ID ")
+                        .setTarget(color + npc.getId() + " ")
+                        .setType(MenuAction.RUNELITE)
+                        .setParent(npcMenu)
+                        .onClick(c -> Logging.copyToClipboard(npc.getId() + ""));
+            }
+            else if(opcode == MenuAction.EXAMINE_OBJECT.getId())
+            {
+                MenuEntry objectHelper = client.createMenuEntry(1)
+                        .setOption("Dev Helper ")
+                        .setTarget(color + name + " ")
+                        .setType(MenuAction.RUNELITE_SUBMENU);
+
+                client.createMenuEntry(1)
+                        .setOption("Copy name ")
+                        .setTarget(color + name + " ")
+                        .setType(MenuAction.RUNELITE)
+                        .setParent(objectHelper)
+                        .onClick(c -> Logging.copyToClipboard(name));
+
+                client.createMenuEntry(1)
+                        .setOption("Copy ID ")
+                        .setTarget(color + entry.getIdentifier() + " ")
+                        .setType(MenuAction.RUNELITE)
+                        .setParent(objectHelper)
+                        .onClick(c -> Logging.copyToClipboard(entry.getIdentifier() + ""));
+            }
+            else if(opcode == MenuAction.TRADE.getId())
+            {
+                MenuEntry objectHelper = client.createMenuEntry(1)
+                        .setOption("Dev Helper ")
+                        .setTarget("<col=ffff00>" + name + " ")
+                        .setType(MenuAction.RUNELITE_SUBMENU);
+
+                client.createMenuEntry(1)
+                        .setOption("Copy name ")
+                        .setTarget(color + name + " ")
+                        .setType(MenuAction.RUNELITE)
+                        .setParent(objectHelper)
+                        .onClick(c -> Logging.copyToClipboard(name));
+            }
+            else if(entry.getOption().equals("Use")) //items
+            {
+                MenuEntry objectHelper = client.createMenuEntry(1)
+                        .setOption("Dev Helper ")
+                        .setTarget(color + name + " ")
+                        .setType(MenuAction.RUNELITE_SUBMENU);
+
+                client.createMenuEntry(1)
+                        .setOption("Copy name ")
+                        .setTarget(color + name + " ")
+                        .setType(MenuAction.RUNELITE)
+                        .setParent(objectHelper)
+                        .onClick(c -> Logging.copyToClipboard(name));
+
+                client.createMenuEntry(1)
+                        .setOption("Copy ID ")
+                        .setTarget(color + entry.getItemId() + " ")
+                        .setType(MenuAction.RUNELITE)
+                        .setParent(objectHelper)
+                        .onClick(c -> Logging.copyToClipboard(entry.getItemId() + ""));
+            }
+            else if(opcode == MenuAction.EXAMINE_ITEM_GROUND.getId())
+            {
+                MenuEntry objectHelper = client.createMenuEntry(1)
+                        .setOption("Dev Helper ")
+                        .setTarget(color + name + " ")
+                        .setType(MenuAction.RUNELITE_SUBMENU);
+
+                client.createMenuEntry(1)
+                        .setOption("Copy name ")
+                        .setTarget(color + name + " ")
+                        .setType(MenuAction.RUNELITE)
+                        .setParent(objectHelper)
+                        .onClick(c -> Logging.copyToClipboard(name));
+
+                client.createMenuEntry(1)
+                        .setOption("Copy ID ")
+                        .setTarget(color + entry.getItemId() + " ")
+                        .setType(MenuAction.RUNELITE)
+                        .setParent(objectHelper)
+                        .onClick(c -> Logging.copyToClipboard(entry.getItemId() + ""));
+            }
+        }
+    }
+
+    @Subscribe
     private void onMenuOptionClicked(MenuOptionClicked event) {
 
         if(event.getMenuOption().equals("Accept trade") && event.getMenuTarget().startsWith("<col=ffffff>TSCRIPTS_LOGGER:"))
         {
             String out = event.getMenuTarget().substring(28, event.getMenuTarget().length() - 6);
-            StringSelection selection = new StringSelection(out);
-            Toolkit.getDefaultToolkit().getSystemClipboard().setContents(selection, null);
+            Logging.copyToClipboard(out);
             event.consume();
+        }
+        else if(config.melog())
+        {
+            Logging.logToChat("menuAction(\"" +
+                    event.getMenuOption() + "\", \"" +
+                    event.getMenuTarget() + "\", " +
+                    event.getId() + ", " +
+                    event.getMenuAction().getId() + ", " +
+                    event.getParam0() + ", " +
+                    event.getParam1() + ");");
         }
     }
 }

@@ -3,6 +3,9 @@ package net.runelite.client.plugins.tscripts.util;
 import lombok.SneakyThrows;
 import net.runelite.api.ChatMessageType;
 import net.unethicalite.client.Static;
+
+import java.awt.*;
+import java.awt.datatransfer.StringSelection;
 import java.io.FileWriter;
 import java.io.Writer;
 import static net.runelite.client.plugins.tscripts.TScriptsPlugin.*;
@@ -41,5 +44,14 @@ public class Logging {
             }
             catch(Exception ignored) {}
         });
+    }
+
+    /**
+     * Copies a string to the clipboard.
+     * @param out the string to copy
+     */
+    public static void copyToClipboard(String out) {
+        StringSelection selection = new StringSelection(out);
+        Toolkit.getDefaultToolkit().getSystemClipboard().setContents(selection, null);
     }
 }
