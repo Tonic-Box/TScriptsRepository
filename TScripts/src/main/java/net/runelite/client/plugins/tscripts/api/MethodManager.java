@@ -205,6 +205,10 @@ public class MethodManager
         return methodGroups;
     }
 
+    /**
+     * Gets all the event classes
+     * @return the classes
+     */
     public List<Class<?>> getEventClasses()
     {
         if(eventClasses != null)
@@ -240,6 +244,11 @@ public class MethodManager
         return eventClasses;
     }
 
+    /**
+     * Gets an event class by name
+     * @param name the name
+     * @return the class
+     */
     public Class<?> getEventClass(String name)
     {
         name = name.replace("\"", "");

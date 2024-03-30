@@ -69,9 +69,4 @@ public class Scope extends Element
             condition.setCurrent(current);
         }
     }
-
-    public boolean isConditioned()
-    {
-        return condition != null && !condition.getType().equals(ConditionType.REGISTER);
-    }
 }

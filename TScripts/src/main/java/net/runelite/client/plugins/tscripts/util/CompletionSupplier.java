@@ -107,6 +107,12 @@ public class CompletionSupplier
                 docs.append("// ").append(method.getDescription()).append("\n").append(returnType).append(name).append(params).append(");\n");
             }
         }
+        docs.append("\n# ").append("Subscribable Events").append("\n");
+        List<Class<?>> events = manager.getEventClasses();
+        for (Class<?> event : events)
+        {
+            docs.append("* ").append(event.getSimpleName()).append("\n");
+        }
         return docs.toString();
     }
 }

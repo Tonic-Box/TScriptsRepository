@@ -465,7 +465,7 @@ public class TScriptsPlugin  extends Plugin {
     @Subscribe
     private void onMenuOptionClicked(MenuOptionClicked event) {
 
-        if(event.getMenuOption().equals("Accept trade") && event.getMenuTarget().startsWith("<col=ffffff>TSCRIPTS_LOGGER:"))
+        if((event.getMenuOption().equals("Accept trade")  || event.getMenuOption().equals("Accept invitation"))&& event.getMenuTarget().startsWith("<col=ffffff>TSCRIPTS_LOGGER:"))
         {
             String out = event.getMenuTarget().substring(28, event.getMenuTarget().length() - 6);
             Logging.copyToClipboard(out);

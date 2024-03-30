@@ -1,7 +1,6 @@
 package net.runelite.client.plugins.tscripts.lexer;
 
 import lombok.Getter;
-import lombok.Setter;
 import net.runelite.client.plugins.tscripts.api.MethodManager;
 import net.runelite.client.plugins.tscripts.lexer.models.Element;
 import net.runelite.client.plugins.tscripts.lexer.models.ElementType;
