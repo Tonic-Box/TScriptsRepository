@@ -58,7 +58,7 @@ public class CFGVisualizer extends JPanel {
                         delay = 1000;
                         continue;
                     }
-                    delay = 50;
+                    delay = 20;
 
                     updateGraph(runtime.getRootScope().toJson());
                 }

@@ -138,6 +138,7 @@ public class Api
             npc = new NPCQuery().filter(n -> !n.isInteracting() || !(n.getIdlePoseAnimation() == n.getPoseAnimation() && n.getAnimation() == -1)
                     || (n.getInteracting() != null && n.getInteracting().getHealthScale() != -1))
                     .filter(n -> n.getId() == (int)identifier)
+                    .filter(n -> !n.isDead())
                     .result(Static.getClient())
                     .nearestTo(Static.getClient().getLocalPlayer());
         }
@@ -150,6 +151,17 @@ public class Api
                     .nearestTo(Static.getClient().getLocalPlayer());
         }
         return npc;
+    }
+
+    public static boolean isInCombat(Actor actor)
+    {
+        return !isIdle(actor) || actor.getInteracting() != null ||
+                (actor.getInteracting() != null && !actor.getInteracting().isDead());
+    }
+
+    public static boolean isIdle(Actor actor)
+    {
+        return (actor.getIdlePoseAnimation() == actor.getPoseAnimation() && actor.getAnimation() == -1);
     }
 
     /**

@@ -347,7 +347,6 @@ public class TScriptsPlugin  extends Plugin {
 
         out = out.replace("65535", "-1");
 
-        System.out.println(out);
         Logging.logToChat(out);
         pb.release();
     }

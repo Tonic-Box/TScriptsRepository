@@ -1,6 +1,7 @@
 package net.runelite.client.plugins.tscripts.api.definitions;
 
 import com.google.common.collect.ImmutableMap;
+import net.runelite.client.plugins.tscripts.api.Api;
 import net.runelite.client.plugins.tscripts.api.MethodManager;
 import net.runelite.client.plugins.tscripts.types.GroupDefinition;
 import net.runelite.client.plugins.tscripts.types.MethodDefinition;
@@ -28,6 +29,10 @@ public class GLocalPlayer implements GroupDefinition
         addMethod(methods, "getY", Type.INT, ImmutableMap.of(),
                 function -> Static.getClient().getLocalPlayer().getWorldLocation().getY(),
                 "Returns the y coordinate of the local player"
+        );
+        addMethod(methods, "inCombat", Type.BOOL, ImmutableMap.of(),
+                function -> Api.isInCombat(Static.getClient().getLocalPlayer()),
+                "Returns true if the local player is in combat"
         );
         return methods;
     }

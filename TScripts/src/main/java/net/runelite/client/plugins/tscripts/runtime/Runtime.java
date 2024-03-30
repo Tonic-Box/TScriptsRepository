@@ -10,12 +10,10 @@ import net.runelite.client.plugins.tscripts.lexer.Scope.condition.Condition;
 import net.runelite.client.plugins.tscripts.lexer.Scope.condition.ConditionType;
 import net.runelite.client.plugins.tscripts.lexer.models.Element;
 import net.runelite.client.plugins.tscripts.lexer.variable.VariableAssignment;
+import net.runelite.client.plugins.tscripts.ui.debug.RuntimeInspector;
 import net.runelite.client.plugins.tscripts.util.Logging;
 
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.HashMap;
-import java.util.List;
+import java.util.*;
 
 /**
  * Responsible for executing scripts.
@@ -35,6 +33,20 @@ public class Runtime
     private String scriptName = "";
     @Getter
     private Scope rootScope = new Scope(new HashMap<>(), null);
+
+    public Map<String,Object> dumpFlags()
+    {
+        Map<String,Object> flags = new HashMap<>();
+        flags.put("scriptName", scriptName);
+        flags.put("running", !_done);
+        flags.put("subscribers", subscribers.size());
+        flags.put("variables", variableMap.getVariableMap().size());
+        flags.put("done", _done);
+        flags.put("die", _die);
+        flags.put("break", _break);
+        flags.put("continue", _continue);
+        return flags;
+    }
 
     /**
      * Creates a new instance of the Runtime class.
@@ -59,6 +71,7 @@ public class Runtime
         this._continue = false;
         this.scriptName = scriptName;
         variableMap.clear();
+        RuntimeInspector.updateTelemetry();
         new Thread(() -> {
             variableMap.clear();
             try
@@ -72,6 +85,7 @@ public class Runtime
             Api.unregister(subscribers);
             setDone(true);
         }).start();
+        RuntimeInspector.updateTelemetry();
     }
 
     /**
@@ -80,6 +94,7 @@ public class Runtime
      * @param scope The scope.
      */
     private void processScope(Scope scope) {
+        RuntimeInspector.updateTelemetry();
         if (_die) {
             return;
         }
@@ -153,6 +168,7 @@ public class Runtime
                 assignment.setCurrent(false);
                 break;
         }
+        RuntimeInspector.updateTelemetry();
     }
 
     /**
@@ -176,6 +192,7 @@ public class Runtime
                 methodManager.call(processMethodCallArguments(call));
                 break;
         }
+        RuntimeInspector.updateTelemetry();
     }
 
     /**
@@ -199,6 +216,7 @@ public class Runtime
                 decrementVariable(name, value);
                 break;
         }
+        RuntimeInspector.updateTelemetry();
     }
 
     /**
@@ -279,10 +297,12 @@ public class Runtime
         if (_die) return true;
         if (_break) {
             _break = shouldBreak(scope);
+            RuntimeInspector.updateTelemetry();
             return true;
         }
         if (_continue) {
             _continue = shouldContinue(scope);
+            RuntimeInspector.updateTelemetry();
             return !_continue;
         }
         return false;
@@ -304,6 +324,7 @@ public class Runtime
             String prev = variableMap.containsKey(name) ? (String) variableMap.get(name) : "";
             variableMap.put(name, prev + string);
         }
+        RuntimeInspector.updateTelemetry();
     }
 
     /**
@@ -318,6 +339,7 @@ public class Runtime
             int prev = variableMap.containsKey(name) ? (int) variableMap.get(name) : 0;
             variableMap.put(name, prev - integer);
         }
+        RuntimeInspector.updateTelemetry();
     }
 
     /**
@@ -382,6 +404,7 @@ public class Runtime
     {
         _die = true;
         _done = true;
+        RuntimeInspector.updateTelemetry();
     }
 
     /**
@@ -402,5 +425,6 @@ public class Runtime
     public void setDone(boolean done)
     {
         _done = done;
+        RuntimeInspector.updateTelemetry();
     }
 }

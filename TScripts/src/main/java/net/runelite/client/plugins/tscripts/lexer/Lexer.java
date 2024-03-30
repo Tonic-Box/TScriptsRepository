@@ -235,7 +235,6 @@ public class Lexer
                 TokenType btt = tokens.get(pointer + 1).getType();
                 if (!btt.equals(TokenType.VARIABLE_ASSIGNMENT) && !btt.equals(TokenType.VARIABLE_INCREMENT) && !btt.equals(TokenType.VARIABLE_DECREMENT))
                 {
-                    System.out.println(token + " -> " + tokens.get(pointer + 1).toString());
                     throw new UnexpectedException("Lexer::parseScope[VARIABLE] unexpected value, expected VALUE_ASSIGNMENT token [T:" + (pointer + 1) + "] got [" + tokens.get(pointer + 1).getType().name() + "]");
                 }
                 segment.add(token);

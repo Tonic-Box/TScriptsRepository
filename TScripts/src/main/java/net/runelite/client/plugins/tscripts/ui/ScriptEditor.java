@@ -5,7 +5,7 @@ import net.runelite.client.plugins.tscripts.TScriptsPlugin;
 import net.runelite.client.plugins.tscripts.lexer.Lexer;
 import net.runelite.client.plugins.tscripts.lexer.Scope.Scope;
 import net.runelite.client.plugins.tscripts.lexer.Tokenizer;
-import net.runelite.client.plugins.tscripts.ui.debug.DebugToolWindow;
+import net.runelite.client.plugins.tscripts.ui.debug.DebugToolPanel;
 import net.runelite.client.plugins.tscripts.util.Logging;
 import net.runelite.client.util.ImageUtil;
 import org.fife.ui.autocomplete.AutoCompletion;
@@ -43,7 +43,7 @@ class ScriptEditor extends JFrame implements ActionListener {
     private final JLabel running = new JLabel();
     private final TScriptsPanel scriptPanel;
     private final TScriptsPlugin plugin;
-    private DebugToolWindow debugToolWindow = null;
+    private DebugToolPanel debugToolPanel = null;
     private final JSplitPane splitPane; // Add a split pane
     private final JList<String> scriptList;
     private final DefaultListModel<String> scriptListModel = new DefaultListModel<>();
@@ -94,8 +94,8 @@ class ScriptEditor extends JFrame implements ActionListener {
         this.run = generateButton("Run Script");
         generateMenu();
         generateTimer();
-        debugToolWindow = new DebugToolWindow(plugin.getRuntime(), Paths.get(path), name);
-        debugToolWindow.setPreferredSize(new Dimension(600, getHeight())); // Set the preferred width of the debug panel
+        debugToolPanel = new DebugToolPanel(plugin.getRuntime(), Paths.get(path), name);
+        debugToolPanel.setPreferredSize(new Dimension(600, getHeight())); // Set the preferred width of the debug panel
         splitPane = generateSplitPane();
     }
 
@@ -123,7 +123,7 @@ class ScriptEditor extends JFrame implements ActionListener {
         this.name = name;
         setTitle(name);
         String path = plugin.getScriptPath(name, profile);
-        debugToolWindow.update(Paths.get(path), name);
+        debugToolPanel.update(Paths.get(path), name);
         textArea.getDocument().removeDocumentListener(documentListener);
         textArea.setText(Files.readString(Paths.get(path)));
         documentListener = createDocListener(path);
@@ -167,15 +167,15 @@ class ScriptEditor extends JFrame implements ActionListener {
     }
 
     private void toggleDebugPanel() {
-        boolean isVisible = debugToolWindow.isVisible();
+        boolean isVisible = debugToolPanel.isVisible();
         if (isVisible) {
-            debugToolWindow.setVisible(false);
-            setSize(getWidth() - debugToolWindow.getPreferredSize().width, getHeight());
+            debugToolPanel.setVisible(false);
+            setSize(getWidth() - debugToolPanel.getPreferredSize().width, getHeight());
             splitPane.setDividerLocation(getWidth());
         } else {
-            debugToolWindow.setVisible(true);
-            setSize(getWidth() + debugToolWindow.getPreferredSize().width, getHeight());
-            splitPane.setDividerLocation(getWidth() - debugToolWindow.getPreferredSize().width);
+            debugToolPanel.setVisible(true);
+            setSize(getWidth() + debugToolPanel.getPreferredSize().width, getHeight());
+            splitPane.setDividerLocation(getWidth() - debugToolPanel.getPreferredSize().width);
         }
     }
 
@@ -332,11 +332,11 @@ class ScriptEditor extends JFrame implements ActionListener {
         leftPanel.add(sp, BorderLayout.CENTER);
         leftPanel.add(listScrollPane, BorderLayout.WEST);
 
-        JSplitPane splitPane = new JSplitPane(JSplitPane.HORIZONTAL_SPLIT, leftPanel, debugToolWindow);
+        JSplitPane splitPane = new JSplitPane(JSplitPane.HORIZONTAL_SPLIT, leftPanel, debugToolPanel);
         splitPane.setOneTouchExpandable(true);
         splitPane.setDividerLocation(getWidth());
         add(splitPane, BorderLayout.CENTER);
-        debugToolWindow.setVisible(false);
+        debugToolPanel.setVisible(false);
         return splitPane;
     }
 }
