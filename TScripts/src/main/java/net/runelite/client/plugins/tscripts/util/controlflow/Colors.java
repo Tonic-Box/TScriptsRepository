@@ -5,12 +5,14 @@ package net.runelite.client.plugins.tscripts.util.controlflow;
  */
 public class Colors
 {
-    public static String OPERATORS = "#F8F8F2";
-    public static String FUNCTIONS = "#50FA7B";
-    public static String NOTATION = "#6272A4";
-    public static String VARIABLES = "#FFB86C";
-    public static String VALUES = "#8BE9FD";
-    public static String BACKGROUND = "#282A36";
-    public static String KEYWORDS = "#F1FA8C";
-    public static String EDGE_LABEL_COLOR = "#bee3ce";
+    public static final String CURRENT = "#00FFFF";
+    public static final String HIGHLIGHT = "#800080";
+    public static final String OPERATORS = "#F8F8F2";
+    public static final String FUNCTIONS = "#50FA7B";
+    public static final String NOTATION = "#6272A4";
+    public static final String VARIABLES = "#FFB86C";
+    public static final String VALUES = "#8BE9FD";
+    public static final String BACKGROUND = "#282A36";
+    public static final String KEYWORDS = "#F1FA8C";
+    public static final String EDGE_LABEL_COLOR = "#bee3ce";
 }

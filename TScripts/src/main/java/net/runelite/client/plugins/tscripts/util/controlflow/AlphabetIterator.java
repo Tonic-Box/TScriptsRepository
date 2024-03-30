@@ -20,6 +20,12 @@ public class AlphabetIterator
         this.userPrefix = prefix;
     }
 
+    public void reset()
+    {
+        this.currentChar = 'A' - 1;
+        this.prefixChar = '*';
+    }
+
     /**
      * Gets the next letter in the alphabet.
      *

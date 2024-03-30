@@ -1,6 +1,8 @@
 package net.runelite.client.plugins.tscripts.runtime;
 
 import lombok.Getter;
+import net.runelite.client.eventbus.EventBus;
+import net.runelite.client.plugins.tscripts.api.Api;
 import net.runelite.client.plugins.tscripts.api.MethodManager;
 import net.runelite.client.plugins.tscripts.lexer.MethodCall;
 import net.runelite.client.plugins.tscripts.lexer.Scope.Scope;
@@ -9,7 +11,11 @@ import net.runelite.client.plugins.tscripts.lexer.Scope.condition.ConditionType;
 import net.runelite.client.plugins.tscripts.lexer.models.Element;
 import net.runelite.client.plugins.tscripts.lexer.variable.VariableAssignment;
 import net.runelite.client.plugins.tscripts.util.Logging;
+
+import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.HashMap;
+import java.util.List;
 
 /**
  * Responsible for executing scripts.
@@ -18,6 +24,7 @@ public class Runtime
 {
     @Getter
     private final VariableMap variableMap = new VariableMap();
+    private final List<EventBus.Subscriber> subscribers = new ArrayList<>();
     @Getter
     private final MethodManager methodManager;
     private boolean _die = false;
@@ -26,6 +33,8 @@ public class Runtime
     private boolean _done = true;
     @Getter
     private String scriptName = "";
+    @Getter
+    private Scope rootScope = new Scope(new HashMap<>(), null);
 
     /**
      * Creates a new instance of the Runtime class.
@@ -43,6 +52,7 @@ public class Runtime
      */
     public void execute(Scope scope, String scriptName)
     {
+        this.rootScope = scope;
         this._done = false;
         this._die = false;
         this._break = false;
@@ -59,6 +69,7 @@ public class Runtime
             {
                 Logging.errorLog(ex);
             }
+            Api.unregister(subscribers);
             setDone(true);
         }).start();
     }
@@ -73,8 +84,34 @@ public class Runtime
             return;
         }
 
+        scope.setCurrent(true);
         boolean isWhileScope = scope.getCondition() != null && scope.getCondition().getType().equals(ConditionType.WHILE);
+        boolean isRegisterScope = scope.getCondition() != null && scope.getCondition().getType().equals(ConditionType.REGISTER);
         boolean shouldProcess = scope.getCondition() == null || processCondition(scope.getCondition());
+        scope.setCurrent(false);
+
+        if(isRegisterScope)
+        {
+            Class event = methodManager.getEventClass(scope.getCondition().getLeft().toString());
+            if(event != null)
+            {
+                EventBus.Subscriber subscriber = Api.register(event, (Object object) -> {
+                    try
+                    {
+                        Runtime runtime = new Runtime();
+                        Scope eventScope = scope.clone();
+                        eventScope.setCondition(null);
+                        new Thread(() -> runtime.execute(eventScope, "TS_EVENT")).start();
+                    }
+                    catch (Exception ex)
+                    {
+                        Logging.errorLog(ex);
+                    }
+                });
+                subscribers.add(subscriber);
+            }
+            return;
+        }
 
         while (shouldProcess) {
             if (isScriptInterrupted()) return;
@@ -104,10 +141,16 @@ public class Runtime
                 processScope((Scope) element);
                 break;
             case FUNCTION_CALL:
-                processFunctionCall((MethodCall) element, scope);
+                MethodCall methodCall = (MethodCall) element;
+                methodCall.setCurrent(true);
+                processFunctionCall(methodCall, scope);
+                methodCall.setCurrent(false);
                 break;
             case VARIABLE_ASSIGNMENT:
-                processVariableAssignment((VariableAssignment) element);
+                VariableAssignment assignment = (VariableAssignment) element;
+                assignment.setCurrent(true);
+                processVariableAssignment(assignment);
+                assignment.setCurrent(false);
                 break;
         }
     }

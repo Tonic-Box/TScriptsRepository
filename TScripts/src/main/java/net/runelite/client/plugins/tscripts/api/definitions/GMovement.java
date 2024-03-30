@@ -76,7 +76,6 @@ public class GMovement implements GroupDefinition
                     int ry = function.getArg(1, manager);
                     int worldX = current.getX() + rX;
                     int worldY = current.getY() + ry;
-                    System.out.println("Walking to: " + worldX + ", " + worldY);
                     Movement.walkTo(new WorldPoint(worldX, worldY, Static.getClient().getPlane()));
                 }, "Walks to the specified relative coordinates.");
         return methods;

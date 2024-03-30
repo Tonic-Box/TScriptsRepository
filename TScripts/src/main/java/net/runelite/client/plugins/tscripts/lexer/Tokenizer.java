@@ -147,6 +147,7 @@ public class Tokenizer
     private TokenType getTokenType(String tokenValue) {
         if (tokenValue.equals("if")) return TokenType.KEYWORD_IF;
         if (tokenValue.equals("while")) return TokenType.KEYWORD_WHILE;
+        if (tokenValue.equals("register")) return TokenType.KEYWORD_REGISTER;
         if (tokenValue.equals(">")) return TokenType.CONDITION_GT;
         if (tokenValue.equals("<")) return TokenType.CONDITION_LT;
         if (tokenValue.equals(">=")) return TokenType.CONDITION_GTEQ;

@@ -6,5 +6,6 @@ package net.runelite.client.plugins.tscripts.lexer.Scope.condition;
 public enum ConditionType
 {
     WHILE,
-    IF
+    IF,
+    REGISTER
 }

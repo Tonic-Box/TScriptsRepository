@@ -1,6 +1,7 @@
 package net.runelite.client.plugins.tscripts.lexer.Scope.condition;
 
 import lombok.Data;
+import lombok.Setter;
 
 /**
  * Represents a condition in a script
@@ -28,6 +29,7 @@ public class Condition
     private Object left;
     private Object right;
     private Comparator comparator;
+    private boolean current = false;
 
     /**
      * Clones the condition

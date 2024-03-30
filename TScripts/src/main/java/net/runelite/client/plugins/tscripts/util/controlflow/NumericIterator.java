@@ -15,6 +15,11 @@ public class NumericIterator
         this.currentNum = -1;
     }
 
+    public void reset()
+    {
+        this.currentNum = -1;
+    }
+
     /**
      * Gets the next number in the sequence.
      *

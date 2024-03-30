@@ -58,7 +58,6 @@ public class GMisc implements GroupDefinition
                     Static.getClientThread().invoke(() -> {
                         if(Static.getClient().getGameState().equals(GameState.LOGGED_IN) || Static.getClient().getGameState().equals(GameState.LOADING) || Static.getClient().getGameState().equals(GameState.HOPPING))
                             Static.getClient().addChatMessage(ChatMessageType.GAMEMESSAGE, msg, msg, "", true);
-                        System.out.println(msg);
                     });
                 }, "Prints the arguments to the console and chatbox");
 

@@ -22,9 +22,10 @@ public class MethodManager
     private static MethodManager instance;
     private final TScriptsPlugin plugin;
     private List<GroupDefinition> methodGroups = null;
+    private List<Class<?>> eventClasses = null;
     @Getter
     private final HashMap<String, MethodDefinition> methods = new HashMap<>();
-    private final Set<String> blacklist = Set.of("continue", "break", "die", "debug");
+    private final Set<String> blacklist = Set.of("continue", "break", "die", "debug", "register");
 
     /**
      * Constructor
@@ -34,6 +35,7 @@ public class MethodManager
     {
         this.plugin = plugin;
         fillMethods();
+        getEventClasses();
         instance = this;
     }
 
@@ -71,7 +73,7 @@ public class MethodManager
      */
     private void fillMethods()
     {
-        List<GroupDefinition> groups = getClasses("net.runelite.client.plugins.tscripts.api.definitions");
+        List<GroupDefinition> groups = getMethodClasses();
         for (GroupDefinition groupDefinition : groups)
         {
             List<MethodDefinition> methods = groupDefinition.methods(this);
@@ -168,12 +170,12 @@ public class MethodManager
     }
 
     /**
-     * Gets all the classes in a package
-     * @param packageName the package name
+     * Gets all the method classes and converts them to GroupDefinitions
      * @return the classes
      */
-    public List<GroupDefinition> getClasses(String packageName)
+    public List<GroupDefinition> getMethodClasses()
     {
+
         if(methodGroups != null)
         {
             return methodGroups;
@@ -186,7 +188,7 @@ public class MethodManager
         {
             return new ArrayList<>();
         }
-        methodGroups = classPath.getTopLevelClassesRecursive(packageName)
+        methodGroups = classPath.getTopLevelClassesRecursive("net.runelite.client.plugins.tscripts.api.definitions")
                 .stream()
                 .map(ClassPath.ClassInfo::load)
                 .filter(GroupDefinition.class::isAssignableFrom)
@@ -201,5 +203,53 @@ public class MethodManager
                 .collect(Collectors.toList());
 
         return methodGroups;
+    }
+
+    public List<Class<?>> getEventClasses()
+    {
+        if(eventClasses != null)
+        {
+            return eventClasses;
+        }
+        ClassPath classPath;
+        try
+        {
+            classPath = ClassPath.from(getClass().getClassLoader());
+        } catch (IOException e)
+        {
+            return new ArrayList<>();
+        }
+        eventClasses = classPath.getTopLevelClassesRecursive("net.runelite.client.events")
+                .stream()
+                .map(ClassPath.ClassInfo::load)
+                .filter(Objects::nonNull)
+                .collect(Collectors.toList());
+
+        eventClasses.addAll(classPath.getTopLevelClassesRecursive("net.runelite.api.events")
+                .stream()
+                .map(ClassPath.ClassInfo::load)
+                .filter(Objects::nonNull)
+                .collect(Collectors.toList()));
+
+        eventClasses.addAll(classPath.getTopLevelClassesRecursive("net.unethicalite.api.events")
+                .stream()
+                .map(ClassPath.ClassInfo::load)
+                .filter(Objects::nonNull)
+                .collect(Collectors.toList()));
+
+        return eventClasses;
+    }
+
+    public Class<?> getEventClass(String name)
+    {
+        name = name.replace("\"", "");
+        for(Class<?> clazz : getEventClasses())
+        {
+            if(clazz.getSimpleName().equals(name))
+            {
+                return clazz;
+            }
+        }
+        return null;
     }
 }

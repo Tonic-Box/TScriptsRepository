@@ -2,7 +2,9 @@ package net.runelite.client.plugins.tscripts.lexer.Scope;
 
 import com.google.gson.Gson;
 import lombok.Getter;
+import lombok.Setter;
 import net.runelite.client.plugins.tscripts.lexer.Scope.condition.Condition;
+import net.runelite.client.plugins.tscripts.lexer.Scope.condition.ConditionType;
 import net.runelite.client.plugins.tscripts.lexer.models.Element;
 import net.runelite.client.plugins.tscripts.lexer.models.ElementType;
 
@@ -37,6 +39,7 @@ public class Scope extends Element
     }
 
     private final Map<Integer, Element> elements;
+    @Setter
     private Condition condition = null;
 
     /**
@@ -56,5 +59,19 @@ public class Scope extends Element
     {
         Gson gson = new Gson();
         return gson.toJson(this);
+    }
+
+    @Override
+    public void setCurrent(boolean current)
+    {
+        if(condition != null)
+        {
+            condition.setCurrent(current);
+        }
+    }
+
+    public boolean isConditioned()
+    {
+        return condition != null && !condition.getType().equals(ConditionType.REGISTER);
     }
 }

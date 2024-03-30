@@ -210,18 +210,27 @@ public class Lexer
             {
                 segment.add(token);
                 currentType = ElemType.CONDITION;
-            } else if (token.getType().equals(TokenType.KEYWORD_WHILE))
+            }
+            else if (token.getType().equals(TokenType.KEYWORD_WHILE))
             {
                 segment.add(token);
                 currentType = ElemType.CONDITION;
-            } else if (token.getType().equals(TokenType.OPEN_BRACE))
+            }
+            else if (token.getType().equals(TokenType.KEYWORD_REGISTER))
+            {
+                segment.add(token);
+                currentType = ElemType.CONDITION;
+            }
+            else if (token.getType().equals(TokenType.OPEN_BRACE))
             {
                 currentType = ElemType.SCOPE;
-            } else if (token.getType().equals(TokenType.IDENTIFIER))
+            }
+            else if (token.getType().equals(TokenType.IDENTIFIER))
             {
                 segment.add(token);
                 currentType = ElemType.FUNCTION;
-            } else if (token.getType().equals(TokenType.VARIABLE))
+            }
+            else if (token.getType().equals(TokenType.VARIABLE))
             {
                 TokenType btt = tokens.get(pointer + 1).getType();
                 if (!btt.equals(TokenType.VARIABLE_ASSIGNMENT) && !btt.equals(TokenType.VARIABLE_INCREMENT) && !btt.equals(TokenType.VARIABLE_DECREMENT))
@@ -447,8 +456,21 @@ public class Lexer
         Object left = null;
         Object right = null;
         Comparator comparator = null;
-        ConditionType type = tokens.get(0).getType().equals(TokenType.KEYWORD_IF)
-                ? ConditionType.IF : ConditionType.WHILE;
+        ConditionType type;
+        switch (tokens.get(0).getType())
+        {
+            case KEYWORD_IF:
+                type = ConditionType.IF;
+                break;
+            case KEYWORD_WHILE:
+                type = ConditionType.WHILE;
+                break;
+            case KEYWORD_REGISTER:
+                type = ConditionType.REGISTER;
+                break;
+            default:
+                throw new UnexpectedException("Lexer::flushCondition unexpected condition type");
+        }
 
         Token tok;
         List<Token> segment = new ArrayList<>();

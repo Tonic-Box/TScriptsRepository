@@ -55,6 +55,19 @@ public class CompletionSupplier
             }
             completions.add(new BasicCompletion(provider, name, returnType + params));
         }
+
+        completions.add(new BasicCompletion(provider, "while(", "While loop"));
+        completions.add(new BasicCompletion(provider, "if(", "conditional 'if' statement"));
+        completions.add(new BasicCompletion(provider, "continue();", ""));
+        completions.add(new BasicCompletion(provider, "break();", ""));
+        completions.add(new BasicCompletion(provider, "die();", ""));
+        completions.add(new BasicCompletion(provider, "register(", "String event) { ... }"));
+
+        for(Class<?> event : MethodManager.getInstance().getEventClasses())
+        {
+            completions.add(new BasicCompletion(provider, event.getSimpleName(), " [event]"));
+        }
+
         provider.addCompletions(completions);
         return provider;
     }
@@ -68,7 +81,7 @@ public class CompletionSupplier
     {
         StringBuilder docs = new StringBuilder("SCRIPTING DOCS\n* * * * * * * * *\n");
 
-        List<GroupDefinition> groups = manager.getClasses("net.runelite.client.plugins.tscripts.api.definitions");
+        List<GroupDefinition> groups = manager.getMethodClasses();
         for (GroupDefinition groupDefinition : groups)
         {
             List<MethodDefinition> methods = groupDefinition.methods(manager);

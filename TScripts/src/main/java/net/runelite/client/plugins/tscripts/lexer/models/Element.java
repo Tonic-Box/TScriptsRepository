@@ -9,4 +9,5 @@ import lombok.Data;
 public class Element
 {
     private ElementType type;
+    private boolean current = false;
 }

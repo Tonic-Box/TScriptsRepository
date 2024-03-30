@@ -5,6 +5,7 @@ package net.runelite.client.plugins.tscripts.lexer.models;
  */
 public enum TokenType
 {
+    KEYWORD_REGISTER,
     KEYWORD_IF,
     KEYWORD_WHILE,
     IDENTIFIER,

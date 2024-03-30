@@ -12,6 +12,7 @@ import com.mxgraph.util.mxConstants;
 import com.mxgraph.view.mxCellState;
 import com.mxgraph.view.mxGraph;
 import com.mxgraph.view.mxStylesheet;
+import net.runelite.client.plugins.tscripts.runtime.Runtime;
 import net.runelite.client.plugins.tscripts.util.TextUtil;
 import net.runelite.client.plugins.tscripts.util.controlflow.*;
 import javax.swing.*;
@@ -21,36 +22,54 @@ import java.util.Map;
 /**
  * Visualizes the control flow graph of a given Script
  */
-public class CFGVisualizer extends JFrame {
+public class CFGVisualizer extends JPanel {
     private final static JsonParser jsonParser = new JsonParser();
-    private final mxGraph graph;
-    private final Object parent;
-    private final Map<String, Object> nodesMap;
+    private mxGraph graph;
+    private Object parent;
+    private final Map<String, Object> nodesMap = new HashMap<>();
     private final Map<String,String> edgeLabels = new HashMap<>();
     private final AlphabetIterator alphabetIterator = new AlphabetIterator("");
     private final NumericIterator numericIterator = new NumericIterator();
-    private final ScopeStack scopeStack;
+    private final ScopeStack scopeStack = new ScopeStack();
     private int nodeCounter = 0;
     private final Map<Object,String> linkBacks = new HashMap<>();
+    private final Thread scriptMonitor;
+    private String scriptName;
 
-    /**
-     * Creates a new CFGVisualizer
-     * @param jsonStr The JSON string representing the AST of the script
-     */
-    public static void create(String jsonStr) {
-        CFGVisualizer frame = new CFGVisualizer(jsonStr);
-        frame.setSize(800, 600);
-        frame.setAlwaysOnTop(true);
-        frame.setVisible(true);
+    public static CFGVisualizer create(Runtime runtime, String jsonStr, String name) {
+        CFGVisualizer panel = new CFGVisualizer(runtime, jsonStr, name);
+        panel.setVisible(true);
+        return panel;
     }
 
-    /**
-     * Constructs a new CFGVisualizer
-     * @param jsonStr The JSON string representing the AST of the script
-     */
-    private CFGVisualizer(String jsonStr) {
-        super("Control Flow Graph");
+    private CFGVisualizer(Runtime runtime, String jsonStr, String name) {
+        init(jsonStr);
+        this.scriptName = name;
+        scriptMonitor = new Thread(() -> {
+            try {
+                int delay = 1000;
+                while (true) {
+                    try {
+                        Thread.sleep(delay);
+                    } catch (InterruptedException ignored) {
+                    }
+                    if(runtime.isDone() || !runtime.getScriptName().equals(scriptName) || !isVisible())
+                    {
+                        delay = 1000;
+                        continue;
+                    }
+                    delay = 50;
 
+                    updateGraph(runtime.getRootScope().toJson());
+                }
+            } catch (Exception ignored) {
+            }
+        });
+        scriptMonitor.start();
+    }
+
+    private void init(String jsonStr)
+    {
         this.graph = new mxGraph();
         this.graph.setCellsEditable(false);
         this.graph.setAutoOrigin(true);
@@ -59,10 +78,15 @@ public class CFGVisualizer extends JFrame {
         this.graph.setAllowDanglingEdges(true);
         setStyles();
         this.parent = graph.getDefaultParent();
-        this.nodesMap = new HashMap<>();
         graph.getModel().beginUpdate();
         try {
-            scopeStack = new ScopeStack();
+            scopeStack.clean();
+            linkBacks.clear();
+            nodeCounter = 0;
+            edgeLabels.clear();
+            nodesMap.clear();
+            alphabetIterator.reset();
+            numericIterator.reset();
             JsonObject ast = jsonParser.parse(jsonStr).getAsJsonObject();
             processNode(ast, null);
         } finally {
@@ -78,9 +102,27 @@ public class CFGVisualizer extends JFrame {
         applyTreeLayout();
 
         mxGraphComponent graphComponent = new mxGraphComponent(graph);
-        getContentPane().add(graphComponent);
+        add(graphComponent);
         edgeLabels.clear();
         nodesMap.clear();
+    }
+
+    public void updateGraph(String jsonStr) {
+        SwingUtilities.invokeLater(() -> {
+            init(jsonStr);
+
+            // Update the UI
+            removeAll();
+            mxGraphComponent graphComponent = new mxGraphComponent(graph);
+            add(graphComponent);
+            revalidate();
+            repaint();
+        });
+    }
+
+    public void changeScript(String name)
+    {
+        this.scriptName = name;
     }
 
     /**
@@ -171,6 +213,7 @@ public class CFGVisualizer extends JFrame {
         if (node.has("condition"))
         {
             JsonObject condition = node.get("condition").getAsJsonObject();
+            boolean current = condition.get("current").getAsBoolean();
             String type = condition.get("type").getAsString().toLowerCase();
             String left;
             String right = "";
@@ -212,16 +255,16 @@ public class CFGVisualizer extends JFrame {
             }
             try
             {
-                left = colorize(condition.get("left").getAsString(), Colors.VALUES);
+                left = colorize(condition.get("left").getAsString(), current ? Colors.CURRENT : Colors.VALUES);
             } catch (Exception e)
             {
                 JsonObject leftObj = condition.get("left").getAsJsonObject();
                 left = createLabelFromNode(leftObj);
             }
-            label.append(colorize(type, Colors.KEYWORDS)).append(colorize("(", Colors.OPERATORS))
+            label.append(colorize(type, Colors.KEYWORDS)).append(colorize("(", current ? Colors.CURRENT : Colors.OPERATORS))
                     .append(left)
-                    .append(colorize(comparator, Colors.OPERATORS))
-                    .append(right).append(colorize(") {", Colors.OPERATORS));
+                    .append(colorize(comparator, current ? Colors.CURRENT : Colors.OPERATORS))
+                    .append(right).append(colorize(") {", current ? Colors.CURRENT : Colors.OPERATORS));
             close = colorize("\n}", Colors.OPERATORS);
             tab = colorize(". . . ", Colors.BACKGROUND);
         }
@@ -250,6 +293,7 @@ public class CFGVisualizer extends JFrame {
      */
     private String createLabelFromNode(JsonObject node) {
         String nodeType = node.get("type").getAsString();
+        boolean current = node.get("current").getAsBoolean();
         String label = "";
         String flowTo = "";
 
@@ -264,27 +308,27 @@ public class CFGVisualizer extends JFrame {
                 if (obj.has("type") && obj.get("type").getAsString().equals("FUNCTION_CALL")) {
                     valuesStr = createLabelFromNode(obj);
                 } else {
-                    valuesStr = colorize(values.get(0).getAsString(), Colors.VALUES);
+                    valuesStr = colorize(values.get(0).getAsString(), current ? Colors.CURRENT : Colors.VALUES);
                 }
             } else {
-                valuesStr = colorize(values.get(0).getAsString(), Colors.VALUES);
+                valuesStr = colorize(values.get(0).getAsString(), current ? Colors.CURRENT : Colors.VALUES);
             }
 
             String type = node.get("assignmentType").getAsString();
             switch (type) {
                 case "INCREMENT":
-                    valuesStr = colorize(" += ", Colors.OPERATORS) + valuesStr;
+                    valuesStr = colorize(" += ", current ? Colors.CURRENT : Colors.OPERATORS) + valuesStr;
                     break;
                 case "DECREMENT":
-                    valuesStr = colorize(" -= ", Colors.OPERATORS) + valuesStr;
+                    valuesStr = colorize(" -= ", current ? Colors.CURRENT : Colors.OPERATORS) + valuesStr;
                     break;
                 default:
-                    valuesStr = colorize(" = ", Colors.OPERATORS) + valuesStr;
+                    valuesStr = colorize(" = ", current ? Colors.CURRENT : Colors.OPERATORS) + valuesStr;
                     break;
             }
-            label += colorize(varName, Colors.VARIABLES) + valuesStr;
+            label += colorize(varName, current ? Colors.CURRENT : Colors.VARIABLES) + valuesStr;
         } else if (nodeType.equals("FUNCTION_CALL")) {
-            String name = colorize(node.get("name").getAsString(), Colors.FUNCTIONS);
+            String name = colorize(node.get("name").getAsString(), current ? Colors.CURRENT : Colors.FUNCTIONS);
             JsonArray values = node.getAsJsonArray("args");
             StringBuilder valuesStr = new StringBuilder();
             if (values != null) {
@@ -294,24 +338,24 @@ public class CFGVisualizer extends JFrame {
                         if (obj.has("type") && obj.get("type").getAsString().equals("FUNCTION_CALL")) {
                             valuesStr.append(createLabelFromNode(obj)).append(", ");
                         } else {
-                            valuesStr.append(colorize(element.getAsString(), Colors.VALUES)).append(", ");
+                            valuesStr.append(colorize(element.getAsString(), current ? Colors.CURRENT : Colors.VALUES)).append(", ");
                         }
                     } else {
-                        valuesStr.append(colorize(element.getAsString(), Colors.VALUES)).append(", ");
+                        valuesStr.append(colorize(element.getAsString(), current ? Colors.CURRENT : Colors.VALUES)).append(", ");
                     }
                 }
                 if (valuesStr.length() > 0) {
                     valuesStr.setLength(valuesStr.length() - 2); // Remove the last comma and space
                 }
             }
-            label += name + colorize("(", Colors.OPERATORS) + valuesStr + colorize(")", Colors.OPERATORS);
+            label += name + colorize("(", current ? Colors.CURRENT : Colors.OPERATORS) + valuesStr + colorize(")", current ? Colors.CURRENT : Colors.OPERATORS);
 
             if (name.contains(">break<")) {
                 int to = scopeStack._break(linkBacks);
-                flowTo = colorize(" //Flows to block-" + to, Colors.NOTATION);
+                flowTo = colorize(" //Flows to block-" + to, current ? Colors.CURRENT : Colors.NOTATION);
             } else if (name.contains(">continue<")) {
                 int to = scopeStack._continue(linkBacks);
-                flowTo = colorize(" //Flows to block-" + to, Colors.NOTATION);
+                flowTo = colorize(" //Flows to block-" + to, current ? Colors.CURRENT : Colors.NOTATION);
             }
         } else {
             label += " " + nodeType;
@@ -340,7 +384,11 @@ public class CFGVisualizer extends JFrame {
      */
     private static String colorize(String str, String color) {
         str = TextUtil.escapeHtml(str);
-        return "<font color=\"" + color + "\">" + str + "</font>";
+        String style = "color: " + color + ";";
+        if (color.equals(Colors.CURRENT)) {
+            style += " background-color: " + Colors.HIGHLIGHT + ";";
+        }
+        return "<font style=\"" + style + "\">" + str + "</font>";
     }
 
     /**

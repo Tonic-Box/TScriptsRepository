@@ -13,7 +13,7 @@ import java.util.List;
 import java.util.Map;
 import java.util.Vector;
 
-public class VariableInspector extends JFrame {
+public class VariableInspector extends JPanel {
     private static VariableInspector instance;
     private final JTable variableTable;
     private final DefaultTableModel tableModel;
@@ -34,10 +34,6 @@ public class VariableInspector extends JFrame {
     }
 
     private VariableInspector(Runtime runtime) {
-        setTitle("Variable Inspector");
-        setSize(300, 350);
-        setAlwaysOnTop(true);
-
         // Set up the table model
         tableModel = new DefaultTableModel(new Object[]{"Variable", "Value"}, 0) {
             @Override
