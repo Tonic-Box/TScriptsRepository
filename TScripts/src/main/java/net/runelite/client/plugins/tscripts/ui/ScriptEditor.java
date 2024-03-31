@@ -109,6 +109,12 @@ class ScriptEditor extends JFrame implements ActionListener {
         generateAutoCompletion(provider).install(textArea);
         setTheme();
         this.run = generateButton("Run Script");
+        if(plugin.getRuntime().getScriptName().equals(name))
+        {
+            ImageIcon running_icon = new ImageIcon(ImageUtil.loadImageResource(TScriptsPlugin.class, "running.gif"));
+            running.setIcon(running_icon);
+            this.run.setText("Stop Script");
+        }
         this.breakpoint = generateButton("Untrip Breakpoint");
         this.breakpoint.setForeground(Color.RED);
         this.breakpoint.setVisible(false);
