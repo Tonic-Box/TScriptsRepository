@@ -187,10 +187,14 @@ public class Runtime
                 break;
             case "breakpoint":
                 TEventBus.post(BreakpointTripped.get());
-                postFlags();
                 breakpointTripped = true;
+                postFlags();
                 while (breakpointTripped)
                 {
+                    if(isScriptInterrupted())
+                    {
+                        break;
+                    }
                     try
                     {
                         Thread.sleep(100);

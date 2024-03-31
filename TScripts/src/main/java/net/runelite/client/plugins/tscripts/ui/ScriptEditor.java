@@ -200,6 +200,7 @@ class ScriptEditor extends JFrame implements ActionListener {
         {
             running.setIcon(null);
             getContentPane().repaint();
+            breakpoint.setVisible(false);
             this.run.setText("Run Script");
         }
     }
