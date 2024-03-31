@@ -70,9 +70,9 @@ public class Runtime
             {
                 Logging.errorLog(ex);
             }
-            postFlags();
             Api.unregister(subscribers);
             setDone(true);
+            postFlags();
         }).start();
     }
 
