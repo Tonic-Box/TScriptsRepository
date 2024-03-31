@@ -7,6 +7,7 @@ import net.runelite.client.plugins.tscripts.types.GroupDefinition;
 import net.runelite.client.plugins.tscripts.types.MethodDefinition;
 import net.runelite.client.plugins.tscripts.types.Pair;
 import net.runelite.client.plugins.tscripts.types.Type;
+import net.runelite.client.plugins.tscripts.util.Logging;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -38,14 +39,38 @@ public class GDelay implements GroupDefinition
                     {
                         int length = function.getArg(0, manager);
                         Thread.sleep(length);
-                    } catch (InterruptedException e)
+                    } catch (InterruptedException ex)
                     {
-                        //scriptFrame.logError(e.getMessage());
+                        Logging.errorLog(ex);
                     }
                 }, "Pauses script for a # of milliseconds.");
         addMethod(methods, "waitUntilIdle", ImmutableMap.of(),
                 function -> Api.waitUntilIdle(),
                 "Pauses script until the local player is idle."
+        );
+        addMethod(methods, "sleep", ImmutableMap.of(0, Pair.of("length", Type.INT)),
+                function ->
+                {
+                    try
+                    {
+                        int length = function.getArg(0, manager);
+                        Thread.sleep(length);
+                    } catch (InterruptedException ex)
+                    {
+                        Logging.errorLog(ex);
+                    }
+                }, "Pauses script for a # of milliseconds.");
+        addMethod(methods, "waitUntilOnTile", ImmutableMap.of(
+                0, Pair.of("worldX", Type.INT),
+                1, Pair.of("worldY", Type.INT)
+                ),
+                function ->
+                {
+                    int x = function.getArg(0, manager);
+                    int y = function.getArg(1, manager);
+                    Api.waitUntilOnTile(x, y);
+                },
+                "Pauses script until the local player is on a given tile"
         );
         return methods;
     }

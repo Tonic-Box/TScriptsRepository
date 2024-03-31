@@ -2,12 +2,12 @@ package net.runelite.client.plugins.tscripts.runtime;
 
 import lombok.Getter;
 import net.runelite.client.eventbus.EventBus;
+import net.runelite.client.eventbus.Subscribe;
 import net.runelite.client.plugins.tscripts.api.Api;
 import net.runelite.client.plugins.tscripts.api.MethodManager;
 import net.runelite.client.plugins.tscripts.eventbus.TEventBus;
-import net.runelite.client.plugins.tscripts.eventbus.events.CurrentInstructionChanged;
-import net.runelite.client.plugins.tscripts.eventbus.events.FlagChanged;
-import net.runelite.client.plugins.tscripts.eventbus.events.ScriptStateChanged;
+import net.runelite.client.plugins.tscripts.eventbus._Subscribe;
+import net.runelite.client.plugins.tscripts.eventbus.events.*;
 import net.runelite.client.plugins.tscripts.lexer.MethodCall;
 import net.runelite.client.plugins.tscripts.lexer.Scope.Scope;
 import net.runelite.client.plugins.tscripts.lexer.Scope.condition.Condition;
@@ -36,6 +36,7 @@ public class Runtime
     private String scriptName = "";
     @Getter
     private Scope rootScope = new Scope(new HashMap<>(), null);
+    private boolean breakpointTripped = false;
 
     /**
      * Creates a new instance of the Runtime class.
@@ -43,6 +44,7 @@ public class Runtime
     public Runtime()
     {
         this.methodManager = MethodManager.getInstance();
+        TEventBus.register(this);
     }
 
     /**
@@ -59,6 +61,7 @@ public class Runtime
         this._break = false;
         this._continue = false;
         this.scriptName = scriptName;
+        this.breakpointTripped = false;
         variableMap.clear();
         new Thread(() -> {
             variableMap.clear();
@@ -181,6 +184,22 @@ public class Runtime
                 break;
             case "continue":
                 _continue = shouldContinue(scope);
+                break;
+            case "breakpoint":
+                TEventBus.post(BreakpointTripped.get());
+                postFlags();
+                breakpointTripped = true;
+                while (breakpointTripped)
+                {
+                    try
+                    {
+                        Thread.sleep(100);
+                    }
+                    catch (InterruptedException ex)
+                    {
+                        Logging.errorLog(ex);
+                    }
+                }
                 break;
             default:
                 methodManager.call(processMethodCallArguments(call));
@@ -427,11 +446,18 @@ public class Runtime
         flags.put("die", _die);
         flags.put("break", _break);
         flags.put("continue", _continue);
+        flags.put("breakpointTripped", breakpointTripped);
         TEventBus.post(new FlagChanged(flags));
     }
 
     private void postCurrentInstructionChanged()
     {
         TEventBus.post(CurrentInstructionChanged.get());
+    }
+
+    @_Subscribe
+    public void onBreakpointUnTripped(BreakpointUnTripped event)
+    {
+        breakpointTripped = false;
     }
 }

@@ -25,7 +25,7 @@ public class MethodManager
     private List<Class<?>> eventClasses = null;
     @Getter
     private final HashMap<String, MethodDefinition> methods = new HashMap<>();
-    private final Set<String> blacklist = Set.of("continue", "break", "die", "debug", "register");
+    private final Set<String> blacklist = Set.of("continue", "break", "die", "debug", "register", "breakpoint");
 
     /**
      * Constructor

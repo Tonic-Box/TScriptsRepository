@@ -1,17 +1,21 @@
 package net.runelite.client.plugins.tscripts.api;
 
 import net.runelite.api.*;
+import net.runelite.api.coords.WorldPoint;
 import net.runelite.api.queries.NPCQuery;
 import net.runelite.api.widgets.Widget;
 import net.runelite.api.widgets.WidgetID;
 import net.runelite.api.widgets.WidgetInfo;
 import net.runelite.client.eventbus.EventBus;
+import net.runelite.client.plugins.itemstats.stats.Stat;
 import net.runelite.client.plugins.tscripts.util.Logging;
 import net.unethicalite.api.entities.NPCs;
 import net.unethicalite.api.entities.TileObjects;
 import net.unethicalite.api.items.Inventory;
 import net.unethicalite.api.magic.Spell;
 import net.unethicalite.api.magic.SpellBook;
+import net.unethicalite.api.movement.Reachable;
+import net.unethicalite.api.movement.pathfinder.Walker;
 import net.unethicalite.api.widgets.Widgets;
 import net.unethicalite.client.Static;
 import java.util.Arrays;
@@ -139,6 +143,7 @@ public class Api
                     || (n.getInteracting() != null && n.getInteracting().getHealthScale() != -1))
                     .filter(n -> n.getId() == (int)identifier)
                     .filter(n -> !n.isDead())
+                    .filter(n -> isReachable(n.getWorldLocation()))
                     .result(Static.getClient())
                     .nearestTo(Static.getClient().getLocalPlayer());
         }
@@ -148,10 +153,17 @@ public class Api
                             || (n.getInteracting() != null && n.getInteracting().getHealthScale() != -1))
                     .filter(n -> n.getName().equals(identifier))
                     .filter(n -> !n.isDead())
+                    .filter(n -> isReachable(n.getWorldLocation()))
                     .result(Static.getClient())
                     .nearestTo(Static.getClient().getLocalPlayer());
         }
         return npc;
+    }
+
+    public static boolean isReachable(WorldPoint point)
+    {
+        WorldPoint player = Static.getClient().getLocalPlayer().getWorldLocation();
+        return Walker.canPathTo(player, point);
     }
 
     public static boolean isInCombat(Actor actor)
