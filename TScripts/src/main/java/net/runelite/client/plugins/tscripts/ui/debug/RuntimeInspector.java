@@ -1,7 +1,8 @@
 package net.runelite.client.plugins.tscripts.ui.debug;
 
-import net.runelite.client.plugins.tscripts.runtime.Runtime;
-
+import net.runelite.client.plugins.tscripts.eventbus.TEventBus;
+import net.runelite.client.plugins.tscripts.eventbus._Subscribe;
+import net.runelite.client.plugins.tscripts.eventbus.events.RuntimeTelemetry;
 import javax.swing.*;
 import javax.swing.table.DefaultTableModel;
 import java.awt.*;
@@ -11,52 +12,42 @@ import java.util.Vector;
 public class RuntimeInspector extends JPanel
 {
     private static RuntimeInspector instance;
-    private final JTable variableTable;
     private final DefaultTableModel tableModel;
-    private final Runtime runtime;
 
-    public static RuntimeInspector getInstance(Runtime runtime) {
+    public static RuntimeInspector getInstance() {
         if (instance == null)
-            instance = new RuntimeInspector(runtime);
+            instance = new RuntimeInspector();
         return instance;
     }
 
-    private RuntimeInspector(Runtime runtime) {
-        this.runtime = runtime;
+    private RuntimeInspector() {
         tableModel = new DefaultTableModel(new Object[]{"Flag", "Value"}, 0) {
             @Override
             public boolean isCellEditable(int row, int column) {
                 return false;
             }
         };
-        variableTable = new JTable(tableModel);
+        JTable variableTable = new JTable(tableModel);
         variableTable.setFillsViewportHeight(true);
 
         JScrollPane scrollPane = new JScrollPane(variableTable);
         add(scrollPane, BorderLayout.CENTER);
-
-        updateVariables();
+        TEventBus.register(this);
     }
 
-    private void updateVariables() {
+    @_Subscribe
+    public void onRuntimeTelemetry(RuntimeTelemetry event) {
         SwingUtilities.invokeLater(() -> {
             // Clear the existing table rows
             tableModel.setRowCount(0);
 
             // Add new rows for each variable
-            for (Map.Entry<String, Object> entry : runtime.dumpFlags().entrySet()) {
+            for (Map.Entry<String, Object> entry : event.getFlags().entrySet()) {
                 Vector<Object> row = new Vector<>();
                 row.add(entry.getKey());
                 row.add(entry.getValue());
                 tableModel.addRow(row);
             }
         });
-    }
-
-    public static void updateTelemetry()
-    {
-        if(instance == null)
-            return;
-        instance.updateVariables();
     }
 }

@@ -147,6 +147,7 @@ public class Api
             npc = new NPCQuery().filter(n -> !n.isInteracting() || !(n.getIdlePoseAnimation() == n.getPoseAnimation() && n.getAnimation() == -1)
                             || (n.getInteracting() != null && n.getInteracting().getHealthScale() != -1))
                     .filter(n -> n.getName().equals(identifier))
+                    .filter(n -> !n.isDead())
                     .result(Static.getClient())
                     .nearestTo(Static.getClient().getLocalPlayer());
         }

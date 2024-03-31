@@ -12,6 +12,9 @@ import com.mxgraph.util.mxConstants;
 import com.mxgraph.view.mxCellState;
 import com.mxgraph.view.mxGraph;
 import com.mxgraph.view.mxStylesheet;
+import net.runelite.client.plugins.tscripts.eventbus.TEventBus;
+import net.runelite.client.plugins.tscripts.eventbus._Subscribe;
+import net.runelite.client.plugins.tscripts.eventbus.events.RuntimeCurrentInstructionChanged;
 import net.runelite.client.plugins.tscripts.runtime.Runtime;
 import net.runelite.client.plugins.tscripts.util.TextUtil;
 import net.runelite.client.plugins.tscripts.util.controlflow.*;
@@ -33,8 +36,8 @@ public class CFGVisualizer extends JPanel {
     private final ScopeStack scopeStack = new ScopeStack();
     private int nodeCounter = 0;
     private final Map<Object,String> linkBacks = new HashMap<>();
-    private final Thread scriptMonitor;
     private String scriptName;
+    private final Runtime runtime;
 
     public static CFGVisualizer create(Runtime runtime, String jsonStr, String name) {
         CFGVisualizer panel = new CFGVisualizer(runtime, jsonStr, name);
@@ -45,27 +48,17 @@ public class CFGVisualizer extends JPanel {
     private CFGVisualizer(Runtime runtime, String jsonStr, String name) {
         init(jsonStr);
         this.scriptName = name;
-        scriptMonitor = new Thread(() -> {
-            try {
-                int delay = 1000;
-                while (true) {
-                    try {
-                        Thread.sleep(delay);
-                    } catch (InterruptedException ignored) {
-                    }
-                    if(runtime.isDone() || !runtime.getScriptName().equals(scriptName) || !isVisible())
-                    {
-                        delay = 1000;
-                        continue;
-                    }
-                    delay = 20;
+        this.runtime = runtime;
+        TEventBus.register(this);
+    }
 
-                    updateGraph(runtime.getRootScope().toJson());
-                }
-            } catch (Exception ignored) {
-            }
-        });
-        scriptMonitor.start();
+    @_Subscribe
+    public void onRuntimeCycleCompleted(RuntimeCurrentInstructionChanged event) {
+        if (!isVisible() || runtime.isDone() || !runtime.getScriptName().equals(scriptName)) {
+            return;
+        }
+
+        updateGraph(runtime.getRootScope().toJson());
     }
 
     private void init(String jsonStr)

@@ -1,5 +1,9 @@
 package net.runelite.client.plugins.tscripts.ui.debug;
 
+import net.runelite.client.plugins.tscripts.eventbus.TEventBus;
+import net.runelite.client.plugins.tscripts.eventbus._Subscribe;
+import net.runelite.client.plugins.tscripts.eventbus.events.RuntimeVariableUpdated;
+import net.runelite.client.plugins.tscripts.eventbus.events.RuntimeVariablesCleared;
 import net.runelite.client.plugins.tscripts.runtime.Runtime;
 
 import javax.swing.*;
@@ -20,17 +24,12 @@ public class VariableInspector extends JPanel {
     private final Runtime runtime;
     private int selectedRow = -1;
     private final List<Integer> frozenRows = new ArrayList<>();
+    private final Map<String, Object> variableMap;
 
     public static VariableInspector getInstance(Runtime runtime) {
         if (instance == null)
             instance = new VariableInspector(runtime);
         return instance;
-    }
-
-    public static void update(Map<String, Object> variableMap) {
-        if(instance == null)
-            return;
-        instance.updateVariables(variableMap);
     }
 
     private VariableInspector(Runtime runtime) {
@@ -90,17 +89,19 @@ public class VariableInspector extends JPanel {
         });
 
         this.runtime = runtime;
-        updateVariables(runtime.getVariableMap().getVariableMap());
+        this.variableMap = runtime.getVariableMap().getVariableMap();
+        updateVariables();
+        TEventBus.register(this);
     }
 
-    public void updateVariables(Map<String, Object> newVariableMap) {
+    public void updateVariables() {
         SwingUtilities.invokeLater(() -> {
             // Clear the existing table rows
             tableModel.setRowCount(0);
             frozenRows.clear();
 
             // Add new rows for each variable
-            for (Map.Entry<String, Object> entry : newVariableMap.entrySet()) {
+            for (Map.Entry<String, Object> entry : variableMap.entrySet()) {
                 Vector<Object> row = new Vector<>();
                 if (runtime.getVariableMap().isFrozen(entry.getKey()))
                     frozenRows.add(tableModel.getRowCount());
@@ -109,5 +110,17 @@ public class VariableInspector extends JPanel {
                 tableModel.addRow(row);
             }
         });
+    }
+
+    @_Subscribe
+    public void onVariableUpdate(RuntimeVariableUpdated event) {
+        variableMap.put(event.getName(), event.getValue());
+        updateVariables();
+    }
+
+    @_Subscribe
+    public void onVariablesCleared(RuntimeVariablesCleared event) {
+        variableMap.clear();
+        updateVariables();
     }
 }

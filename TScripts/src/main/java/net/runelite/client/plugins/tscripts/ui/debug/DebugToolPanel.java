@@ -48,7 +48,7 @@ public class DebugToolPanel extends JPanel {
         VariableInspector variableInspector = VariableInspector.getInstance(runtime); // Placeholder for the actual variable inspector
         mainView.add(variableInspector, "VariableInspector");
 
-        RuntimeInspector runtimeInspector = RuntimeInspector.getInstance(runtime);
+        RuntimeInspector runtimeInspector = RuntimeInspector.getInstance();
         mainView.add(runtimeInspector, "RuntimeInspector");
 
         toolingList.addListSelectionListener(e -> {
@@ -63,7 +63,6 @@ public class DebugToolPanel extends JPanel {
                     break;
                 case "Runtime":
                     cardLayout.show(mainView, "RuntimeInspector");
-                    RuntimeInspector.updateTelemetry();
                     break;
             }
         });
