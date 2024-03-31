@@ -56,9 +56,8 @@ class ScriptEditor extends JFrame implements ActionListener {
     private final JButton run;
     private final JButton breakpoint;
     private final JLabel running = new JLabel();
-    private final TScriptsPanel scriptPanel;
     private final TScriptsPlugin plugin;
-    private DebugToolPanel debugToolPanel = null;
+    private final DebugToolPanel debugToolPanel;
     private final JSplitPane splitPane; // Add a split pane
     private final JList<String> scriptList;
     private final DefaultListModel<String> scriptListModel = new DefaultListModel<>();
@@ -66,12 +65,12 @@ class ScriptEditor extends JFrame implements ActionListener {
     private String profile = null;
     private DocumentListener documentListener;
     private boolean updatingList = false;
-    private Map<Integer, BreakPoint> breakpoints = new HashMap<>();
+    private final Map<Integer, BreakPoint> breakpoints = new HashMap<>();
     private final JMenuBar menu = new JMenuBar();
 
-    public static ScriptEditor get(TScriptsPlugin plugin, String profile, String name, TScriptsPanel scriptPanel) throws IOException {
+    public static ScriptEditor get(TScriptsPlugin plugin, String profile, String name) throws IOException {
         if (instance == null) {
-            instance = new ScriptEditor(plugin, profile, name, scriptPanel);
+            instance = new ScriptEditor(plugin, profile, name);
         }
         else
         {
@@ -92,13 +91,11 @@ class ScriptEditor extends JFrame implements ActionListener {
      * @param plugin The plugin
      * @param profile The profile
      * @param name The name
-     * @param scriptPanel The script panel
      * @throws IOException If an I/O error occurs
      */
-    private ScriptEditor(TScriptsPlugin plugin, String profile, String name, TScriptsPanel scriptPanel) throws IOException {
+    private ScriptEditor(TScriptsPlugin plugin, String profile, String name) throws IOException {
         super(name);
         generateFrame();
-        this.scriptPanel = scriptPanel;
         this.plugin = plugin;
         this.name = name;
         this.profile = profile;
@@ -109,7 +106,7 @@ class ScriptEditor extends JFrame implements ActionListener {
         generateAutoCompletion(provider).install(textArea);
         setTheme();
         this.run = generateButton("Run Script");
-        if(plugin.getRuntime().getScriptName().equals(name))
+        if(plugin.getRuntime().getScriptName().equals(name) && !plugin.getRuntime().isDone())
         {
             ImageIcon running_icon = new ImageIcon(ImageUtil.loadImageResource(TScriptsPlugin.class, "running.gif"));
             running.setIcon(running_icon);
@@ -149,9 +146,10 @@ class ScriptEditor extends JFrame implements ActionListener {
         this.name = name;
         setTitle(name);
         String path = plugin.getScriptPath(name, profile);
-        debugToolPanel.update(Paths.get(path), name);
+        Path scriptPath = Paths.get(path);
+        debugToolPanel.update(scriptPath, name);
         textArea.getDocument().removeDocumentListener(documentListener);
-        textArea.setText(Files.readString(Paths.get(path)));
+        textArea.setText(Files.readString(scriptPath));
         documentListener = createDocListener(path);
         textArea.getDocument().addDocumentListener(documentListener);
         clearBreakpoints();
@@ -187,34 +185,6 @@ class ScriptEditor extends JFrame implements ActionListener {
         }
         breakpoints.clear();
         textArea.repaint();
-    }
-
-    /**
-     * Check if the script is running
-     */
-    @_Subscribe
-    public void onScriptStateChanged(ScriptStateChanged event)
-    {
-        if(this.name.equals(event.getScriptName()) && event.getRunning())
-        {
-            ImageIcon running_icon = new ImageIcon(ImageUtil.loadImageResource(TScriptsPlugin.class, "running.gif"));
-            running.setIcon(running_icon);
-            getContentPane().repaint();
-            this.run.setText("Stop Script");
-        }
-        else if(this.run.getText().equals("Stop Script"))
-        {
-            running.setIcon(null);
-            getContentPane().repaint();
-            breakpoint.setVisible(false);
-            this.run.setText("Run Script");
-        }
-    }
-
-    @_Subscribe
-    public void onBreakpointTripped(BreakpointTripped event)
-    {
-        breakpoint.setVisible(true);
     }
 
     private void toggleDebugPanel() {
@@ -290,6 +260,31 @@ class ScriptEditor extends JFrame implements ActionListener {
     public void stop()
     {
         plugin.stopScript(name);
+    }
+
+    @_Subscribe
+    public void onScriptStateChanged(ScriptStateChanged event)
+    {
+        if(this.name.equals(event.getScriptName()) && event.getRunning())
+        {
+            ImageIcon running_icon = new ImageIcon(ImageUtil.loadImageResource(TScriptsPlugin.class, "running.gif"));
+            running.setIcon(running_icon);
+            getContentPane().repaint();
+            this.run.setText("Stop Script");
+        }
+        else if(this.run.getText().equals("Stop Script"))
+        {
+            running.setIcon(null);
+            getContentPane().repaint();
+            breakpoint.setVisible(false);
+            this.run.setText("Run Script");
+        }
+    }
+
+    @_Subscribe
+    public void onBreakpointTripped(BreakpointTripped event)
+    {
+        breakpoint.setVisible(true);
     }
 
     //*********** COMPONENT GENERATION ***********//
@@ -416,14 +411,17 @@ class ScriptEditor extends JFrame implements ActionListener {
         JScrollPane listScrollPane = new JScrollPane(scriptList);
         listScrollPane.setPreferredSize(new Dimension(100, getHeight()));
         updateScriptList();
-        scriptList.addListSelectionListener(new ListSelectionListener() {
-            @Override
-            @SneakyThrows
-            public void valueChanged(ListSelectionEvent e) {
+        scriptList.addListSelectionListener(e -> {
+            try
+            {
                 if (!e.getValueIsAdjusting() && !updatingList) {
                     String selectedScript = scriptList.getSelectedValue();
                     changeScript(selectedScript);
                 }
+            }
+            catch (Exception ex)
+            {
+                Logging.errorLog(ex);
             }
         });
 

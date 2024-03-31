@@ -302,7 +302,7 @@ public class ScriptPanel extends JPanel
         this.editLabel.addMouseListener(new MouseAdapter() {
             @SneakyThrows
             public void mousePressed(MouseEvent mouseEvent) {
-                ScriptEditor.get(plugin, profile, getScriptName(), panel);
+                ScriptEditor.get(plugin, profile, getScriptName());
             }
 
             public void mouseEntered(MouseEvent mouseEvent) {
