@@ -3,11 +3,10 @@ package net.runelite.client.plugins.tscripts.eventbus.events;
 import lombok.AllArgsConstructor;
 import lombok.Getter;
 
-import java.util.Map;
-
 @AllArgsConstructor
 @Getter
-public class RuntimeTelemetry
+public class VariableUpdated
 {
-    private final Map<String,Object> flags;
+    private final String name;
+    private final Object value;
 }

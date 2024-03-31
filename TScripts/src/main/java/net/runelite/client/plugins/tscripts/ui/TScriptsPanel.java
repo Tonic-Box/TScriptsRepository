@@ -3,6 +3,9 @@ import lombok.SneakyThrows;
 import static net.runelite.client.plugins.tscripts.TScriptsPlugin.*;
 import net.runelite.client.plugins.tscripts.TScriptsConfig;
 import net.runelite.client.plugins.tscripts.TScriptsPlugin;
+import net.runelite.client.plugins.tscripts.eventbus.TEventBus;
+import net.runelite.client.plugins.tscripts.eventbus._Subscribe;
+import net.runelite.client.plugins.tscripts.eventbus.events.ScriptStateChanged;
 import net.runelite.client.plugins.tscripts.util.CompletionSupplier;
 import net.runelite.client.plugins.tscripts.util.ConfigHandler;
 import net.runelite.client.plugins.tscripts.util.Logging;
@@ -21,7 +24,6 @@ import java.awt.image.BufferedImage;
 import java.io.*;
 import java.util.ArrayList;
 import java.util.List;
-import java.util.TimerTask;
 
 /**
  * The TScriptsPanel class contains the UI for the TScripts plugin side panel.
@@ -40,7 +42,6 @@ public class TScriptsPanel extends PluginPanel
     private final Border blackline = BorderFactory.createLineBorder(Color.black);
     public String editName = "";
     public String current_profile = "[Default]";
-    private java.util.Timer timer = null;
 
     /**
      * Initializes the TScriptsPanel
@@ -109,6 +110,10 @@ public class TScriptsPanel extends PluginPanel
             JLabel hktext = new JLabel("Hotkeys");
             hktext.setBorder(new EmptyBorder(0, 5, 0, 8));
             hotkeys.setBorder(new EmptyBorder(1, 10, 1, 10));
+            hotkeys.addActionListener(e -> {
+                config.setkeybindsEnabled(hotkeys.isActivated());
+                plugin.setListenersToggle(hotkeys.isActivated());
+            });
             hotkeys.setActivated(config.keybindsEnabled());
             hotkeyPanel.add(hotkeys);
             hotkeyPanel.add(hktext);
@@ -119,6 +124,7 @@ public class TScriptsPanel extends PluginPanel
             cmtext.setBorder(new EmptyBorder(0, 5, 0, 8));
             copyMenu.setBorder(new EmptyBorder(1, 10, 1, 10));
             copyMenu.setActivated(config.copyMenus());
+            copyMenu.addActionListener(e -> config.setCopyMenus(copyMenu.isActivated()));
             copyMenuPanel.add(copyMenu);
             copyMenuPanel.add(cmtext);
 
@@ -344,6 +350,7 @@ public class TScriptsPanel extends PluginPanel
             add(titlePanel, BorderLayout.NORTH);
             add(scriptsView, BorderLayout.CENTER);
             add(docs, BorderLayout.SOUTH);
+            TEventBus.register(this);
         }
 
         catch(Exception ex) {
@@ -351,28 +358,6 @@ public class TScriptsPanel extends PluginPanel
         }
 
         plugin.setListenersToggle(config.keybindsEnabled());
-
-        if(this.timer == null)
-        {
-            timer = new java.util.Timer();
-            timer.schedule(new TimerTask() {
-                @Override
-                public void run() {
-                    checkToggle();
-                    updatePanels();
-                }
-            }, 0, 600);
-        }
-    }
-
-    /**
-     * Polls the script panels to see if they are running and update their ui accordingly
-     */
-    private void updatePanels()
-    {
-        for (ScriptPanel scriptPanel : this.scriptPanels) {
-            scriptPanel.checkIfRunning();
-        }
     }
 
     /**
@@ -433,5 +418,13 @@ public class TScriptsPanel extends PluginPanel
             }
         }
         directoryToBeDeleted.delete();
+    }
+
+    @_Subscribe
+    public void onScriptStateChanged(ScriptStateChanged event)
+    {
+        for (ScriptPanel scriptPanel : this.scriptPanels) {
+            scriptPanel.checkIfRunning(event);
+        }
     }
 }

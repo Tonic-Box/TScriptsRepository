@@ -5,9 +5,12 @@ import net.runelite.client.ui.ColorScheme;
 
 import javax.swing.*;
 import java.awt.*;
+import java.awt.event.ActionListener;
 import java.awt.event.MouseAdapter;
 import java.awt.event.MouseEvent;
 import java.awt.image.BufferedImage;
+import java.util.ArrayList;
+import java.util.List;
 
 /**
  * A simple toggle switch component
@@ -21,6 +24,7 @@ public class ToggleSwitch extends JPanel {
     private final Color activeSwitch = ColorScheme.MEDIUM_GRAY_COLOR;//new Color(0, 125, 255);
     private BufferedImage puffer;
     private Graphics2D g;
+    private final List<ActionListener> actionListeners = new ArrayList<>();
 
     /**
      * Creates a new toggle switch
@@ -33,10 +37,18 @@ public class ToggleSwitch extends JPanel {
             public void mouseReleased(MouseEvent arg0) {
                 activated = !activated;
                 repaint();
+                // Notify all registered ActionListeners
+                for (ActionListener listener : actionListeners) {
+                    listener.actionPerformed(null);
+                }
             }
         });
         setCursor(new Cursor(Cursor.HAND_CURSOR));
         setBounds(0, 0, 41, 21);
+    }
+
+    public void addActionListener(ActionListener listener) {
+        actionListeners.add(listener);
     }
 
     @Override

@@ -2,8 +2,8 @@ package net.runelite.client.plugins.tscripts.ui.debug;
 
 import net.runelite.client.plugins.tscripts.eventbus.TEventBus;
 import net.runelite.client.plugins.tscripts.eventbus._Subscribe;
-import net.runelite.client.plugins.tscripts.eventbus.events.RuntimeVariableUpdated;
-import net.runelite.client.plugins.tscripts.eventbus.events.RuntimeVariablesCleared;
+import net.runelite.client.plugins.tscripts.eventbus.events.VariableUpdated;
+import net.runelite.client.plugins.tscripts.eventbus.events.VariablesCleared;
 import net.runelite.client.plugins.tscripts.runtime.Runtime;
 
 import javax.swing.*;
@@ -113,13 +113,13 @@ public class VariableInspector extends JPanel {
     }
 
     @_Subscribe
-    public void onVariableUpdate(RuntimeVariableUpdated event) {
+    public void onVariableUpdate(VariableUpdated event) {
         variableMap.put(event.getName(), event.getValue());
         updateVariables();
     }
 
     @_Subscribe
-    public void onVariablesCleared(RuntimeVariablesCleared event) {
+    public void onVariablesCleared(VariablesCleared event) {
         variableMap.clear();
         updateVariables();
     }

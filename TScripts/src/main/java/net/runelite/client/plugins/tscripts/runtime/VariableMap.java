@@ -2,9 +2,8 @@ package net.runelite.client.plugins.tscripts.runtime;
 
 import lombok.Getter;
 import net.runelite.client.plugins.tscripts.eventbus.TEventBus;
-import net.runelite.client.plugins.tscripts.eventbus.events.RuntimeVariableUpdated;
-import net.runelite.client.plugins.tscripts.eventbus.events.RuntimeVariablesCleared;
-import net.runelite.client.plugins.tscripts.ui.debug.VariableInspector;
+import net.runelite.client.plugins.tscripts.eventbus.events.VariableUpdated;
+import net.runelite.client.plugins.tscripts.eventbus.events.VariablesCleared;
 
 import java.util.ArrayList;
 import java.util.HashMap;
@@ -38,12 +37,12 @@ public class VariableMap
     {
         variableMap.clear();
         frozenVariables.clear();
-        TEventBus.post(RuntimeVariablesCleared.get());
+        TEventBus.post(VariablesCleared.get());
     }
 
     private void pollVariableInspector(String key, Object value)
     {
-        TEventBus.post(new RuntimeVariableUpdated(key, value));
+        TEventBus.post(new VariableUpdated(key, value));
     }
 
     public boolean isFrozen(String key)

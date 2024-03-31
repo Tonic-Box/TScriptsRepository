@@ -5,8 +5,8 @@ import lombok.Getter;
 
 @AllArgsConstructor
 @Getter
-public class RuntimeVariableUpdated
+public class ScriptStateChanged
 {
-    private final String name;
-    private final Object value;
+    private final String scriptName;
+    private final Boolean running;
 }

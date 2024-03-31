@@ -5,8 +5,9 @@ import net.runelite.client.eventbus.EventBus;
 import net.runelite.client.plugins.tscripts.api.Api;
 import net.runelite.client.plugins.tscripts.api.MethodManager;
 import net.runelite.client.plugins.tscripts.eventbus.TEventBus;
-import net.runelite.client.plugins.tscripts.eventbus.events.RuntimeCurrentInstructionChanged;
-import net.runelite.client.plugins.tscripts.eventbus.events.RuntimeTelemetry;
+import net.runelite.client.plugins.tscripts.eventbus.events.CurrentInstructionChanged;
+import net.runelite.client.plugins.tscripts.eventbus.events.FlagChanged;
+import net.runelite.client.plugins.tscripts.eventbus.events.ScriptStateChanged;
 import net.runelite.client.plugins.tscripts.lexer.MethodCall;
 import net.runelite.client.plugins.tscripts.lexer.Scope.Scope;
 import net.runelite.client.plugins.tscripts.lexer.Scope.condition.Condition;
@@ -64,7 +65,9 @@ public class Runtime
             postFlags();
             try
             {
+                TEventBus.post(new ScriptStateChanged(scriptName, true));
                 processScope(scope);
+                TEventBus.post(new ScriptStateChanged(scriptName, false));
             }
             catch (Exception ex)
             {
@@ -424,11 +427,11 @@ public class Runtime
         flags.put("die", _die);
         flags.put("break", _break);
         flags.put("continue", _continue);
-        TEventBus.post(new RuntimeTelemetry(flags));
+        TEventBus.post(new FlagChanged(flags));
     }
 
     private void postCurrentInstructionChanged()
     {
-        TEventBus.post(RuntimeCurrentInstructionChanged.get());
+        TEventBus.post(CurrentInstructionChanged.get());
     }
 }

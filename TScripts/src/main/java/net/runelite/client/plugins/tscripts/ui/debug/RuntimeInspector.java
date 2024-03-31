@@ -2,7 +2,7 @@ package net.runelite.client.plugins.tscripts.ui.debug;
 
 import net.runelite.client.plugins.tscripts.eventbus.TEventBus;
 import net.runelite.client.plugins.tscripts.eventbus._Subscribe;
-import net.runelite.client.plugins.tscripts.eventbus.events.RuntimeTelemetry;
+import net.runelite.client.plugins.tscripts.eventbus.events.FlagChanged;
 import javax.swing.*;
 import javax.swing.table.DefaultTableModel;
 import java.awt.*;
@@ -36,7 +36,7 @@ public class RuntimeInspector extends JPanel
     }
 
     @_Subscribe
-    public void onRuntimeTelemetry(RuntimeTelemetry event) {
+    public void onRuntimeTelemetry(FlagChanged event) {
         SwingUtilities.invokeLater(() -> {
             // Clear the existing table rows
             tableModel.setRowCount(0);

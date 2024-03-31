@@ -2,6 +2,9 @@ package net.runelite.client.plugins.tscripts.ui;
 
 import lombok.SneakyThrows;
 import net.runelite.client.plugins.tscripts.TScriptsPlugin;
+import net.runelite.client.plugins.tscripts.eventbus.TEventBus;
+import net.runelite.client.plugins.tscripts.eventbus._Subscribe;
+import net.runelite.client.plugins.tscripts.eventbus.events.ScriptStateChanged;
 import net.runelite.client.plugins.tscripts.lexer.Lexer;
 import net.runelite.client.plugins.tscripts.lexer.Scope.Scope;
 import net.runelite.client.plugins.tscripts.lexer.Tokenizer;
@@ -31,7 +34,6 @@ import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.util.Objects;
-import java.util.TimerTask;
 
 /**
  * Script Editor
@@ -93,10 +95,10 @@ class ScriptEditor extends JFrame implements ActionListener {
         setTheme();
         this.run = generateButton("Run Script");
         generateMenu();
-        generateTimer();
         debugToolPanel = new DebugToolPanel(plugin.getRuntime(), Paths.get(path), name);
         debugToolPanel.setPreferredSize(new Dimension(600, getHeight())); // Set the preferred width of the debug panel
         splitPane = generateSplitPane();
+        TEventBus.register(this);
     }
 
     private void updateScriptList() {
@@ -150,15 +152,17 @@ class ScriptEditor extends JFrame implements ActionListener {
     /**
      * Check if the script is running
      */
-    public void isRunning() {
-        if(plugin.amIRunning(this.name) && this.run.getText().equals("Run Script"))
+    @_Subscribe
+    public void onScriptStateChanged(ScriptStateChanged event)
+    {
+        if(this.name.equals(event.getScriptName()) && event.getRunning())
         {
             ImageIcon running_icon = new ImageIcon(ImageUtil.loadImageResource(TScriptsPlugin.class, "running.gif"));
             running.setIcon(running_icon);
             getContentPane().repaint();
             this.run.setText("Stop Script");
         }
-        else if(!plugin.amIRunning(this.name) && this.run.getText().equals("Stop Script"))
+        else if(this.run.getText().equals("Stop Script"))
         {
             running.setIcon(null);
             getContentPane().repaint();
@@ -279,17 +283,6 @@ class ScriptEditor extends JFrame implements ActionListener {
         ac.setAutoCompleteSingleChoices(false);
         ac.setAutoCompleteEnabled(true);
         return ac;
-    }
-
-    private void generateTimer()
-    {
-        java.util.Timer timer = new java.util.Timer();
-        timer.schedule(new TimerTask() {
-            @Override
-            public void run() {
-                isRunning();
-            }
-        }, 0, 600);
     }
 
     private void generateMenu()

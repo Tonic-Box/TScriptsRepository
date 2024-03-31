@@ -14,7 +14,7 @@ import com.mxgraph.view.mxGraph;
 import com.mxgraph.view.mxStylesheet;
 import net.runelite.client.plugins.tscripts.eventbus.TEventBus;
 import net.runelite.client.plugins.tscripts.eventbus._Subscribe;
-import net.runelite.client.plugins.tscripts.eventbus.events.RuntimeCurrentInstructionChanged;
+import net.runelite.client.plugins.tscripts.eventbus.events.CurrentInstructionChanged;
 import net.runelite.client.plugins.tscripts.runtime.Runtime;
 import net.runelite.client.plugins.tscripts.util.TextUtil;
 import net.runelite.client.plugins.tscripts.util.controlflow.*;
@@ -53,7 +53,7 @@ public class CFGVisualizer extends JPanel {
     }
 
     @_Subscribe
-    public void onRuntimeCycleCompleted(RuntimeCurrentInstructionChanged event) {
+    public void onRuntimeCycleCompleted(CurrentInstructionChanged event) {
         if (!isVisible() || runtime.isDone() || !runtime.getScriptName().equals(scriptName)) {
             return;
         }

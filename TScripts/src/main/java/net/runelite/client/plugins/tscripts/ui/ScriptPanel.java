@@ -5,6 +5,7 @@ import lombok.SneakyThrows;
 import net.runelite.client.config.Keybind;
 import net.runelite.client.plugins.tscripts.TScriptsConfig;
 import net.runelite.client.plugins.tscripts.TScriptsPlugin;
+import net.runelite.client.plugins.tscripts.eventbus.events.ScriptStateChanged;
 import net.runelite.client.plugins.tscripts.lexer.Lexer;
 import net.runelite.client.plugins.tscripts.lexer.Scope.Scope;
 import net.runelite.client.plugins.tscripts.lexer.Tokenizer;
@@ -12,7 +13,6 @@ import net.runelite.client.plugins.tscripts.util.Logging;
 import net.runelite.client.ui.ColorScheme;
 import net.runelite.client.ui.FontManager;
 import net.runelite.client.ui.components.FlatTextField;
-
 import javax.swing.*;
 import javax.swing.border.Border;
 import javax.swing.border.CompoundBorder;
@@ -84,7 +84,6 @@ public class ScriptPanel extends JPanel
     JPanel bottomContainer;
 
     private String profile;
-    public boolean running = false;
 
     private final Border blackline = BorderFactory.createLineBorder(Color.black);
 
@@ -325,7 +324,7 @@ public class ScriptPanel extends JPanel
                         myObj.delete();
                     }
                     catch (Exception ignored) {}
-                    myObj = new File(plugin.HOME_DIR + "config\\" + getScriptName() + ".cfg");
+                    myObj = new File(TScriptsPlugin.HOME_DIR + "config\\" + getScriptName() + ".cfg");
                     try {
                         myObj.delete();
                     }
@@ -415,20 +414,15 @@ public class ScriptPanel extends JPanel
     /**
      * Checks if the script is running and updates the ui accordingly
      */
-    public void checkIfRunning() {
-        if(plugin.amIRunning(getScriptName())) {
-            if(!running) {
-                running = true;
-                runLabel.setEnabled(false);
-                stopLabel.setEnabled(true);
-            }
+    public void checkIfRunning(ScriptStateChanged event) {
+        if(this.getScriptName().equals(event.getScriptName()) && event.getRunning()) {
+            runLabel.setEnabled(false);
+            stopLabel.setEnabled(true);
         }
-        else {
-            if(running) {
-                running = false;
-                runLabel.setEnabled(true);
-                stopLabel.setEnabled(false);
-            }
+        else if(stopLabel.isEnabled())
+        {
+            runLabel.setEnabled(true);
+            stopLabel.setEnabled(false);
         }
     }
 
@@ -493,21 +487,12 @@ public class ScriptPanel extends JPanel
     }
 
     /**
-     * Gets the script panel
-     * @return the script panel
-     */
-    private ScriptPanel getSelf() {
-        return this;
-    }
-
-    /**
      * Stops the script
      */
     public void stop()
     {
-        running = false;
-        runLabel.setEnabled(true);
-        stopLabel.setEnabled(false);
+        //runLabel.setEnabled(true);
+        //stopLabel.setEnabled(false);
         plugin.stopScript(getScriptName());
     }
 
@@ -519,9 +504,8 @@ public class ScriptPanel extends JPanel
         try {
             if(!plugin.canIRun())
                 return;
-            running = true;
-            runLabel.setEnabled(false);
-            stopLabel.setEnabled(true);
+            //runLabel.setEnabled(false);
+            //stopLabel.setEnabled(true);
             String path = profile + getScriptName() + ".script";
             String code = Files.readString(Paths.get(path));
             var tokens = Tokenizer.parse(code);
