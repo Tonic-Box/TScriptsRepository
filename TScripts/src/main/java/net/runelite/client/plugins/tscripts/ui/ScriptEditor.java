@@ -148,6 +148,7 @@ class ScriptEditor extends JFrame implements ActionListener {
         textArea.setText(Files.readString(Paths.get(path)));
         documentListener = createDocListener(path);
         textArea.getDocument().addDocumentListener(documentListener);
+        clearBreakpoints();
         updateScriptList();
     }
 
