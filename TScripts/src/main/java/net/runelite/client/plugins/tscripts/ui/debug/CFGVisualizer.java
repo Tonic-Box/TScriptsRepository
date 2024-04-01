@@ -19,6 +19,7 @@ import net.runelite.client.plugins.tscripts.runtime.Runtime;
 import net.runelite.client.plugins.tscripts.util.TextUtil;
 import net.runelite.client.plugins.tscripts.util.controlflow.*;
 import javax.swing.*;
+import java.awt.*;
 import java.util.HashMap;
 import java.util.Map;
 
@@ -38,6 +39,7 @@ public class CFGVisualizer extends JPanel {
     private final Map<Object,String> linkBacks = new HashMap<>();
     private String scriptName;
     private final Runtime runtime;
+    private boolean isCurrent = false;
 
     public static CFGVisualizer create(Runtime runtime, String jsonStr, String name) {
         CFGVisualizer panel = new CFGVisualizer(runtime, jsonStr, name);
@@ -162,7 +164,13 @@ public class CFGVisualizer extends JPanel {
         {
             edgeLabel = edgeLabels.get(nodeHash);
         }
-        Object graphNode = graph.insertVertex(parent, null, label, 0, 0, 80, 30,"fillColor=" + Colors.BACKGROUND + ";fontSize=12;");
+        String color = Colors.BACKGROUND;
+        if(isCurrent)
+        {
+            color = Colors.BACKGROUND_CURRENT;
+            label = label.replace(Colors.BACKGROUND, Colors.BACKGROUND_CURRENT);
+        }
+        Object graphNode = graph.insertVertex(parent, null, label, 0, 0, 80, 30,"fillColor=" + color + ";fontSize=12;");
         graph.updateCellSize(graphNode); // Resize node to fit content
         nodesMap.put(label, graphNode);
 
@@ -198,6 +206,7 @@ public class CFGVisualizer extends JPanel {
      */
     private String createLabelFromScope(JsonObject node)
     {
+        this.isCurrent = false;
         String counter = colorize("[" + nodeCounter++ + "]", Colors.BACKGROUND);
         StringBuilder label = new StringBuilder();
         String tab = "";
@@ -240,9 +249,6 @@ public class CFGVisualizer extends JPanel {
                         break;
                     case "NEQ":
                         comparator = " != ";
-                        break;
-                    default:
-                        // comparator remains unchanged
                         break;
                 }
             }
@@ -333,34 +339,41 @@ public class CFGVisualizer extends JPanel {
             }
             label += colorize(varName, current ? Colors.CURRENT : Colors.VARIABLES) + valuesStr;
         } else if (nodeType.equals("FUNCTION_CALL")) {
-            String name = colorize(node.get("name").getAsString(), current ? Colors.CURRENT : Colors.FUNCTIONS);
-            JsonArray values = node.getAsJsonArray("args");
-            StringBuilder valuesStr = new StringBuilder();
-            if (values != null) {
-                for (JsonElement element : values) {
-                    if (element.isJsonObject()) {
-                        JsonObject obj = element.getAsJsonObject();
-                        if (obj.has("type") && obj.get("type").getAsString().equals("FUNCTION_CALL")) {
-                            valuesStr.append(createLabelFromNode(obj)).append(", ");
+            if(node.get("name").getAsString().equals("breakpoint"))
+            {
+                label += colorize("BREAKPOINT", current ? Colors.CURRENT : "#FF0000");
+            }
+            else
+            {
+                String name = colorize(node.get("name").getAsString(), current ? Colors.CURRENT : Colors.FUNCTIONS);
+                JsonArray values = node.getAsJsonArray("args");
+                StringBuilder valuesStr = new StringBuilder();
+                if (values != null) {
+                    for (JsonElement element : values) {
+                        if (element.isJsonObject()) {
+                            JsonObject obj = element.getAsJsonObject();
+                            if (obj.has("type") && obj.get("type").getAsString().equals("FUNCTION_CALL")) {
+                                valuesStr.append(createLabelFromNode(obj)).append(", ");
+                            } else {
+                                valuesStr.append(colorize(element.getAsString(), current ? Colors.CURRENT : Colors.VALUES)).append(", ");
+                            }
                         } else {
                             valuesStr.append(colorize(element.getAsString(), current ? Colors.CURRENT : Colors.VALUES)).append(", ");
                         }
-                    } else {
-                        valuesStr.append(colorize(element.getAsString(), current ? Colors.CURRENT : Colors.VALUES)).append(", ");
+                    }
+                    if (valuesStr.length() > 0) {
+                        valuesStr.setLength(valuesStr.length() - 2); // Remove the last comma and space
                     }
                 }
-                if (valuesStr.length() > 0) {
-                    valuesStr.setLength(valuesStr.length() - 2); // Remove the last comma and space
-                }
-            }
-            label += name + colorize("(", current ? Colors.CURRENT : Colors.OPERATORS) + valuesStr + colorize(")", current ? Colors.CURRENT : Colors.OPERATORS);
+                label += name + colorize("(", current ? Colors.CURRENT : Colors.OPERATORS) + valuesStr + colorize(")", current ? Colors.CURRENT : Colors.OPERATORS);
 
-            if (name.contains(">break<")) {
-                int to = scopeStack._break(linkBacks);
-                flowTo = colorize(" //Flows to block-" + to, current ? Colors.CURRENT : Colors.NOTATION);
-            } else if (name.contains(">continue<")) {
-                int to = scopeStack._continue(linkBacks);
-                flowTo = colorize(" //Flows to block-" + to, current ? Colors.CURRENT : Colors.NOTATION);
+                if (name.contains(">break<")) {
+                    int to = scopeStack._break(linkBacks);
+                    flowTo = colorize(" //Flows to block-" + to, current ? Colors.CURRENT : Colors.NOTATION);
+                } else if (name.contains(">continue<")) {
+                    int to = scopeStack._continue(linkBacks);
+                    flowTo = colorize(" //Flows to block-" + to, current ? Colors.CURRENT : Colors.NOTATION);
+                }
             }
         } else {
             label += " " + nodeType;
@@ -387,10 +400,11 @@ public class CFGVisualizer extends JPanel {
      * @param color The color to use
      * @return The colorized string
      */
-    private static String colorize(String str, String color) {
+    private String colorize(String str, String color) {
         str = TextUtil.escapeHtml(str);
         String style = "color: " + color + ";";
         if (color.equals(Colors.CURRENT)) {
+            this.isCurrent = true;
             style += " background-color: " + Colors.HIGHLIGHT + ";";
         }
         return "<font style=\"" + style + "\">" + str + "</font>";
@@ -401,7 +415,7 @@ public class CFGVisualizer extends JPanel {
      * @param str The label to clean
      * @return The cleaned label
      */
-    public static String cleanLabel(String str) {
+    public String cleanLabel(String str) {
         if (str.startsWith("\n"))
         {
             return str.substring(1);

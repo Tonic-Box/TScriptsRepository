@@ -172,7 +172,6 @@ public class Runtime
                 assignment.setCurrent(false);
                 break;
         }
-
     }
 
     /**

@@ -240,8 +240,10 @@ class ScriptEditor extends JFrame implements ActionListener {
                 return;
             Path path = Paths.get(plugin.getScriptPath(name, profile));
             String code = Files.readString(path);
+            int offset = 0;
             for(BreakPoint breakPoint : breakpoints.values()) {
-                code = insertTextAtOffset(code, "breakpoint();", breakPoint.getOffset());
+                code = insertTextAtOffset(code, "breakpoint();", breakPoint.getOffset() + offset);
+                offset += 13;
             }
             var tokens = Tokenizer.parse(code);
             Scope scope = Lexer.lex(tokens);
