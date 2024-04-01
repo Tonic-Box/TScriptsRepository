@@ -56,12 +56,13 @@ public class CompletionSupplier
             completions.add(new BasicCompletion(provider, name, returnType + params));
         }
 
-        completions.add(new BasicCompletion(provider, "while(", "While loop"));
-        completions.add(new BasicCompletion(provider, "if(", "conditional 'if' statement"));
+        completions.add(new BasicCompletion(provider, "while(", "CONDITION) { ... }"));
+        completions.add(new BasicCompletion(provider, "if(", "CONDITION) { ... }"));
         completions.add(new BasicCompletion(provider, "continue();", ""));
         completions.add(new BasicCompletion(provider, "break();", ""));
         completions.add(new BasicCompletion(provider, "die();", ""));
         completions.add(new BasicCompletion(provider, "register(", "String event) { ... }"));
+        completions.add(new BasicCompletion(provider, "function(", "String name) { ... }"));
 
         for(Class<?> event : MethodManager.getInstance().getEventClasses())
         {
@@ -107,6 +108,16 @@ public class CompletionSupplier
                 docs.append("// ").append(method.getDescription()).append("\n").append(returnType).append(name).append(params).append(");\n");
             }
         }
+
+        docs.append("\n# ").append("Built-In Constructs").append("\n");
+        docs.append("// while loop\nwhile(CONDITION) { ... }\n");
+        docs.append("// if statement\nif(CONDITION) { ... }\n");
+        docs.append("// continue statement\ncontinue();\n");
+        docs.append("// break statement\nbreak();\n");
+        docs.append("// die statement\ndie();\n");
+        docs.append("// register event\nregister(String event) { ... }\n");
+        docs.append("// function declaration\nfunction(String name) { ... }\n");
+
         docs.append("\n# ").append("Subscribable Events").append("\n");
         List<Class<?>> events = manager.getEventClasses();
         for (Class<?> event : events)

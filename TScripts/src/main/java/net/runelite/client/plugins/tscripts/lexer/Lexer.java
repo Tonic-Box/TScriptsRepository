@@ -221,6 +221,11 @@ public class Lexer
                 segment.add(token);
                 currentType = ElemType.CONDITION;
             }
+            else if (token.getType().equals(TokenType.KEYWORD_USER_DEFINED_FUNCTION))
+            {
+                segment.add(token);
+                currentType = ElemType.CONDITION;
+            }
             else if (token.getType().equals(TokenType.OPEN_BRACE))
             {
                 currentType = ElemType.SCOPE;
@@ -466,6 +471,9 @@ public class Lexer
                 break;
             case KEYWORD_REGISTER:
                 type = ConditionType.REGISTER;
+                break;
+            case KEYWORD_USER_DEFINED_FUNCTION:
+                type = ConditionType.USER_DEFINED_FUNCTION;
                 break;
             default:
                 throw new UnexpectedException("Lexer::flushCondition unexpected condition type");

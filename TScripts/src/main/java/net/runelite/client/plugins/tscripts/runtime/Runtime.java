@@ -2,7 +2,6 @@ package net.runelite.client.plugins.tscripts.runtime;
 
 import lombok.Getter;
 import net.runelite.client.eventbus.EventBus;
-import net.runelite.client.eventbus.Subscribe;
 import net.runelite.client.plugins.tscripts.api.Api;
 import net.runelite.client.plugins.tscripts.api.MethodManager;
 import net.runelite.client.plugins.tscripts.eventbus.TEventBus;
@@ -26,6 +25,7 @@ public class Runtime
     @Getter
     private final VariableMap variableMap = new VariableMap();
     private final List<EventBus.Subscriber> subscribers = new ArrayList<>();
+    private final Map<String, Scope> userDefinedFunctions = new HashMap<>();
     @Getter
     private final MethodManager methodManager;
     private boolean _die = false;
@@ -62,9 +62,9 @@ public class Runtime
         this._continue = false;
         this.scriptName = scriptName;
         this.breakpointTripped = false;
-        variableMap.clear();
+        this.userDefinedFunctions.clear();
+        this.variableMap.clear();
         new Thread(() -> {
-            variableMap.clear();
             postFlags();
             try
             {
@@ -96,6 +96,7 @@ public class Runtime
         postCurrentInstructionChanged();
         boolean isWhileScope = scope.getCondition() != null && scope.getCondition().getType().equals(ConditionType.WHILE);
         boolean isRegisterScope = scope.getCondition() != null && scope.getCondition().getType().equals(ConditionType.REGISTER);
+        boolean isUserDefinedFunction = scope.getCondition() != null && scope.getCondition().getType().equals(ConditionType.USER_DEFINED_FUNCTION);
         boolean shouldProcess = scope.getCondition() == null || processCondition(scope.getCondition());
         scope.setCurrent(false);
 
@@ -121,13 +122,21 @@ public class Runtime
             }
             return;
         }
+        else if(isUserDefinedFunction)
+        {
+            String name = scope.getCondition().getLeft().toString().replace("\"", "");
+            Scope userDefinedFunction = scope.clone();
+            userDefinedFunction.setCondition(null);
+            userDefinedFunctions.put(name, userDefinedFunction);
+            return;
+        }
 
         while (shouldProcess) {
             if (isScriptInterrupted()) return;
 
             for (Element element : scope.getElements().values()) {
                 if (isScriptInterrupted()) return;
-                processElement(element, scope);
+                processElement(element, scope.clone());
                 postFlags();
                 if (_die || _break || _continue) break;
             }
@@ -206,6 +215,11 @@ public class Runtime
                 }
                 break;
             default:
+                if(userDefinedFunctions.containsKey(call.getName()))
+                {
+                    processScope(userDefinedFunctions.get(call.getName()));
+                    break;
+                }
                 methodManager.call(processMethodCallArguments(call));
                 break;
         }
@@ -451,6 +465,7 @@ public class Runtime
         flags.put("break", _break);
         flags.put("continue", _continue);
         flags.put("breakpointTripped", breakpointTripped);
+        flags.put("userDefinedFunctions", userDefinedFunctions.size());
         TEventBus.post(new FlagChanged(flags));
     }
 

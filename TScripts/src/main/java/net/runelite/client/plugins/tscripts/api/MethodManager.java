@@ -8,6 +8,9 @@ import net.runelite.client.plugins.tscripts.types.MethodDefinition;
 import net.runelite.client.plugins.tscripts.types.Pair;
 import net.runelite.client.plugins.tscripts.types.Type;
 import net.runelite.client.plugins.tscripts.lexer.MethodCall;
+import net.runelite.client.plugins.tscripts.util.Logging;
+import org.apache.commons.lang3.NotImplementedException;
+
 import java.io.IOException;
 import java.util.*;
 import java.util.stream.Collectors;
@@ -25,7 +28,7 @@ public class MethodManager
     private List<Class<?>> eventClasses = null;
     @Getter
     private final HashMap<String, MethodDefinition> methods = new HashMap<>();
-    private final Set<String> blacklist = Set.of("continue", "break", "die", "debug", "register", "breakpoint");
+    private final Set<String> blacklist = Set.of("continue", "break", "die", "debug", "register", "breakpoint", "function", "tick");
 
     /**
      * Constructor
@@ -57,6 +60,10 @@ public class MethodManager
             {
                 out = !(boolean) out;
             }
+        }
+        else
+        {
+            Logging.errorLog(new NotImplementedException("Method " + methodCall.getName() + " not found"));
         }
 
         //bc menuactions
@@ -109,7 +116,8 @@ public class MethodManager
             }
             return CHECK_RESPONSE.OK;
         }
-        return CHECK_RESPONSE.NOT_FOUND;
+        //return CHECK_RESPONSE.NOT_FOUND;
+        return CHECK_RESPONSE.OK; //likely a user defined function, if not the runtime will handle the screaming
     }
 
     /**
