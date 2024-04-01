@@ -122,7 +122,7 @@ public class Tokenizer
      * @return true if the operator is a two character operator
      */
     private boolean isTwoCharOperator(String operator) {
-        return operator.equals("!=") || operator.equals(">=") || operator.equals("<=") || operator.equals("+=") || operator.equals("-=") || operator.equals("==");
+        return operator.equals("!=") || operator.equals(">=") || operator.equals("<=") || operator.equals("+=") || operator.equals("-=") || operator.equals("==") || operator.equals("++") || operator.equals("--");
     }
 
     /**
@@ -159,6 +159,8 @@ public class Tokenizer
         if (tokenValue.equals("=")) return TokenType.VARIABLE_ASSIGNMENT;
         if (tokenValue.equals("+=")) return TokenType.VARIABLE_INCREMENT;
         if (tokenValue.equals("-=")) return TokenType.VARIABLE_DECREMENT;
+        if (tokenValue.equals("++")) return TokenType.VARIABLE_ADD_ONE;
+        if (tokenValue.equals("--")) return TokenType.VARIABLE_REMOVE_ONE;
         if (tokenValue.equals("{")) return TokenType.OPEN_BRACE;
         if (tokenValue.equals("}")) return TokenType.CLOSE_BRACE;
         if (tokenValue.equals("(")) return TokenType.OPEN_PAREN;

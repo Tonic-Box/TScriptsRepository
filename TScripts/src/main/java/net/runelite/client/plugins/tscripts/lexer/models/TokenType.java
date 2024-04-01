@@ -33,5 +33,6 @@ public enum TokenType
     CONDITION_EQ,
     CONDITION_NEQ,
     NEGATE,
-    NEW_LINE
+    VARIABLE_ADD_ONE,
+    VARIABLE_REMOVE_ONE
 }

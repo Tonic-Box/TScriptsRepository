@@ -4,8 +4,7 @@ import lombok.Getter;
 import net.runelite.client.eventbus.EventBus;
 import net.runelite.client.plugins.tscripts.api.Api;
 import net.runelite.client.plugins.tscripts.api.MethodManager;
-import net.runelite.client.plugins.tscripts.eventbus.TEventBus;
-import net.runelite.client.plugins.tscripts.eventbus._Subscribe;
+import net.runelite.client.plugins.tscripts.eventbus.*;
 import net.runelite.client.plugins.tscripts.eventbus.events.*;
 import net.runelite.client.plugins.tscripts.lexer.MethodCall;
 import net.runelite.client.plugins.tscripts.lexer.Scope.Scope;
@@ -14,7 +13,6 @@ import net.runelite.client.plugins.tscripts.lexer.Scope.condition.ConditionType;
 import net.runelite.client.plugins.tscripts.lexer.models.Element;
 import net.runelite.client.plugins.tscripts.lexer.variable.VariableAssignment;
 import net.runelite.client.plugins.tscripts.util.Logging;
-
 import java.util.*;
 
 /**
@@ -102,10 +100,10 @@ public class Runtime
 
         if(isRegisterScope)
         {
-            Class event = methodManager.getEventClass(scope.getCondition().getLeft().toString());
+            Class<?> event = methodManager.getEventClass(scope.getCondition().getLeft().toString());
             if(event != null)
             {
-                EventBus.Subscriber subscriber = Api.register(event, (Object object) -> {
+                EventBus.Subscriber subscriber = Api.register(event, object -> {
                     try
                     {
                         Runtime runtime = new Runtime();
@@ -231,18 +229,28 @@ public class Runtime
      * @param variableAssignment The variable assignment.
      */
     private void processVariableAssignment(VariableAssignment variableAssignment) {
-        Object value = getValue(variableAssignment.getValues().get(0));
         String name = variableAssignment.getVar();
+        switch (variableAssignment.getAssignmentType())
+        {
+            case ADD_ONE:
+                incrementVariable(name, 1);
+                return;
+            case REMOVE_ONE:
+                decrementVariable(name, 1);
+                return;
+        }
+
+        Object value = getValue(variableAssignment.getValues().get(0));
 
         switch (variableAssignment.getAssignmentType())
         {
             case ASSIGNMENT:
                 variableMap.put(name, value);
-                break;
+                return;
             case INCREMENT:
                 incrementVariable(name, value);
-                break;
-            case DECREMENT :
+                return;
+            case DECREMENT:
                 decrementVariable(name, value);
                 break;
         }
@@ -406,11 +414,11 @@ public class Runtime
     }
 
     /**
-     * Checks if the object is an instance of any of the classes.
+     * Checks if the object is an instance of the classes.
      *
      * @param test The object to test.
      * @param against The classes to test against.
-     * @return Whether the object is an instance of any of the classes.
+     * @return Whether the object is an instance of the classes.
      */
     private boolean typeOfAny(Object test, Class<?>... against)
     {

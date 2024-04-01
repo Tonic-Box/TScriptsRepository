@@ -238,7 +238,7 @@ public class Lexer
             else if (token.getType().equals(TokenType.VARIABLE))
             {
                 TokenType btt = tokens.get(pointer + 1).getType();
-                if (!btt.equals(TokenType.VARIABLE_ASSIGNMENT) && !btt.equals(TokenType.VARIABLE_INCREMENT) && !btt.equals(TokenType.VARIABLE_DECREMENT))
+                if (!btt.equals(TokenType.VARIABLE_ASSIGNMENT) && !btt.equals(TokenType.VARIABLE_INCREMENT) && !btt.equals(TokenType.VARIABLE_DECREMENT) && !btt.equals(TokenType.VARIABLE_ADD_ONE) && !btt.equals(TokenType.VARIABLE_REMOVE_ONE))
                 {
                     throw new UnexpectedException("Lexer::parseScope[VARIABLE] unexpected value, expected VALUE_ASSIGNMENT token [T:" + (pointer + 1) + "] got [" + tokens.get(pointer + 1).getType().name() + "]");
                 }
@@ -352,6 +352,12 @@ public class Lexer
                     break;
                 case VARIABLE_DECREMENT:
                     _type = AssignmentType.DECREMENT;
+                    break;
+                case VARIABLE_ADD_ONE:
+                    _type = AssignmentType.ADD_ONE;
+                    break;
+                case VARIABLE_REMOVE_ONE:
+                    _type = AssignmentType.REMOVE_ONE;
                     break;
             }
         }

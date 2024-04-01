@@ -293,18 +293,24 @@ public class CFGVisualizer extends JPanel {
         if (nodeType.equals("VARIABLE_ASSIGNMENT")) {
             String varName = node.get("var").getAsString();
             JsonArray values = node.getAsJsonArray("values");
-            JsonElement element = values.get(0);
-            String valuesStr;
+            JsonElement element = null;
+            if (values.size() > 0) {
+                element = values.get(0);
+            }
+            String valuesStr = "";
 
-            if (element.isJsonObject()) {
-                JsonObject obj = element.getAsJsonObject();
-                if (obj.has("type") && obj.get("type").getAsString().equals("FUNCTION_CALL")) {
-                    valuesStr = createLabelFromNode(obj);
+            if (element != null)
+            {
+                if (element.isJsonObject()) {
+                    JsonObject obj = element.getAsJsonObject();
+                    if (obj.has("type") && obj.get("type").getAsString().equals("FUNCTION_CALL")) {
+                        valuesStr = createLabelFromNode(obj);
+                    } else {
+                        valuesStr = colorize(values.get(0).getAsString(), current ? Colors.CURRENT : Colors.VALUES);
+                    }
                 } else {
                     valuesStr = colorize(values.get(0).getAsString(), current ? Colors.CURRENT : Colors.VALUES);
                 }
-            } else {
-                valuesStr = colorize(values.get(0).getAsString(), current ? Colors.CURRENT : Colors.VALUES);
             }
 
             String type = node.get("assignmentType").getAsString();
@@ -314,6 +320,12 @@ public class CFGVisualizer extends JPanel {
                     break;
                 case "DECREMENT":
                     valuesStr = colorize(" -= ", current ? Colors.CURRENT : Colors.OPERATORS) + valuesStr;
+                    break;
+                case "ADD_ONE":
+                    valuesStr = colorize("++", current ? Colors.CURRENT : Colors.OPERATORS) + valuesStr;
+                    break;
+                case "REMOVE_ONE":
+                    valuesStr = colorize("--", current ? Colors.CURRENT : Colors.OPERATORS) + valuesStr;
                     break;
                 default:
                     valuesStr = colorize(" = ", current ? Colors.CURRENT : Colors.OPERATORS) + valuesStr;

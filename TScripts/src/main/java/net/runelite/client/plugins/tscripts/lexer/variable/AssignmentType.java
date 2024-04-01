@@ -7,5 +7,5 @@ public enum AssignmentType
 {
     ASSIGNMENT,
     INCREMENT,
-    DECREMENT
+    ADD_ONE, REMOVE_ONE, DECREMENT
 }
