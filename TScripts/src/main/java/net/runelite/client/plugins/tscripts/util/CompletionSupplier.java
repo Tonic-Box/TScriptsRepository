@@ -4,6 +4,7 @@ import net.runelite.client.plugins.tscripts.api.MethodManager;
 import net.runelite.client.plugins.tscripts.types.GroupDefinition;
 import net.runelite.client.plugins.tscripts.types.MethodDefinition;
 import net.runelite.client.plugins.tscripts.types.Type;
+import net.runelite.client.plugins.tscripts.types.filters.NpcFilterType;
 import org.fife.ui.autocomplete.BasicCompletion;
 import org.fife.ui.autocomplete.Completion;
 import org.fife.ui.autocomplete.CompletionProvider;
@@ -54,6 +55,12 @@ public class CompletionSupplier
                 returnType += " ";
             }
             completions.add(new BasicCompletion(provider, name, returnType + params));
+        }
+
+        //NpcFilters
+        for(NpcFilterType filter : NpcFilterType.values())
+        {
+            completions.add(new BasicCompletion(provider, filter.name().toUpperCase(), filter.getDescription()));
         }
 
         completions.add(new BasicCompletion(provider, "while(", "CONDITION) { ... }"));
@@ -107,6 +114,13 @@ public class CompletionSupplier
                 String name = method.getName() + "(";
                 docs.append("// ").append(method.getDescription()).append("\n").append(returnType).append(name).append(params).append(");\n");
             }
+        }
+
+        //NpcFilters
+        docs.append("\n# ").append("NPC Filters").append("\n");
+        for(NpcFilterType filter : NpcFilterType.values())
+        {
+            docs.append("// " + filter.getDescription() + "\n" + filter.getName() + "\n");
         }
 
         docs.append("\n# ").append("Built-In Constructs").append("\n");

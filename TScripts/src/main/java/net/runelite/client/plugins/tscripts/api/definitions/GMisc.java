@@ -46,7 +46,7 @@ public class GMisc implements GroupDefinition
                 },
                 "Clicks the mouse"
         );
-        addMethod(methods, "debug", ImmutableMap.of(0, Pair.of("args", Type.ANY)),
+        addMethod(methods, "debug", ImmutableMap.of(0, Pair.of("args", Type.VARARGS)),
                 function ->
                 {
                     StringBuilder output = new StringBuilder();

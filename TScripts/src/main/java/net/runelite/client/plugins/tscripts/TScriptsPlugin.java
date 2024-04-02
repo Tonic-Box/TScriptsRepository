@@ -339,6 +339,8 @@ public class TScriptsPlugin  extends Plugin {
                     break;*/
             }
         }
+        pb.release();
+
         if(out.startsWith("[") || out.isBlank())
             return;
 
@@ -348,7 +350,6 @@ public class TScriptsPlugin  extends Plugin {
         out = out.replace("65535", "-1");
 
         Logging.logToChat(out);
-        pb.release();
     }
 
     @Subscribe

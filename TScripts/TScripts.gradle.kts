@@ -23,7 +23,7 @@
  * SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  */
 
-version = "0.0.2-beta"
+version = "0.0.3-beta"
 
 project.extra["PluginName"] = "TScripts"
 project.extra["PluginDescription"] = "Stuff and Things"
@@ -37,6 +37,7 @@ dependencies {
     compileOnly(group = "net.java.dev.jna", name = "jna-platform", version = "5.9.0")
     implementation("io.netty:netty-all:5.0.0.Alpha2")
     implementation("com.github.vlsi.mxgraph:jgraphx:4.2.2")
+    implementation("ch.obermuhlner:java-scriptengine:1.0.1")
 //    implementation(group = "net.runelite", name = "fernflower", version = "07082019")
     compileOnly(group = "com.fifesoft", name = "rsyntaxtextarea", version = "3.1.2")
     compileOnly(group = "com.fifesoft", name = "autocomplete", version = "3.1.1")

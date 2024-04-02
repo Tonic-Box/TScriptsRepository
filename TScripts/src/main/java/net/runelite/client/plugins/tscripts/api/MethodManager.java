@@ -9,6 +9,7 @@ import net.runelite.client.plugins.tscripts.types.Pair;
 import net.runelite.client.plugins.tscripts.types.Type;
 import net.runelite.client.plugins.tscripts.lexer.MethodCall;
 import net.runelite.client.plugins.tscripts.util.Logging;
+import org.apache.commons.lang3.ArrayUtils;
 import org.apache.commons.lang3.NotImplementedException;
 
 import java.io.IOException;
@@ -103,7 +104,22 @@ public class MethodManager
         else if (methods.containsKey(methodCall.getName().toLowerCase()))
         {
             MethodDefinition method = methods.getOrDefault(methodCall.getName().toLowerCase(), null);
-            if (method == null || method.getParameters().size() != methodCall.getArgs().length)
+
+            if(method == null)
+            {
+                return CHECK_RESPONSE.NOT_FOUND;
+            }
+
+            for(int i = 0; i < method.getParameters().size(); i++)
+            {
+                Pair<String, Type> parameter = method.getParameters().getOrDefault(i, null);
+                if(parameter.getValue().equals(Type.VARARGS))
+                    return CHECK_RESPONSE.OK;
+            }
+
+            System.out.println(method.getParameters().size() + " - " + methodCall.getArgs().length);
+
+            if (method.getParameters().size() != methodCall.getArgs().length)
             {
                 return CHECK_RESPONSE.INCORRECT_PARAMETERS_SIZE;
             }
@@ -133,9 +149,7 @@ public class MethodManager
 
         if(methodCallParam instanceof MethodCall)
         {
-            MethodCall innerMethodCall = (MethodCall) methodCallParam;
-            MethodDefinition innerMethod = methods.getOrDefault(innerMethodCall.getName().toLowerCase(), null);
-            return innerMethod != null && innerMethod.getReturnType().equals(parameter.getValue());
+            return true;
         }
 
         if(methodCallParam instanceof String)

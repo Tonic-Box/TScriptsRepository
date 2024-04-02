@@ -50,6 +50,16 @@ public class GPlayer implements GroupDefinition
                         player.interact((String) action);
                     }
                 }, "Interact with a player");
+        addMethod(methods, "getPlayer", Type.OBJECT,
+                ImmutableMap.of(
+                        0, Pair.of("username", Type.STRING),
+                        1, Pair.of("action", Type.ANY)
+                ),
+                function ->
+                {
+                    String username = function.getArg(0, manager);
+                    return new PlayerQuery().filter(p -> p.getName().equals(username)).result(Static.getClient()).first();
+                }, "get a player");
         return methods;
     }
 }

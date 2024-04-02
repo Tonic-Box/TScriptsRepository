@@ -391,7 +391,7 @@ public class Lexer
         for(int i = pointer; i <= tokens.size() - 1; i++)
         {
             Token token = tokens.get(i);
-            if(token.getType().equals(TokenType.IDENTIFIER))
+            if(token.getType().equals(TokenType.IDENTIFIER) && tokens.get(i + 1).getType().equals(TokenType.OPEN_PAREN))
             {
                 inMethodCall = true;
             }
@@ -433,6 +433,7 @@ public class Lexer
             switch (token.getType())
             {
                 case VARIABLE:
+                case IDENTIFIER:
                 case STRING:
                     _values.add(token.getValue());
                     break;
@@ -444,6 +445,7 @@ public class Lexer
                 case INTEGER:
                     _values.add(Integer.parseInt(token.getValue()));
                     break;
+
             }
         }
         MethodCall methodCall = new MethodCall(name, _values.toArray(), negated);

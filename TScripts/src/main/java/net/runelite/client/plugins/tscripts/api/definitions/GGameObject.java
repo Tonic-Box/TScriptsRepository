@@ -76,6 +76,28 @@ public class GGameObject implements GroupDefinition
 
                     item.useOn(object);
                 }, "Uses an item on an object");
+        addMethod(methods, "getObject", Type.OBJECT,
+                ImmutableMap.of(
+                        0, Pair.of("identifier", Type.ANY)
+                        ),
+                function ->
+                {
+                    Object identifier = function.getArg(0, manager);
+                    return Api.getObject(identifier);
+                }, "Gets an object");
+        addMethod(methods, "getObjectAt", Type.OBJECT,
+                ImmutableMap.of(
+                        0, Pair.of("identifier", Type.ANY),
+                        1, Pair.of("worldX", Type.ANY),
+                        2, Pair.of("worldY", Type.ANY)
+                        ),
+                function ->
+                {
+                    Object identifier = function.getArg(0, manager);
+                    int worldX = function.getArg(1, manager);
+                    int worldY = function.getArg(2, manager);
+                    return Api.getObjectAt(identifier, worldX, worldY);
+                }, "Gets a game object");
         return methods;
     }
 }

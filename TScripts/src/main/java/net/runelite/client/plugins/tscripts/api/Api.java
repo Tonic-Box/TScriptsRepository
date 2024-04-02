@@ -96,6 +96,10 @@ public class Api
 
     public static Item getItem(Object identifier)
     {
+        if(identifier instanceof Item)
+        {
+            return (Item) identifier;
+        }
         ItemContainer container = Static.getClient().getItemContainer(InventoryID.INVENTORY);
         if(container == null)
             return null;
@@ -122,25 +126,14 @@ public class Api
 
     public static NPC getNpc(Object identifier)
     {
+        if(identifier instanceof NPC)
+        {
+            return (NPC) identifier;
+        }
         NPC npc = null;
         if (identifier instanceof Integer)
         {
-            npc = NPCs.getNearest((int)identifier);
-        }
-        else if (identifier instanceof String)
-        {
-            npc = NPCs.getNearest((String)identifier);
-        }
-        return npc;
-    }
-
-    public static NPC getFreeNpc(Object identifier)
-    {
-        NPC npc = null;
-        if (identifier instanceof Integer)
-        {
-            npc = new NPCQuery().filter(n -> !n.isInteracting() || !(n.getIdlePoseAnimation() == n.getPoseAnimation() && n.getAnimation() == -1)
-                    || (n.getInteracting() != null && n.getInteracting().getHealthScale() != -1))
+            npc =  new NPCQuery()
                     .filter(n -> n.getId() == (int)identifier)
                     .filter(n -> !n.isDead())
                     .filter(n -> isReachable(n.getWorldLocation()))
@@ -149,6 +142,39 @@ public class Api
         }
         else if (identifier instanceof String)
         {
+            npc =  new NPCQuery()
+                    .filter(n -> n.getName().equals(identifier))
+                    .filter(n -> !n.isDead())
+                    .filter(n -> isReachable(n.getWorldLocation()) || identifier.equals("Fishing spot"))
+                    .result(Static.getClient())
+                    .nearestTo(Static.getClient().getLocalPlayer());
+        }
+        return npc;
+    }
+
+    public static NPC getFreeNpc(Object identifier)
+    {
+        if(identifier instanceof NPC)
+        {
+            return (NPC) identifier;
+        }
+        NPC npc = null;
+        if (identifier instanceof Integer)
+        {
+            npc = new NPCQuery().filter(n -> !n.isInteracting() || !(n.getIdlePoseAnimation() == n.getPoseAnimation() && n.getAnimation() == -1)
+                            || (n.getInteracting() != null && n.getInteracting().getHealthScale() != -1))
+                    .filter(n -> n.getId() == (int)identifier)
+                    .filter(n -> !n.isDead())
+                    .filter(n -> isReachable(n.getWorldLocation()))
+                    .result(Static.getClient())
+                    .nearestTo(Static.getClient().getLocalPlayer());
+        }
+        else if (identifier instanceof String)
+        {
+            if(identifier.equals("Fishing spot"))
+            {
+                return getNpc(identifier);
+            }
             npc = new NPCQuery().filter(n -> !n.isInteracting() || !(n.getIdlePoseAnimation() == n.getPoseAnimation() && n.getAnimation() == -1)
                             || (n.getInteracting() != null && n.getInteracting().getHealthScale() != -1))
                     .filter(n -> n.getName().equals(identifier))
@@ -298,6 +324,10 @@ public class Api
 
     public static TileObject getObject(Object identifier)
     {
+        if(identifier instanceof TileObject)
+        {
+            return (TileObject) identifier;
+        }
         if(identifier instanceof Integer)
         {
             return TileObjects.query()
@@ -308,6 +338,25 @@ public class Api
         {
             return TileObjects.query()
                     .filter(o -> o.getName().equals(identifier))
+                    .results().nearest();
+        }
+        return null;
+    }
+
+    public static TileObject getObjectAt(Object identifier, int x, int y)
+    {
+        if(identifier instanceof Integer)
+        {
+            return TileObjects.query()
+                    .filter(o -> o.getId() == (int) identifier)
+                    .filter(o -> o.getWorldLocation().getX() == x && o.getWorldLocation().getY() == y)
+                    .results().nearest();
+        }
+        else if (identifier instanceof String)
+        {
+            return TileObjects.query()
+                    .filter(o -> o.getName().equals(identifier))
+                    .filter(o -> o.getWorldLocation().getX() == x && o.getWorldLocation().getY() == y)
                     .results().nearest();
         }
         return null;

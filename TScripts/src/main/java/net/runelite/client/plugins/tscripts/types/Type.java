@@ -9,5 +9,7 @@ public enum Type
     STRING,
     BOOL,
     ANY,
-    VOID
+    VOID,
+    OBJECT,
+    VARARGS
 }
