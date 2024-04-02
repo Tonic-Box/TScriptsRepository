@@ -131,6 +131,7 @@ public class CompletionSupplier
         docs.append("// die statement\ndie();\n");
         docs.append("// register event\nregister(String event) { ... }\n");
         docs.append("// function declaration\nfunction(String name) { ... }\n");
+        docs.append("// end execution in a user defined method early\n<optional any> return(any optionalReturnValue);\n");
 
         docs.append("\n# ").append("Subscribable Events").append("\n");
         List<Class<?>> events = manager.getEventClasses();

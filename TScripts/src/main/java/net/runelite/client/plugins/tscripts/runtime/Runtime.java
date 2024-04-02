@@ -23,7 +23,7 @@ public class Runtime
     @Getter
     private final VariableMap variableMap = new VariableMap();
     private final List<EventBus.Subscriber> subscribers = new ArrayList<>();
-    private final Map<String, Scope> userDefinedFunctions = new HashMap<>();
+    private final Map<String, UserDefinedFunction> userDefinedFunctions = new HashMap<>();
     @Getter
     private final MethodManager methodManager;
     private boolean _die = false;
@@ -35,6 +35,7 @@ public class Runtime
     @Getter
     private Scope rootScope = new Scope(new HashMap<>(), null);
     private boolean breakpointTripped = false;
+    private UserDefinedFunction currentFunction = null;
 
     /**
      * Creates a new instance of the Runtime class.
@@ -80,6 +81,16 @@ public class Runtime
         }).start();
     }
 
+    private Object processUserFunction(UserDefinedFunction function)
+    {
+        currentFunction = function;
+        processScope(function.getScope());
+        Object output = function.getReturnValue() == null ? "null" : function.getReturnValue();
+        function.setReturnValue(null);
+        currentFunction = null;
+        return output;
+    }
+
     /**
      * Processes a scope.
      *
@@ -87,6 +98,11 @@ public class Runtime
      */
     private void processScope(Scope scope) {
         if (_die) {
+            return;
+        }
+
+        if(currentFunction != null && currentFunction.hasReturnValue())
+        {
             return;
         }
 
@@ -125,7 +141,7 @@ public class Runtime
             String name = scope.getCondition().getLeft().toString().replace("\"", "");
             Scope userDefinedFunction = scope.clone();
             userDefinedFunction.setCondition(null);
-            userDefinedFunctions.put(name, userDefinedFunction);
+            userDefinedFunctions.put(name, new UserDefinedFunction(name, userDefinedFunction));
             return;
         }
 
@@ -137,6 +153,10 @@ public class Runtime
                 processElement(element, scope.clone());
                 postFlags();
                 if (_die || _break || _continue) break;
+                if(currentFunction != null && currentFunction.hasReturnValue())
+                {
+                    return;
+                }
             }
 
             if (handleControlFlow(scope)) return;
@@ -211,10 +231,19 @@ public class Runtime
                     }
                 }
                 break;
+            case "return":
+                if(currentFunction != null)
+                {
+                    if(call.getArgs().length > 0)
+                        currentFunction.setReturnValue(getValue(call.getArgs()[0]));
+                    else
+                        currentFunction.setReturnValue("null");
+                }
+                break;
             default:
                 if(userDefinedFunctions.containsKey(call.getName()))
                 {
-                    processScope(userDefinedFunctions.get(call.getName()));
+                    processUserFunction(userDefinedFunctions.get(call.getName()));
                     break;
                 }
                 methodManager.call(processMethodCallArguments(call));
@@ -339,6 +368,10 @@ public class Runtime
             _continue = shouldContinue(scope);
             return !_continue;
         }
+        if(currentFunction != null && currentFunction.hasReturnValue())
+        {
+            return true;
+        }
         return false;
     }
 
@@ -402,6 +435,11 @@ public class Runtime
         }
         else if (object instanceof MethodCall)
         {
+            MethodCall methodCall = (MethodCall) object;
+            if(userDefinedFunctions.containsKey(methodCall.getName()))
+            {
+                return processUserFunction(userDefinedFunctions.get(methodCall.getName()));
+            }
             return methodManager.call(processMethodCallArguments((MethodCall) object));
         }
         else if (typeOfAny(object, Integer.class, Boolean.class))

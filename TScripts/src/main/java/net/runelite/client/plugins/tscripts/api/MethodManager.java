@@ -117,8 +117,6 @@ public class MethodManager
                     return CHECK_RESPONSE.OK;
             }
 
-            System.out.println(method.getParameters().size() + " - " + methodCall.getArgs().length);
-
             if (method.getParameters().size() != methodCall.getArgs().length)
             {
                 return CHECK_RESPONSE.INCORRECT_PARAMETERS_SIZE;

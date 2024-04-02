@@ -6,6 +6,7 @@ import net.runelite.api.Actor;
 import net.runelite.api.NPC;
 import net.runelite.api.queries.NPCQuery;
 import net.runelite.client.plugins.tscripts.api.Api;
+import net.runelite.client.plugins.tscripts.util.Logging;
 import net.unethicalite.client.Static;
 
 import java.util.function.BiPredicate;
@@ -38,7 +39,7 @@ public enum NpcFilterType
                     {
                         if(f == null)
                         {
-                            System.out.println("Filter is null");
+                            Logging.errorLog(new NullPointerException("Filter is null"));
                         }
                         else if (!f.getCondition().test(n))
                         {

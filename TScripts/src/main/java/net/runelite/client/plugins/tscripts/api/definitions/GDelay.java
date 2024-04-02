@@ -25,12 +25,12 @@ public class GDelay implements GroupDefinition
     {
         List<MethodDefinition> methods = new ArrayList<>();
         addMethod(methods, "tick", ImmutableMap.of(0, Pair.of("length", Type.INT)),
-                function -> Api.tick(function.getArg(0, manager)),
-                "Pauses script for a # of game ticks."
-        );
-        addMethod(methods, "tick", ImmutableMap.of(),
-                function -> Api.tick(1),
-                "Pauses script for 1 game tick."
+                function ->
+                {
+                    int length = function.getArgs().length > 0 ? function.getArg(0, manager) : 1;
+                    Api.tick(length);
+                },
+                "Pauses script for a # of game ticks. defaults to 1 tick."
         );
         addMethod(methods, "sleep", ImmutableMap.of(0, Pair.of("length", Type.INT)),
                 function ->
