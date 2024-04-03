@@ -2,6 +2,7 @@ package net.runelite.client.plugins.tscripts.lexer.Scope.condition;
 
 import lombok.Data;
 import lombok.Setter;
+import net.runelite.client.plugins.tscripts.lexer.MethodCall;
 
 /**
  * Represents a condition in a script
@@ -14,18 +15,14 @@ public class Condition
      * @param left the left side of the condition
      * @param right the right side of the condition
      * @param comparator the comparator to use
-     * @param type the type of the condition
      */
-    public Condition(Object left, Object right, Comparator comparator, ConditionType type)
+    public Condition(Object left, Object right, Comparator comparator)
     {
-
-        setType(type);
         setLeft(left);
         setRight(right);
         setComparator(comparator);
     }
 
-    private ConditionType type;
     private Object left;
     private Object right;
     private Comparator comparator;
@@ -37,17 +34,38 @@ public class Condition
      */
     public Condition clone()
     {
-        return new Condition(left, right, comparator, type);
+        return new Condition(left, right, comparator);
     }
 
     @Override
     public String toString()
     {
-        return "Condition{" +
-                "type=" + type +
-                ", left=" + left +
-                ", right=" + right +
-                ", comparator=" + comparator +
-                '}';
+        String compString = "";
+        if(comparator != null)
+        {
+            switch (comparator) {
+                case GT:
+                    compString = " > ";
+                    break;
+                case LT:
+                    compString = " < ";
+                    break;
+                case GTEQ:
+                    compString = " >= ";
+                    break;
+                case LTEQ:
+                    compString = " <= ";
+                    break;
+                case EQ:
+                    compString = " == ";
+                    break;
+                case NEQ:
+                    compString = " != ";
+                    break;
+            }
+        }
+        return (left != null ? left.toString() : "") +
+                " " + compString +
+                " " + (right != null ? right.toString() : "");
     }
 }

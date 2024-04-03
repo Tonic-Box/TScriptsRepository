@@ -42,7 +42,7 @@ public class DebugToolPanel extends JPanel {
         add(mainView, BorderLayout.CENTER);
 
         // Add components to the main view
-        controlFlowGraphVisualizer = CFGVisualizer.create(runtime, getScope().toJson(), name); // Placeholder for the actual visualizer
+        controlFlowGraphVisualizer = CFGVisualizer.create(runtime, getScope(), name); // Placeholder for the actual visualizer
         mainView.add(controlFlowGraphVisualizer, "ControlFlowGraph");
 
         VariableInspector variableInspector = VariableInspector.getInstance(runtime); // Placeholder for the actual variable inspector
@@ -55,7 +55,7 @@ public class DebugToolPanel extends JPanel {
             String selectedScript = toolingList.getSelectedValue();
             switch (selectedScript) {
                 case "Control-Flow":
-                    controlFlowGraphVisualizer.updateGraph(getScope().toJson());
+                    controlFlowGraphVisualizer.updateGraph(getScope());
                     cardLayout.show(mainView, "ControlFlowGraph");
                     break;
                 case "Variables":
@@ -74,7 +74,7 @@ public class DebugToolPanel extends JPanel {
     {
         this.scriptPath = scriptPath;
         controlFlowGraphVisualizer.changeScript(name);
-        controlFlowGraphVisualizer.updateGraph(getScope().toJson());
+        controlFlowGraphVisualizer.updateGraph(getScope());
     }
 
     private Scope getScope()

@@ -4,9 +4,7 @@ import lombok.Getter;
 import lombok.Setter;
 import net.runelite.client.plugins.tscripts.api.MethodManager;
 import net.runelite.client.plugins.tscripts.lexer.Scope.Scope;
-import net.runelite.client.plugins.tscripts.lexer.Scope.condition.Comparator;
-import net.runelite.client.plugins.tscripts.lexer.Scope.condition.Condition;
-import net.runelite.client.plugins.tscripts.lexer.Scope.condition.ConditionType;
+import net.runelite.client.plugins.tscripts.lexer.Scope.condition.*;
 import net.runelite.client.plugins.tscripts.lexer.models.Element;
 import net.runelite.client.plugins.tscripts.lexer.models.Token;
 import net.runelite.client.plugins.tscripts.lexer.models.TokenType;
@@ -57,17 +55,17 @@ public class Lexer
     /**
      * processes the tokens into a scope.
      * @param tokens the tokens to flush
-     * @param condition the condition
+     * @param conditions the conditions
      * @return the scope
      * @throws Exception if an error occurs
      */
-    private Scope flushScope(List<Token> tokens, Condition condition) throws Exception
+    private Scope flushScope(List<Token> tokens, Conditions conditions) throws Exception
     {
         Map<Integer, Element> elements = new HashMap<>();
         int elementsPointer = 0;
 
         ElemType currentType = null;
-        Condition _condition = null;
+        Conditions _conditions = null;
         List<Token> segment = new ArrayList<>();
         int depthCounter = -1;
 
@@ -132,9 +130,9 @@ public class Lexer
                         {
                             currentType = null;
                             depthCounter = -1;
-                            elements.put(elementsPointer++, flushScope(new ArrayList<>(segment), (_condition != null ? _condition.clone() : null)));
+                            elements.put(elementsPointer++, flushScope(new ArrayList<>(segment), (_conditions != null ? _conditions.clone() : null)));
                             segment.clear();
-                            _condition = null;
+                            _conditions = null;
                         }
 
                         continue;
@@ -194,7 +192,7 @@ public class Lexer
                         {
                             currentType = null;
                             depthCounter = -1;
-                            _condition = flushCondition(segment);
+                            _conditions = flushConditions(segment);
                             if (!tokens.get(pointer + 1).getType().equals(TokenType.OPEN_BRACE))
                             {
                                 throw new UnexpectedException("Lexer::parseScope[CONDITION->SCOPE] unexpected value, expected start of scope [T:" + pointer + "] got [" + tokens.get(pointer + 1).getType().name() + "]");
@@ -251,7 +249,7 @@ public class Lexer
             }
         }
 
-        return new Scope(elements, condition);
+        return new Scope(elements, conditions);
     }
 
     /**
@@ -457,17 +455,9 @@ public class Lexer
         return methodCall;
     }
 
-    /**
-     * processes the tokens into a condition.
-     * @param tokens the tokens to flush
-     * @return the condition
-     * @throws Exception if an error occurs
-     */
-    private Condition flushCondition(List<Token> tokens) throws Exception
+    private Conditions flushConditions(List<Token> tokens) throws Exception
     {
-        Object left = null;
-        Object right = null;
-        Comparator comparator = null;
+        Conditions conditions = new Conditions();
         ConditionType type;
         switch (tokens.get(0).getType())
         {
@@ -487,11 +477,45 @@ public class Lexer
                 throw new UnexpectedException("Lexer::flushCondition unexpected condition type");
         }
 
+        conditions.setType(type);
+
+        List<Token> tokenList = new ArrayList<>();
+        for(int i = 2; i < tokens.size() - 1; i++)
+        {
+            Token token = tokens.get(i);
+
+            if(token.getType().equals(TokenType.CONDITION_AND) || token.getType().equals(TokenType.CONDITION_OR))
+            {
+                Glue glue = token.getType().equals(TokenType.CONDITION_AND) ? Glue.AND : Glue.OR;
+                conditions.getConditions().put(conditions.getConditions().size(), flushCondition(tokenList));
+                conditions.getGlues().put(conditions.getConditions().size() - 1, glue);
+                tokenList.clear();
+            }
+            else
+            {
+                tokenList.add(token);
+            }
+        }
+        conditions.getConditions().put(conditions.getConditions().size(), flushCondition(tokenList));
+        return conditions;
+    }
+
+    /**
+     * processes the tokens into a condition.
+     * @param tokens the tokens to flush
+     * @return the condition
+     * @throws Exception if an error occurs
+     */
+    private Condition flushCondition(List<Token> tokens) throws Exception
+    {
+        Object left = null;
+        Object right = null;
+        Comparator comparator = null;
         Token tok;
         List<Token> segment = new ArrayList<>();
         boolean inMethodCall = false;
         int depthCounter = -1;
-        for(int i = 2; i < tokens.size() - 1; i++)
+        for(int i = 0; i < tokens.size(); i++)
         {
             tok = tokens.get(i);
 
@@ -645,7 +669,7 @@ public class Lexer
             }
         }
 
-        return new Condition(left, right, comparator, type);
+        return new Condition(left, right, comparator);
     }
 
     /**

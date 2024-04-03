@@ -10,6 +10,8 @@ import net.runelite.client.plugins.tscripts.lexer.MethodCall;
 import net.runelite.client.plugins.tscripts.lexer.Scope.Scope;
 import net.runelite.client.plugins.tscripts.lexer.Scope.condition.Condition;
 import net.runelite.client.plugins.tscripts.lexer.Scope.condition.ConditionType;
+import net.runelite.client.plugins.tscripts.lexer.Scope.condition.Conditions;
+import net.runelite.client.plugins.tscripts.lexer.Scope.condition.Glue;
 import net.runelite.client.plugins.tscripts.lexer.models.Element;
 import net.runelite.client.plugins.tscripts.lexer.variable.VariableAssignment;
 import net.runelite.client.plugins.tscripts.util.Logging;
@@ -108,15 +110,15 @@ public class Runtime
 
         scope.setCurrent(true);
         postCurrentInstructionChanged();
-        boolean isWhileScope = scope.getCondition() != null && scope.getCondition().getType().equals(ConditionType.WHILE);
-        boolean isRegisterScope = scope.getCondition() != null && scope.getCondition().getType().equals(ConditionType.REGISTER);
-        boolean isUserDefinedFunction = scope.getCondition() != null && scope.getCondition().getType().equals(ConditionType.USER_DEFINED_FUNCTION);
-        boolean shouldProcess = scope.getCondition() == null || processCondition(scope.getCondition());
+        boolean isWhileScope = scope.getConditions() != null && scope.getConditions().getType() != null && scope.getConditions().getType().equals(ConditionType.WHILE);
+        boolean isRegisterScope = scope.getConditions() != null && scope.getConditions().getType() != null  && scope.getConditions().getType().equals(ConditionType.REGISTER);
+        boolean isUserDefinedFunction = scope.getConditions() != null && scope.getConditions().getType() != null  && scope.getConditions().getType().equals(ConditionType.USER_DEFINED_FUNCTION);
+        boolean shouldProcess = (scope.getConditions() == null || scope.getConditions().getType() == null) || processConditions(scope.getConditions());
         scope.setCurrent(false);
 
         if(isRegisterScope)
         {
-            Class<?> event = methodManager.getEventClass(scope.getCondition().getLeft().toString());
+            Class<?> event = methodManager.getEventClass(scope.getConditions().getConditions().get(0).getLeft().toString());
             if(event != null)
             {
                 EventBus.Subscriber subscriber = Api.register(event, object -> {
@@ -124,7 +126,7 @@ public class Runtime
                     {
                         Runtime runtime = new Runtime();
                         Scope eventScope = scope.clone();
-                        eventScope.setCondition(null);
+                        eventScope.setConditions(null);
                         new Thread(() -> runtime.execute(eventScope, "TS_EVENT")).start();
                     }
                     catch (Exception ex)
@@ -138,9 +140,9 @@ public class Runtime
         }
         else if(isUserDefinedFunction)
         {
-            String name = scope.getCondition().getLeft().toString().replace("\"", "");
+            String name = scope.getConditions().getConditions().get(0).getLeft().toString().replace("\"", "");
             Scope userDefinedFunction = scope.clone();
-            userDefinedFunction.setCondition(null);
+            userDefinedFunction.setConditions(null);
             userDefinedFunctions.put(name, new UserDefinedFunction(name, userDefinedFunction));
             return;
         }
@@ -162,7 +164,7 @@ public class Runtime
             if (handleControlFlow(scope)) return;
 
             // Re-evaluate condition for while loop
-            shouldProcess = isWhileScope && processCondition(scope.getCondition());
+            shouldProcess = isWhileScope && processConditions(scope.getConditions());
         }
     }
 
@@ -297,6 +299,36 @@ public class Runtime
         return new MethodCall(methodCall.getName(), objects, methodCall.isNegate());
     }
 
+    private boolean processConditions(Conditions conditions) {
+        boolean result = true;
+        for (Map.Entry<Integer, Condition> entry : conditions.getConditions().entrySet())
+        {
+            Condition condition = entry.getValue();
+            boolean conditionResult = processCondition(condition);
+            int key = entry.getKey();
+            if(key == 0)
+            {
+                result = conditionResult;
+                continue;
+            }
+
+            if(!conditions.getGlues().containsKey(key - 1))
+                continue;
+
+            Glue glue = conditions.getGlues().get(key - 1);
+            switch (glue)
+            {
+                case AND:
+                    result = result && conditionResult;
+                    break;
+                case OR:
+                    result = result || conditionResult;
+                    break;
+            }
+        }
+        return result;
+    }
+
     /**
      * Processes a condition.
      *
@@ -339,7 +371,7 @@ public class Runtime
      * @return Whether the script should break.
      */
     private boolean shouldBreak(Scope scope) {
-        return scope.getCondition() == null || !scope.getCondition().getType().equals(ConditionType.WHILE);
+        return scope.getConditions() == null || !scope.getConditions().getType().equals(ConditionType.WHILE);
     }
 
     /**
@@ -349,7 +381,7 @@ public class Runtime
      * @return Whether the script should continue.
      */
     private boolean shouldContinue(Scope scope) {
-        return scope.getCondition() != null && scope.getCondition().getType().equals(ConditionType.WHILE);
+        return scope.getConditions() != null && scope.getConditions().getType().equals(ConditionType.WHILE);
     }
 
     /**

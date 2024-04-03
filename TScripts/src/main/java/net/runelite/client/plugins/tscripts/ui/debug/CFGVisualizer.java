@@ -1,9 +1,5 @@
 package net.runelite.client.plugins.tscripts.ui.debug;
 
-import com.google.gson.JsonArray;
-import com.google.gson.JsonElement;
-import com.google.gson.JsonObject;
-import com.google.gson.JsonParser;
 import com.mxgraph.canvas.mxGraphics2DCanvas;
 import com.mxgraph.layout.mxCompactTreeLayout;
 import com.mxgraph.shape.mxRectangleShape;
@@ -15,11 +11,19 @@ import com.mxgraph.view.mxStylesheet;
 import net.runelite.client.plugins.tscripts.eventbus.TEventBus;
 import net.runelite.client.plugins.tscripts.eventbus._Subscribe;
 import net.runelite.client.plugins.tscripts.eventbus.events.CurrentInstructionChanged;
+import net.runelite.client.plugins.tscripts.lexer.MethodCall;
+import net.runelite.client.plugins.tscripts.lexer.Scope.Scope;
+import net.runelite.client.plugins.tscripts.lexer.Scope.condition.Condition;
+import net.runelite.client.plugins.tscripts.lexer.Scope.condition.ConditionType;
+import net.runelite.client.plugins.tscripts.lexer.Scope.condition.Conditions;
+import net.runelite.client.plugins.tscripts.lexer.models.Element;
+import net.runelite.client.plugins.tscripts.lexer.models.ElementType;
+import net.runelite.client.plugins.tscripts.lexer.variable.AssignmentType;
+import net.runelite.client.plugins.tscripts.lexer.variable.VariableAssignment;
 import net.runelite.client.plugins.tscripts.runtime.Runtime;
 import net.runelite.client.plugins.tscripts.util.TextUtil;
 import net.runelite.client.plugins.tscripts.util.controlflow.*;
 import javax.swing.*;
-import java.awt.*;
 import java.util.HashMap;
 import java.util.Map;
 
@@ -27,7 +31,6 @@ import java.util.Map;
  * Visualizes the control flow graph of a given Script
  */
 public class CFGVisualizer extends JPanel {
-    private final static JsonParser jsonParser = new JsonParser();
     private mxGraph graph;
     private Object parent;
     private final Map<String, Object> nodesMap = new HashMap<>();
@@ -41,14 +44,14 @@ public class CFGVisualizer extends JPanel {
     private final Runtime runtime;
     private boolean isCurrent = false;
 
-    public static CFGVisualizer create(Runtime runtime, String jsonStr, String name) {
-        CFGVisualizer panel = new CFGVisualizer(runtime, jsonStr, name);
+    public static CFGVisualizer create(Runtime runtime, Scope scope, String name) {
+        CFGVisualizer panel = new CFGVisualizer(runtime, scope, name);
         panel.setVisible(true);
         return panel;
     }
 
-    private CFGVisualizer(Runtime runtime, String jsonStr, String name) {
-        init(jsonStr);
+    private CFGVisualizer(Runtime runtime, Scope scope, String name) {
+        init(scope);
         this.scriptName = name;
         this.runtime = runtime;
         TEventBus.register(this);
@@ -60,10 +63,10 @@ public class CFGVisualizer extends JPanel {
             return;
         }
 
-        updateGraph(runtime.getRootScope().toJson());
+        updateGraph(runtime.getRootScope());
     }
 
-    private void init(String jsonStr)
+    private void init(Scope scope)
     {
         this.graph = new mxGraph();
         this.graph.setCellsEditable(false);
@@ -82,8 +85,7 @@ public class CFGVisualizer extends JPanel {
             nodesMap.clear();
             alphabetIterator.reset();
             numericIterator.reset();
-            JsonObject ast = jsonParser.parse(jsonStr).getAsJsonObject();
-            processNode(ast, null);
+            processNode(scope, null);
         } finally {
             graph.getModel().endUpdate();
             applyTreeLayout();
@@ -102,9 +104,9 @@ public class CFGVisualizer extends JPanel {
         nodesMap.clear();
     }
 
-    public void updateGraph(String jsonStr) {
+    public void updateGraph(Scope scope) {
         SwingUtilities.invokeLater(() -> {
-            init(jsonStr);
+            init(scope);
 
             // Update the UI
             removeAll();
@@ -152,14 +154,14 @@ public class CFGVisualizer extends JPanel {
 
     /**
      * Processes a node in the AST
-     * @param node The node to process
+     * @param scope The node to process
      * @param parentId The ID of the parent node
      */
-    private void processNode(JsonObject node, String parentId) {
+    private void processNode(Scope scope, String parentId) {
         String edgeLabel = "";
         int stackNumber = numericIterator.getNextNumber();
-        String label = "<html>" + colorize("//Block-" + stackNumber, Colors.NOTATION) + "\n" + createLabelFromScope(node) + "</html>";
-        String nodeHash = JsonHashUtil.getSha256Hash(node);
+        String label = "<html>" + colorize("//Block-" + stackNumber, Colors.NOTATION) + "\n" + createLabelFromScope(scope) + "</html>";
+        String nodeHash = JsonHashUtil.getSha256Hash(scope.toJson());
         if(edgeLabels.containsKey(nodeHash))
         {
             edgeLabel = edgeLabels.get(nodeHash);
@@ -183,28 +185,24 @@ public class CFGVisualizer extends JPanel {
             linkBacks.clear();
         }
 
-        boolean isWhileCondition = node.has("condition") &&
-                "WHILE".equals(node.get("condition").getAsJsonObject().get("type").getAsString());
+        boolean isWhileCondition = scope.getConditions() != null && scope.getConditions().getType() != null && scope.getConditions().getType().equals(ConditionType.WHILE);
 
         scopeStack.push(stackNumber, isWhileCondition, graphNode);
-        if (node.has("elements")) {
-            JsonObject elements = node.getAsJsonObject("elements");
-            for (String key : elements.keySet()) {
-                JsonObject element = elements.getAsJsonObject(key);
-                if(!element.get("type").getAsString().equals("SCOPE"))
-                    continue;
-                processNode(elements.getAsJsonObject(key), label);
-            }
+        for (Element element : scope.getElements().values()) {
+            if(!element.getType().equals(ElementType.SCOPE))
+                continue;
+            processNode((Scope) element, label);
         }
+
         scopeStack.pop();
     }
 
     /**
-     * Creates a label for a scope node
-     * @param node The scope node
+     * Creates a label for a scope
+     * @param scope The scope scope
      * @return The label
      */
-    private String createLabelFromScope(JsonObject node)
+    private String createLabelFromScope(Scope scope)
     {
         this.isCurrent = false;
         String counter = colorize("[" + nodeCounter++ + "]", Colors.BACKGROUND);
@@ -212,75 +210,100 @@ public class CFGVisualizer extends JPanel {
         String tab = "";
         String close = "";
 
-        if (node.has("condition"))
+        if (scope.getConditions() != null && scope.getConditions().getType() != null )
         {
-            JsonObject condition = node.get("condition").getAsJsonObject();
-            boolean current = condition.get("current").getAsBoolean();
-            String type = condition.get("type").getAsString().toLowerCase();
-            String left;
-            String right = "";
-            String comparator = "";
-            if (condition.has("right"))
+            Conditions conditions = scope.getConditions();
+            boolean current = conditions.isCurrent();
+            ConditionType type = conditions.getType();
+
+            label.append(colorize(type.name().toLowerCase(), Colors.KEYWORDS)).append(colorize("(", current ? Colors.CURRENT : Colors.OPERATORS));
+            String compString = "";
+            for (Map.Entry<Integer, Condition> entry : scope.getConditions().getConditions().entrySet())
             {
-                try
+                Condition condition = entry.getValue();
+
+                if(condition.getComparator() != null)
                 {
-                    right = colorize(condition.get("right").getAsString(), Colors.VALUES);
-                } catch (Exception e)
-                {
-                    JsonObject leftObj = condition.get("right").getAsJsonObject();
-                    right = createLabelFromNode(leftObj);
+                    switch (condition.getComparator()) {
+                        case GT:
+                            compString = " > ";
+                            break;
+                        case LT:
+                            compString = " < ";
+                            break;
+                        case GTEQ:
+                            compString = " >= ";
+                            break;
+                        case LTEQ:
+                            compString = " <= ";
+                            break;
+                        case EQ:
+                            compString = " == ";
+                            break;
+                        case NEQ:
+                            compString = " != ";
+                            break;
+                    }
                 }
-                String temp = condition.get("comparator").getAsString();
-                switch (temp) {
-                    case "GT":
-                        comparator = " > ";
-                        break;
-                    case "LT":
-                        comparator = " < ";
-                        break;
-                    case "GTEQ":
-                        comparator = " >= ";
-                        break;
-                    case "LTEQ":
-                        comparator = " <= ";
-                        break;
-                    case "EQ":
-                        comparator = " == ";
-                        break;
-                    case "NEQ":
-                        comparator = " != ";
-                        break;
+                String left;
+                if(condition.getLeft() == null)
+                {
+                    left = "";
+                }
+                else if(condition.getLeft() instanceof MethodCall)
+                {
+                    left = createLabelFromNode((Element) condition.getLeft());
+                }
+                else
+                {
+                    left = colorize(condition.getLeft().toString(), current ? Colors.CURRENT : Colors.VALUES);
+                }
+                String right;
+                if(condition.getRight() == null)
+                {
+                    right = "";
+                }
+                else if(condition.getRight() instanceof MethodCall)
+                {
+                    right = createLabelFromNode((Element) condition.getRight());
+                }
+                else
+                {
+                    right = colorize(condition.getRight().toString(), current ? Colors.CURRENT : Colors.VALUES);
+                }
+
+                label.append(left)
+                        .append(colorize(compString, current ? Colors.CURRENT : Colors.OPERATORS))
+                        .append(right);
+
+                if (conditions.getGlues().containsKey(entry.getKey()))
+                {
+                    switch (conditions.getGlues().get(entry.getKey()))
+                    {
+                        case AND:
+                            label.append(colorize(" && ", current ? Colors.CURRENT : Colors.OPERATORS));
+                            break;
+                        case OR:
+                            label.append(colorize(" || ", current ? Colors.CURRENT : Colors.OPERATORS));
+                            break;
+                    }
                 }
             }
-            try
-            {
-                left = colorize(condition.get("left").getAsString(), current ? Colors.CURRENT : Colors.VALUES);
-            } catch (Exception e)
-            {
-                JsonObject leftObj = condition.get("left").getAsJsonObject();
-                left = createLabelFromNode(leftObj);
-            }
-            label.append(colorize(type, Colors.KEYWORDS)).append(colorize("(", current ? Colors.CURRENT : Colors.OPERATORS))
-                    .append(left)
-                    .append(colorize(comparator, current ? Colors.CURRENT : Colors.OPERATORS))
-                    .append(right).append(colorize(") {", current ? Colors.CURRENT : Colors.OPERATORS));
+            label.append(colorize(") {", current ? Colors.CURRENT : Colors.OPERATORS));
             close = colorize("\n}", Colors.OPERATORS);
             tab = colorize(". . . ", Colors.BACKGROUND);
         }
 
-        if (node.has("elements")) {
-            JsonObject elements = node.getAsJsonObject("elements");
-            for (String key : elements.keySet()) {
-                JsonObject element = elements.getAsJsonObject(key);
-                if(element.get("type").getAsString().equals("SCOPE"))
-                {
-                    String newScopeLabel = alphabetIterator.getNextLetter();
-                    label.append("\n").append(tab).append(colorize("[scope] ", Colors.FUNCTIONS)).append(colorize("//flows to edge " + newScopeLabel, Colors.NOTATION));
-                    edgeLabels.put(JsonHashUtil.getSha256Hash(element), "<html>" + colorize(newScopeLabel, Colors.EDGE_LABEL_COLOR) + "</html>");
-                    continue;
-                }
-                label.append("\n").append(tab).append(createLabelFromNode(element));
+        for(Element element : scope.getElements().values())
+        {
+            if(element.getType().equals(ElementType.SCOPE))
+            {
+                String newScopeLabel = alphabetIterator.getNextLetter();
+                label.append("\n").append(tab).append(colorize("[scope] ", Colors.FUNCTIONS)).append(colorize("//flows to edge " + newScopeLabel, Colors.NOTATION));
+                edgeLabels.put(JsonHashUtil.getSha256Hash(((Scope)element).toJson()), "<html>" + colorize(newScopeLabel, Colors.EDGE_LABEL_COLOR) + "</html>");
+                continue;
             }
+            label.append("\n").append(tab).append(createLabelFromNode(element));
         }
         return cleanLabel(label + close + counter);
     }
@@ -290,47 +313,46 @@ public class CFGVisualizer extends JPanel {
      * @param node The node
      * @return The label
      */
-    private String createLabelFromNode(JsonObject node) {
-        String nodeType = node.get("type").getAsString();
-        boolean current = node.get("current").getAsBoolean();
+    private String createLabelFromNode(Element node) {
+        ElementType nodeType = node.getType();
+        boolean current = node.isCurrent();
         String label = "";
         String flowTo = "";
 
-        if (nodeType.equals("VARIABLE_ASSIGNMENT")) {
-            String varName = node.get("var").getAsString();
-            JsonArray values = node.getAsJsonArray("values");
-            JsonElement element = null;
-            if (values.size() > 0) {
-                element = values.get(0);
+        if (nodeType.equals(ElementType.VARIABLE_ASSIGNMENT)) {
+            VariableAssignment variableAssignment = (VariableAssignment) node;
+            String varName = variableAssignment.getVar();
+            Object element = null;
+            if (!variableAssignment.getValues().isEmpty()) {
+                element = variableAssignment.getValues().get(0);
             }
             String valuesStr = "";
 
             if (element != null)
             {
-                if (element.isJsonObject()) {
-                    JsonObject obj = element.getAsJsonObject();
-                    if (obj.has("type") && obj.get("type").getAsString().equals("FUNCTION_CALL")) {
-                        valuesStr = createLabelFromNode(obj);
-                    } else {
-                        valuesStr = colorize(values.get(0).getAsString(), current ? Colors.CURRENT : Colors.VALUES);
-                    }
-                } else {
-                    valuesStr = colorize(values.get(0).getAsString(), current ? Colors.CURRENT : Colors.VALUES);
+                if(element instanceof MethodCall)
+                {
+                    valuesStr = createLabelFromNode((Element) element);
+                }
+                else
+                {
+                    valuesStr = colorize(element.toString(), current ? Colors.CURRENT : Colors.VALUES);
                 }
             }
 
-            String type = node.get("assignmentType").getAsString();
-            switch (type) {
-                case "INCREMENT":
+            AssignmentType type = ((VariableAssignment) node).getAssignmentType();
+            switch (type)
+            {
+                case INCREMENT:
                     valuesStr = colorize(" += ", current ? Colors.CURRENT : Colors.OPERATORS) + valuesStr;
                     break;
-                case "DECREMENT":
+                case DECREMENT:
                     valuesStr = colorize(" -= ", current ? Colors.CURRENT : Colors.OPERATORS) + valuesStr;
                     break;
-                case "ADD_ONE":
+                case ADD_ONE:
                     valuesStr = colorize("++", current ? Colors.CURRENT : Colors.OPERATORS) + valuesStr;
                     break;
-                case "REMOVE_ONE":
+                case REMOVE_ONE:
                     valuesStr = colorize("--", current ? Colors.CURRENT : Colors.OPERATORS) + valuesStr;
                     break;
                 default:
@@ -338,28 +360,27 @@ public class CFGVisualizer extends JPanel {
                     break;
             }
             label += colorize(varName, current ? Colors.CURRENT : Colors.VARIABLES) + valuesStr;
-        } else if (nodeType.equals("FUNCTION_CALL")) {
-            if(node.get("name").getAsString().equals("breakpoint"))
+        }
+        else if (nodeType.equals(ElementType.FUNCTION_CALL))
+        {
+            MethodCall methodCall = (MethodCall) node;
+            if(methodCall.getName().equals("breakpoint"))
             {
                 label += colorize("BREAKPOINT", current ? Colors.CURRENT : "#FF0000");
             }
             else
             {
-                String name = colorize(node.get("name").getAsString(), current ? Colors.CURRENT : Colors.FUNCTIONS);
-                JsonArray values = node.getAsJsonArray("args");
+                String name = colorize(methodCall.getName(), current ? Colors.CURRENT : Colors.FUNCTIONS);
                 StringBuilder valuesStr = new StringBuilder();
-                if (values != null) {
-                    for (JsonElement element : values) {
-                        if (element.isJsonObject()) {
-                            JsonObject obj = element.getAsJsonObject();
-                            if (obj.has("type") && obj.get("type").getAsString().equals("FUNCTION_CALL")) {
-                                valuesStr.append(createLabelFromNode(obj)).append(", ");
-                            } else {
-                                valuesStr.append(colorize(element.getAsString(), current ? Colors.CURRENT : Colors.VALUES)).append(", ");
-                            }
-                        } else {
-                            valuesStr.append(colorize(element.getAsString(), current ? Colors.CURRENT : Colors.VALUES)).append(", ");
-                        }
+                for(Object arg : methodCall.getArgs())
+                {
+                    if(arg instanceof MethodCall)
+                    {
+                        valuesStr.append(createLabelFromNode((Element) arg));
+                    }
+                    else
+                    {
+                        valuesStr.append(colorize(arg.toString(), current ? Colors.CURRENT : Colors.VALUES));
                     }
                     if (valuesStr.length() > 0) {
                         valuesStr.setLength(valuesStr.length() - 2); // Remove the last comma and space

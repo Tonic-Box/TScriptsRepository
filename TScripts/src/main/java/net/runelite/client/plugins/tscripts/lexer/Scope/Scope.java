@@ -4,7 +4,7 @@ import com.google.gson.Gson;
 import lombok.Getter;
 import lombok.Setter;
 import net.runelite.client.plugins.tscripts.lexer.Scope.condition.Condition;
-import net.runelite.client.plugins.tscripts.lexer.Scope.condition.ConditionType;
+import net.runelite.client.plugins.tscripts.lexer.Scope.condition.Conditions;
 import net.runelite.client.plugins.tscripts.lexer.models.Element;
 import net.runelite.client.plugins.tscripts.lexer.models.ElementType;
 
@@ -29,18 +29,18 @@ public class Scope extends Element
     /**
      * Creates a new scope
      * @param elements The elements in the scope
-     * @param condition The condition of the scope
+     * @param conditions The conditions of the scope
      */
-    public Scope(Map<Integer, Element> elements, Condition condition)
+    public Scope(Map<Integer, Element> elements, Conditions conditions)
     {
         this.elements = elements;
         setType(ElementType.SCOPE);
-        this.condition = condition;
+        this.conditions = conditions;
     }
 
     private final Map<Integer, Element> elements;
     @Setter
-    private Condition condition = null;
+    private Conditions conditions = null;
 
     /**
      * Clones the scope
@@ -48,7 +48,7 @@ public class Scope extends Element
      */
     public Scope clone()
     {
-        return new Scope(elements, condition);
+        return new Scope(elements, conditions);
     }
 
     /**
@@ -64,9 +64,12 @@ public class Scope extends Element
     @Override
     public void setCurrent(boolean current)
     {
-        if(condition != null)
+        if(conditions != null)
         {
-            condition.setCurrent(current);
+            for(Condition condition : conditions.getConditions().values())
+            {
+                condition.setCurrent(current);
+            }
         }
     }
 }

@@ -52,18 +52,14 @@ public class MethodCall extends Element
     @Override
     public String toString()
     {
-        StringBuilder out = new StringBuilder(name + "(" + args.length + ")\n");
+        StringBuilder out = new StringBuilder(name + "(");
         int i = 0;
         String str = "";
         for (Object arg : args)
         {
-            if(arg instanceof MethodCall)
-                str = ((MethodCall)arg).getName() + "()";
-            else
-                str = arg.toString();
-            out.append("Arg ").append(i).append(": ").append(str).append("\n");
-            i++;
+            out.append(arg.toString()).append(", ");
         }
-        return out.toString();
+        out.append(")");
+        return out.toString().replace(", )", ")");
     }
 }

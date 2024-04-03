@@ -17,11 +17,11 @@ public class JsonHashUtil
      * @param jsonObject the JSON object to hash
      * @return the SHA-256 hash of the JSON object
      */
-    public static String getSha256Hash(JsonObject jsonObject) {
+    public static String getSha256Hash(String jsonObject) {
         try {
             MessageDigest digest = MessageDigest.getInstance("SHA-256");
             byte[] encodedHash = digest.digest(
-                    jsonObject.toString().getBytes(StandardCharsets.UTF_8)
+                    jsonObject.getBytes(StandardCharsets.UTF_8)
             );
             return TextUtil.bytesToHex(encodedHash);
         } catch (NoSuchAlgorithmException e) {
