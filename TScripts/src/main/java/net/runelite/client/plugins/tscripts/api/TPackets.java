@@ -4,6 +4,7 @@ import net.runelite.api.packets.ClientPacket;
 import net.runelite.api.widgets.WidgetInfo;
 import net.runelite.client.plugins.tscripts.types.MapEntry;
 import net.runelite.client.plugins.tscripts.util.packets.PacketMapReader;
+import net.unethicalite.api.packets.MousePackets;
 import net.unethicalite.client.Static;
 import java.util.HashMap;
 import java.util.Map;
@@ -13,6 +14,30 @@ import java.util.Map;
  */
 public class TPackets
 {
+    public static void sendClickPacket(int mouseX, int mouseY)
+    {
+        Static.getClient().setMouseLastPressedMillis(System.currentTimeMillis());
+        int mousePressedTime = ((int) (Static.getClient().getMouseLastPressedMillis() - Static.getClient().getClientMouseLastPressedMillis()));
+        if (mousePressedTime < 0)
+        {
+            mousePressedTime = 0;
+        }
+        if (mousePressedTime > 32767)
+        {
+            mousePressedTime = 32767;
+        }
+        Static.getClient().setClientMouseLastPressedMillis(Static.getClient().getMouseLastPressedMillis());
+        int mouseInfo = (mousePressedTime << 1);
+
+        MapEntry entry = PacketMapReader.get("OP_MOUSE_CLICK");
+        Map<String,Object> args = new HashMap<>();
+        args.put("mouseInfo", mouseInfo);
+        args.put("mouseX", mouseX);
+        args.put("mouseY", mouseY);
+
+        PacketMapReader.createBuffer(entry, args).send(Static.getClientPacket().EVENT_MOUSE_CLICK());
+    }
+
     public static void sendWalkPacket(int worldX, int worldY, boolean ctrl)
     {
         MapEntry entry = PacketMapReader.get("OP_WALK");
