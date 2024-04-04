@@ -159,7 +159,7 @@ public class Runtime
 
             for (Element element : scope.getElements().values()) {
                 if (isScriptInterrupted()) return;
-                processElement(element, scope.clone());
+                processElement(element); //.clone());
                 postFlags();
                 if (_die || _break || _continue) break;
                 if(currentFunction != null && currentFunction.hasReturnValue())
@@ -168,7 +168,7 @@ public class Runtime
                 }
             }
 
-            if (handleControlFlow(scope)) return;
+            if (handleControlFlow(isWhileScope)) break;
 
             // Re-evaluate condition for while loop
             shouldProcess = isWhileScope && processConditions(scope.getConditions());
@@ -179,9 +179,8 @@ public class Runtime
      * Processes an element.
      *
      * @param element The element.
-     * @param scope The scope.
      */
-    private void processElement(Element element, Scope scope) {
+    private void processElement(Element element) {
         switch (element.getType()) {
             case SCOPE:
                 processScope((Scope) element);
@@ -190,7 +189,7 @@ public class Runtime
                 MethodCall methodCall = (MethodCall) element;
                 methodCall.setCurrent(true);
                 postCurrentInstructionChanged();
-                processFunctionCall(methodCall, scope);
+                processFunctionCall(methodCall);
                 methodCall.setCurrent(false);
                 break;
             case VARIABLE_ASSIGNMENT:
@@ -207,18 +206,17 @@ public class Runtime
      * Processes a function call.
      *
      * @param call The method call.
-     * @param scope The scope.
      */
-    private void processFunctionCall(MethodCall call, Scope scope) {
+    private void processFunctionCall(MethodCall call) {
         switch (call.getName()) {
             case "die":
                 _die = true;
                 break;
             case "break":
-                _break = shouldBreak(scope);
+                _break = true;
                 break;
             case "continue":
-                _continue = shouldContinue(scope);
+                _continue = true;
                 break;
             case "breakpoint":
                 TEventBus.post(BreakpointTripped.get());
@@ -378,46 +376,29 @@ public class Runtime
     }
 
     /**
-     * Checks if the script should break.
-     *
-     * @param scope The scope.
-     * @return Whether the script should break.
-     */
-    private boolean shouldBreak(Scope scope) {
-        return scope.getConditions() == null || !scope.getConditions().getType().equals(ConditionType.WHILE);
-    }
-
-    /**
-     * Checks if the script should continue.
-     *
-     * @param scope The scope.
-     * @return Whether the script should continue.
-     */
-    private boolean shouldContinue(Scope scope) {
-        return scope.getConditions() != null && scope.getConditions().getType().equals(ConditionType.WHILE);
-    }
-
-    /**
      * Handles control flow.
      *
-     * @param scope The scope.
      * @return Whether the control flow was handled.
      */
-    private boolean handleControlFlow(Scope scope) {
+    private boolean handleControlFlow(boolean isWhileScope) {
         if (_die) return true;
-        if (_break) {
-            _break = shouldBreak(scope);
+
+        if (isWhileScope) {
+            if (_break) {
+                _break = false;
+                return true;
+            }
+            else if (_continue) {
+                _continue = false;
+                return false;
+            }
+        }
+
+        if (_break || _continue) {
             return true;
         }
-        if (_continue) {
-            _continue = shouldContinue(scope);
-            return !_continue;
-        }
-        if(currentFunction != null && currentFunction.hasReturnValue())
-        {
-            return true;
-        }
-        return false;
+
+        return currentFunction != null && currentFunction.hasReturnValue();
     }
 
     /**
