@@ -1,4 +1,4 @@
-package net.runelite.client.plugins.tscripts.eventbus.events;
+package net.runelite.client.plugins.tscripts.util.eventbus.events;
 
 public class VariablesCleared
 {

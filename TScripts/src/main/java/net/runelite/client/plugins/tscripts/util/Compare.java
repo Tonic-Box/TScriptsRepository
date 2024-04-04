@@ -1,4 +1,4 @@
-package net.runelite.client.plugins.tscripts.cache;
+package net.runelite.client.plugins.tscripts.util;
 
 import net.runelite.api.Locatable;
 import net.runelite.api.coords.WorldPoint;

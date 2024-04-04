@@ -5,7 +5,7 @@ import lombok.SneakyThrows;
 import net.runelite.client.config.Keybind;
 import net.runelite.client.plugins.tscripts.TScriptsConfig;
 import net.runelite.client.plugins.tscripts.TScriptsPlugin;
-import net.runelite.client.plugins.tscripts.eventbus.events.ScriptStateChanged;
+import net.runelite.client.plugins.tscripts.util.eventbus.events.ScriptStateChanged;
 import net.runelite.client.plugins.tscripts.lexer.Lexer;
 import net.runelite.client.plugins.tscripts.lexer.Scope.Scope;
 import net.runelite.client.plugins.tscripts.lexer.Tokenizer;

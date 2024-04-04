@@ -1,12 +1,9 @@
 package net.runelite.client.plugins.tscripts.runtime;
 
 import lombok.Getter;
-import net.runelite.api.coords.WorldPoint;
 import net.runelite.client.eventbus.EventBus;
-import net.runelite.client.plugins.tscripts.api.Api;
 import net.runelite.client.plugins.tscripts.api.MethodManager;
-import net.runelite.client.plugins.tscripts.eventbus.*;
-import net.runelite.client.plugins.tscripts.eventbus.events.*;
+import net.runelite.client.plugins.tscripts.api.library.TGame;
 import net.runelite.client.plugins.tscripts.lexer.MethodCall;
 import net.runelite.client.plugins.tscripts.lexer.Scope.Scope;
 import net.runelite.client.plugins.tscripts.lexer.Scope.condition.Condition;
@@ -16,6 +13,10 @@ import net.runelite.client.plugins.tscripts.lexer.Scope.condition.Glue;
 import net.runelite.client.plugins.tscripts.lexer.models.Element;
 import net.runelite.client.plugins.tscripts.lexer.variable.VariableAssignment;
 import net.runelite.client.plugins.tscripts.util.Logging;
+import net.runelite.client.plugins.tscripts.util.eventbus.TEventBus;
+import net.runelite.client.plugins.tscripts.util.eventbus._Subscribe;
+import net.runelite.client.plugins.tscripts.util.eventbus.events.*;
+
 import java.util.*;
 
 /**
@@ -81,7 +82,7 @@ public class Runtime
             {
                 Logging.errorLog(ex);
             }
-            Api.unregister(subscribers);
+            TGame.unregister(subscribers);
             setDone(true);
             postFlags();
         }).start();
@@ -123,7 +124,7 @@ public class Runtime
             Class<?> event = methodManager.getEventClass(scope.getConditions().getConditions().get(0).getLeft().toString());
             if(event != null)
             {
-                EventBus.Subscriber subscriber = Api.register(event, object -> {
+                EventBus.Subscriber subscriber = TGame.register(event, object -> {
                     try
                     {
                         Runtime runtime = new Runtime();

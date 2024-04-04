@@ -9,6 +9,8 @@ import net.runelite.api.queries.PlayerQuery;
 import net.runelite.client.plugins.tscripts.api.Api;
 import net.runelite.client.plugins.tscripts.api.MethodManager;
 import net.runelite.client.plugins.tscripts.api.library.TItem;
+import net.runelite.client.plugins.tscripts.api.library.TMagic;
+import net.runelite.client.plugins.tscripts.api.library.TNpc;
 import net.runelite.client.plugins.tscripts.api.library.TObjects;
 import net.runelite.client.plugins.tscripts.types.GroupDefinition;
 import net.runelite.client.plugins.tscripts.types.MethodDefinition;
@@ -49,7 +51,7 @@ public class GMagic implements GroupDefinition {
                     if(spellbook == null)
                         return;
 
-                    Spell spell = Api.getSpell(_spell);
+                    Spell spell = TMagic.getSpell(_spell);
                     if(spell == null)
                         return;
 
@@ -73,7 +75,7 @@ public class GMagic implements GroupDefinition {
                     if(spellbook == null)
                         return;
 
-                    Spell spell = Api.getSpell(_spell);
+                    Spell spell = TMagic.getSpell(_spell);
                     if(spell == null)
                         return;
 
@@ -89,7 +91,7 @@ public class GMagic implements GroupDefinition {
                     String _spell = function.getArg(0, manager);
                     Object _npc = function.getArg(1, manager);
 
-                    NPC npc = Api.getNpc(_npc);
+                    NPC npc = TNpc.getNpc(_npc);
                     if(npc == null)
                         return;
 
@@ -97,7 +99,7 @@ public class GMagic implements GroupDefinition {
                     if(spellbook == null)
                         return;
 
-                    Spell spell = Api.getSpell(_spell);
+                    Spell spell = TMagic.getSpell(_spell);
                     if(spell == null)
                         return;
 
@@ -121,7 +123,7 @@ public class GMagic implements GroupDefinition {
                     if(spellbook == null)
                         return;
 
-                    Spell spell = Api.getSpell(_spell);
+                    Spell spell = TMagic.getSpell(_spell);
                     if(spell == null)
                         return;
 
@@ -139,7 +141,7 @@ public class GMagic implements GroupDefinition {
                     if(spellbook == null)
                         return;
 
-                    Spell spell = Api.getSpell(_spell);
+                    Spell spell = TMagic.getSpell(_spell);
                     if(spell == null)
                         return;
 

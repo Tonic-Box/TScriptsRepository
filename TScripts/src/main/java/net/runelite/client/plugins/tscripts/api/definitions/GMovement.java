@@ -4,6 +4,8 @@ import com.google.common.collect.ImmutableMap;
 import net.runelite.api.coords.WorldPoint;
 import net.runelite.client.plugins.tscripts.api.Api;
 import net.runelite.client.plugins.tscripts.api.MethodManager;
+import net.runelite.client.plugins.tscripts.api.library.TDelay;
+import net.runelite.client.plugins.tscripts.api.library.TMovement;
 import net.runelite.client.plugins.tscripts.types.GroupDefinition;
 import net.runelite.client.plugins.tscripts.types.MethodDefinition;
 import net.runelite.client.plugins.tscripts.types.Pair;
@@ -37,12 +39,13 @@ public class GMovement implements GroupDefinition
                 {
                     if(function.getArg(0, manager) instanceof WorldPoint)
                     {
-                        Movement.walkTo((WorldPoint) function.getArg(0, manager));
+                        WorldPoint destination = function.getArg(0, manager);
+                        TMovement.walkTo(destination);
                         return;
                     }
                     int x = function.getArg(0, manager);
                     int y = function.getArg(1, manager);
-                    Movement.walkTo(new WorldPoint(x, y, Static.getClient().getPlane()));
+                    TMovement.walkTo(x, y);
                 }, "Sends a walk to the specified coordinates.");
         addMethod(methods, "pathfinder",
                 ImmutableMap.of(
@@ -52,25 +55,23 @@ public class GMovement implements GroupDefinition
                 {
                     try
                     {
+                        WorldPoint destination;
                         if(function.getArg(0, manager) instanceof WorldPoint)
                         {
-                            WorldPoint destination = function.getArg(0, manager);
-                            while(!destination.equals(Static.getClient().getLocalPlayer().getWorldLocation()))
-                            {
-                                Movement.walkTo(destination);
-                                Api.tick(Rand.nextInt(1, 3));
-                            }
-                            return;
+                            destination = function.getArg(0, manager);
+                        }
+                        else
+                        {
+                            int x = function.getArg(0, manager);
+                            int y = function.getArg(1, manager);
+                            int floor = function.getArg(2, manager);
+                            destination = new WorldPoint(x, y, floor);
                         }
 
-                        int x = function.getArg(0, manager);
-                        int y = function.getArg(1, manager);
-                        int floor = function.getArg(2, manager);
-                        WorldPoint destination = new WorldPoint(x, y, floor);
                         while(!destination.equals(Static.getClient().getLocalPlayer().getWorldLocation()))
                         {
                             Movement.walkTo(destination);
-                            Api.tick(Rand.nextInt(1, 3));
+                            TDelay.tick(Rand.nextInt(1, 3));
                         }
                     }
                     catch (Exception ex)
@@ -90,7 +91,7 @@ public class GMovement implements GroupDefinition
                     int ry = function.getArg(1, manager);
                     int worldX = current.getX() + rX;
                     int worldY = current.getY() + ry;
-                    Movement.walkTo(new WorldPoint(worldX, worldY, Static.getClient().getPlane()));
+                    TMovement.walkTo(worldX, worldY);
                 }, "Walks to the specified relative coordinates.");
         addMethod(methods, "getWorldPoint", Type.OBJECT,
                 ImmutableMap.of(

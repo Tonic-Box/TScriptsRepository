@@ -1,12 +1,11 @@
-package net.runelite.client.plugins.tscripts.types.filters;
+package net.runelite.client.plugins.tscripts.types;
 
 import lombok.AllArgsConstructor;
 import lombok.Getter;
 import net.runelite.api.Actor;
 import net.runelite.api.NPC;
 import net.runelite.api.queries.NPCQuery;
-import net.runelite.client.plugins.tscripts.api.Api;
-import net.runelite.client.plugins.tscripts.util.Logging;
+import net.runelite.client.plugins.tscripts.api.library.TMovement;
 import net.unethicalite.client.Static;
 
 import java.util.function.BiPredicate;
@@ -19,8 +18,8 @@ public enum NpcFilterType
     NPC_FREE("NPC_FREE", "The npc is not interacting with anything",
             npc -> !npc.isInteracting() || !(npc.getIdlePoseAnimation() == npc.getPoseAnimation() && npc.getAnimation() == -1)
             || (npc.getInteracting() != null && npc.getInteracting().getHealthScale() != -1)),
-    NPC_REACHABLE("NPC_REACHABLE", "The npc's tile is reachable", npc -> Api.isReachable(npc.getWorldLocation())),
-    NPC_UNREACHABLE("NPC_UNREACHABLE", "The npc's tile is not reachable", npc -> !Api.isReachable(npc.getWorldLocation())),
+    NPC_REACHABLE("NPC_REACHABLE", "The npc's tile is reachable", npc -> TMovement.isReachable(npc.getWorldLocation())),
+    NPC_UNREACHABLE("NPC_UNREACHABLE", "The npc's tile is not reachable", npc -> !TMovement.isReachable(npc.getWorldLocation())),
     NPC_ALIVE("NPC_ALIVE", "The npc is alive", npc -> !npc.isDead()),
     NPC_DEAD("NPC_DEAD", "the npc is dead", Actor::isDead);
 
@@ -35,20 +34,19 @@ public enum NpcFilterType
         BiPredicate<Object, NPC> by = identifier instanceof String ? byName : (identifier instanceof Integer ? byId : null);
         return new NPCQuery()
                 .filter(n -> {
+                    if(by != null && !by.test(identifier, n))
+                    {
+                        return false;
+                    }
                     for (NpcFilterType f : filter)
                     {
-                        if(f == null)
-                        {
-                            Logging.errorLog(new NullPointerException("Filter is null"));
-                        }
-                        else if (!f.getCondition().test(n))
+                        if (f != null && !f.getCondition().test(n))
                         {
                             return false;
                         }
                     }
                     return true;
                 })
-                .filter(n -> by == null || by.test(identifier, n))
                 .result(Static.getClient())
                 .nearestTo(Static.getClient().getLocalPlayer());
     }

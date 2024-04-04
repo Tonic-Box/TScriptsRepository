@@ -3,10 +3,11 @@ package net.runelite.client.plugins.tscripts.api.definitions;
 import com.google.common.collect.ImmutableMap;
 import net.runelite.api.Item;
 import net.runelite.api.NPC;
-import net.runelite.client.plugins.tscripts.api.Api;
 import net.runelite.client.plugins.tscripts.api.MethodManager;
 import net.runelite.client.plugins.tscripts.api.library.TItem;
-import net.runelite.client.plugins.tscripts.types.filters.UserQueries;
+import net.runelite.client.plugins.tscripts.api.library.TNpc;
+import net.runelite.client.plugins.tscripts.types.NpcFilterType;
+import net.runelite.client.plugins.tscripts.util.UserQueries;
 import net.runelite.client.plugins.tscripts.types.GroupDefinition;
 import net.runelite.client.plugins.tscripts.types.MethodDefinition;
 import net.runelite.client.plugins.tscripts.types.Pair;
@@ -30,7 +31,7 @@ public class GNpc implements GroupDefinition
                 function ->
                 {
                     Object identifier = function.getArg(0, manager);
-                    NPC npc = Api.getFreeNpc(identifier);
+                    NPC npc = NpcFilterType.filter(identifier, NpcFilterType.NPC_ALIVE, NpcFilterType.NPC_FREE, NpcFilterType.NPC_REACHABLE);
                     if (npc == null)
                         return;
                     npc.interact("Attack");
@@ -43,7 +44,7 @@ public class GNpc implements GroupDefinition
                 function ->
                 {
                     Object identifier = function.getArg(0, manager);
-                    NPC npc = Api.getFreeNpc(identifier);
+                    NPC npc = TNpc.getNpc(identifier);
                     if (npc == null)
                         return;
 
@@ -70,21 +71,11 @@ public class GNpc implements GroupDefinition
                     Item item = TItem.getItem(_item);
                     if (item == null)
                         return;
-                    NPC npc = Api.getFreeNpc(_npc);
+                    NPC npc = TNpc.getNpc(_npc);
                     if (npc == null)
                         return;
                     item.useOn(npc);
                 }, "Use an item on the nearest npc");
-        addMethod(methods, "getFreeNpc",
-                Type.OBJECT,
-                ImmutableMap.of(
-                        0, Pair.of("npc", Type.ANY)
-                ),
-                function ->
-                {
-                    Object _npc = function.getArg(0, manager);
-                    return Api.getFreeNpc(_npc);
-                }, "Get an npc object");
         addMethod(methods, "getNpc",
                 Type.OBJECT,
                 ImmutableMap.of(
@@ -93,7 +84,7 @@ public class GNpc implements GroupDefinition
                 function ->
                 {
                     Object _npc = function.getArg(0, manager);
-                    return Api.getNpc(_npc);
+                    return TNpc.getNpc(_npc);
                 }, "Get an npc object");
 
         addMethod(methods, "getNpcByFilter",

@@ -1,4 +1,4 @@
-package net.runelite.client.plugins.tscripts.cache;
+package net.runelite.client.plugins.tscripts.util.cache;
 
 import net.runelite.api.TileObject;
 import net.runelite.api.events.*;

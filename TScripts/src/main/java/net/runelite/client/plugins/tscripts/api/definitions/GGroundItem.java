@@ -5,6 +5,7 @@ import net.runelite.api.TileItem;
 import net.runelite.api.coords.WorldPoint;
 import net.runelite.client.plugins.tscripts.api.Api;
 import net.runelite.client.plugins.tscripts.api.MethodManager;
+import net.runelite.client.plugins.tscripts.api.library.TGroundItem;
 import net.runelite.client.plugins.tscripts.types.GroupDefinition;
 import net.runelite.client.plugins.tscripts.types.MethodDefinition;
 import net.runelite.client.plugins.tscripts.types.Pair;
@@ -34,7 +35,7 @@ public class GGroundItem implements GroupDefinition
                     for(int i = 0; i < function.getArgs().length; i++)
                     {
                         identifier = function.getArg(i, manager);
-                        TileItem item = Api.getTileItem(identifier);
+                        TileItem item = TGroundItem.getTileItem(identifier);
                         if(item != null)
                             return item;
                     }
@@ -66,7 +67,7 @@ public class GGroundItem implements GroupDefinition
                     for(int i = 0; i < end; i++)
                     {
                         identifier = function.getArg(i, manager);
-                        TileItem item = Api.getTileItemAt(identifier, point.getX(), point.getY());
+                        TileItem item = TGroundItem.getTileItemAt(identifier, point.getX(), point.getY());
                         if(item != null)
                             return item;
                     }
@@ -88,7 +89,7 @@ public class GGroundItem implements GroupDefinition
                     }
                     else
                     {
-                        item = Api.getTileItem(identifier);
+                        item = TGroundItem.getTileItem(identifier);
                     }
                     if(item == null)
                         return;
@@ -96,11 +97,11 @@ public class GGroundItem implements GroupDefinition
                     Object action = function.getArg(1, manager);
                     if(action instanceof Integer)
                     {
-                        item.interact((int) action);
+                        TGroundItem.interact(item, (int)action);
                     }
                     else if(action instanceof String)
                     {
-                        item.interact((String) action);
+                        TGroundItem.interact(item, (String)action);
                     }
                 }, "Interacts with the ground item");
 

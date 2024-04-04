@@ -1,7 +1,7 @@
-package net.runelite.client.plugins.tscripts.types.filters;
+package net.runelite.client.plugins.tscripts.util;
 
 import net.runelite.api.NPC;
-import net.runelite.client.plugins.tscripts.types.filters.NpcFilterType;
+import net.runelite.client.plugins.tscripts.types.NpcFilterType;
 import net.runelite.client.plugins.tscripts.util.Logging;
 
 public class UserQueries {

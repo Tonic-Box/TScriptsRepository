@@ -1,9 +1,9 @@
 package net.runelite.client.plugins.tscripts.runtime;
 
 import lombok.Getter;
-import net.runelite.client.plugins.tscripts.eventbus.TEventBus;
-import net.runelite.client.plugins.tscripts.eventbus.events.VariableUpdated;
-import net.runelite.client.plugins.tscripts.eventbus.events.VariablesCleared;
+import net.runelite.client.plugins.tscripts.util.eventbus.TEventBus;
+import net.runelite.client.plugins.tscripts.util.eventbus.events.VariableUpdated;
+import net.runelite.client.plugins.tscripts.util.eventbus.events.VariablesCleared;
 
 import java.util.ArrayList;
 import java.util.HashMap;

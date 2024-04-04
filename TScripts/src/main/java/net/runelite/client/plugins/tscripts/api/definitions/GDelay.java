@@ -5,6 +5,7 @@ import net.runelite.api.GameState;
 import net.runelite.api.coords.WorldPoint;
 import net.runelite.client.plugins.tscripts.api.Api;
 import net.runelite.client.plugins.tscripts.api.MethodManager;
+import net.runelite.client.plugins.tscripts.api.library.TDelay;
 import net.runelite.client.plugins.tscripts.api.library.TItem;
 import net.runelite.client.plugins.tscripts.types.GroupDefinition;
 import net.runelite.client.plugins.tscripts.types.MethodDefinition;
@@ -32,7 +33,7 @@ public class GDelay implements GroupDefinition
                 function ->
                 {
                     int length = function.getArgs().length > 0 ? function.getArg(0, manager) : 1;
-                    Api.tick(length);
+                    TDelay.tick(length);
                 },
                 "Pauses script for a # of game ticks. defaults to 1 tick."
         );
@@ -49,7 +50,7 @@ public class GDelay implements GroupDefinition
                     }
                 }, "Pauses script for a # of milliseconds.");
         addMethod(methods, "waitUntilIdle", ImmutableMap.of(),
-                function -> Api.waitUntilIdle(),
+                function -> TDelay.waitUntilIdle(),
                 "Pauses script until the local player is idle."
         );
         addMethod(methods, "sleep", ImmutableMap.of(0, Pair.of("length", Type.INT)),
@@ -72,12 +73,12 @@ public class GDelay implements GroupDefinition
                     if(function.getArg(0, manager) instanceof WorldPoint)
                     {
                         WorldPoint destination = function.getArg(0, manager);
-                        Api.waitUntilOnTile(destination.getX(), destination.getY());
+                        TDelay.waitUntilOnTile(destination.getX(), destination.getY());
                         return;
                     }
                     int x = function.getArg(0, manager);
                     int y = function.getArg(1, manager);
-                    Api.waitUntilOnTile(x, y);
+                    TDelay.waitUntilOnTile(x, y);
                 },
                 "Pauses script until the local player is on a given tile"
         );
@@ -94,7 +95,7 @@ public class GDelay implements GroupDefinition
                         {
                             return;
                         }
-                        Api.tick(1);
+                        TDelay.tick(1);
                         count = TItem.count(function.getArgs());
                     }
                 },
