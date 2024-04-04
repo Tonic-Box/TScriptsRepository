@@ -1,4 +1,4 @@
-package net.runelite.client.plugins.tscripts.api;
+package net.runelite.client.plugins.tscripts.api.library;
 
 import net.runelite.api.packets.ClientPacket;
 import net.runelite.api.widgets.WidgetInfo;

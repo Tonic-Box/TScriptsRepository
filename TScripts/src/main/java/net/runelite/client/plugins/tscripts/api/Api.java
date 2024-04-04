@@ -7,21 +7,15 @@ import net.runelite.api.widgets.Widget;
 import net.runelite.api.widgets.WidgetID;
 import net.runelite.api.widgets.WidgetInfo;
 import net.runelite.client.eventbus.EventBus;
-import net.runelite.client.plugins.itemstats.stats.Stat;
-import net.runelite.client.plugins.tscripts.cache.Compare;
-import net.runelite.client.plugins.tscripts.cache.EntityCache;
+import net.runelite.client.plugins.tscripts.api.library.TPackets;
 import net.runelite.client.plugins.tscripts.util.Logging;
-import net.unethicalite.api.entities.NPCs;
 import net.unethicalite.api.entities.TileItems;
-import net.unethicalite.api.entities.TileObjects;
-import net.unethicalite.api.items.Inventory;
 import net.unethicalite.api.magic.Spell;
 import net.unethicalite.api.magic.SpellBook;
-import net.unethicalite.api.movement.Reachable;
 import net.unethicalite.api.movement.pathfinder.Walker;
 import net.unethicalite.api.widgets.Widgets;
 import net.unethicalite.client.Static;
-import java.util.Arrays;
+
 import java.util.List;
 import java.util.concurrent.CompletableFuture;
 import java.util.function.Consumer;
@@ -183,30 +177,30 @@ public class Api
     public static boolean continueDialogue() {
         return invoke(() -> {
             if (Widgets.get(WidgetID.DIALOG_NPC_GROUP_ID, 5) != null) {
-                TPackets.sendResumePauseWidget(WidgetInfo.PACK(WidgetID.DIALOG_NPC_GROUP_ID, 5), -1);
+                net.runelite.client.plugins.tscripts.api.library.TPackets.sendResumePauseWidget(WidgetInfo.PACK(WidgetID.DIALOG_NPC_GROUP_ID, 5), -1);
                 return true;
             }
             else if (Widgets.get(633, 0) != null) {
-                TPackets.sendResumePauseWidget(WidgetInfo.PACK(633, 0), -1);
+                net.runelite.client.plugins.tscripts.api.library.TPackets.sendResumePauseWidget(WidgetInfo.PACK(633, 0), -1);
                 return true;
             }
             else if (Widgets.get(WidgetID.DIALOG_PLAYER_GROUP_ID, 5) != null) {
-                TPackets.sendResumePauseWidget(WidgetInfo.PACK(WidgetID.DIALOG_PLAYER_GROUP_ID, 5), -1);
+                net.runelite.client.plugins.tscripts.api.library.TPackets.sendResumePauseWidget(WidgetInfo.PACK(WidgetID.DIALOG_PLAYER_GROUP_ID, 5), -1);
                 return true;
             }
             else if (Widgets.get(WidgetInfo.DIALOG_SPRITE) != null) {
-                TPackets.sendResumePauseWidget(WidgetInfo.DIALOG_SPRITE.getId(), -1);
+                net.runelite.client.plugins.tscripts.api.library.TPackets.sendResumePauseWidget(WidgetInfo.DIALOG_SPRITE.getId(), -1);
                 return true;
             }
             else if (Widgets.get(WidgetInfo.DIALOG2_SPRITE) != null) {
-                TPackets.sendResumePauseWidget(WidgetInfo.DIALOG2_SPRITE_CONTINUE.getId(), -1);
+                net.runelite.client.plugins.tscripts.api.library.TPackets.sendResumePauseWidget(WidgetInfo.DIALOG2_SPRITE_CONTINUE.getId(), -1);
                 return true;
             }
             else if (Widgets.get(WidgetInfo.MINIGAME_DIALOG_CONTINUE) != null) {
                 Widget w = Widgets.get(WidgetInfo.MINIGAME_DIALOG_CONTINUE);
                 if(w != null && w.getText() != null && w.getText().equals("Click here to continue"))
                 {
-                    TPackets.sendResumePauseWidget(WidgetInfo.MINIGAME_DIALOG_CONTINUE.getId(), -1);
+                    net.runelite.client.plugins.tscripts.api.library.TPackets.sendResumePauseWidget(WidgetInfo.MINIGAME_DIALOG_CONTINUE.getId(), -1);
                     return true;
                 }
             }
@@ -214,7 +208,7 @@ public class Api
                 Widget w = Widgets.get(WidgetInfo.DIALOG_NOTIFICATION_CONTINUE);
                 if(w != null && w.getText() != null && w.getText().equals("Click here to continue"))
                 {
-                    TPackets.sendResumePauseWidget(WidgetInfo.DIALOG_NOTIFICATION_CONTINUE.getId(), -1);
+                    net.runelite.client.plugins.tscripts.api.library.TPackets.sendResumePauseWidget(WidgetInfo.DIALOG_NOTIFICATION_CONTINUE.getId(), -1);
                     return true;
                 }
             }

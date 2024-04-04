@@ -5,7 +5,6 @@ import net.runelite.api.Item;
 import net.runelite.api.ItemContainer;
 import net.runelite.api.TileObject;
 import net.runelite.api.widgets.WidgetInfo;
-import net.runelite.client.plugins.tscripts.api.TPackets;
 import net.unethicalite.api.items.Inventory;
 import net.unethicalite.client.Static;
 

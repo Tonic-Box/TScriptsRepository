@@ -2,7 +2,6 @@ package net.runelite.client.plugins.tscripts.api.library;
 
 import net.runelite.api.TileObject;
 import net.runelite.api.coords.WorldPoint;
-import net.runelite.client.plugins.tscripts.api.TPackets;
 import net.runelite.client.plugins.tscripts.cache.Compare;
 import net.runelite.client.plugins.tscripts.cache.EntityCache;
 import net.unethicalite.client.Static;
