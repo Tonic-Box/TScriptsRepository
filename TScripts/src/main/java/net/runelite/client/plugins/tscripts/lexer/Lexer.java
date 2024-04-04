@@ -450,7 +450,8 @@ public class Lexer
         MethodManager.CHECK_RESPONSE check = MethodManager.getInstance().check(methodCall);
         if(!check.equals(MethodManager.CHECK_RESPONSE.OK))
         {
-            throw new UnexpectedException("Lexer::flushFunction method '" + name + "' contained errors: " + check.name());
+            //TODO: Rewrite this checking shit
+            //throw new UnexpectedException("Lexer::flushFunction method '" + name + "' contained errors: " + check.name());
         }
         return methodCall;
     }

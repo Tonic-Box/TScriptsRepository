@@ -1,6 +1,7 @@
 package net.runelite.client.plugins.tscripts.runtime;
 
 import lombok.Getter;
+import net.runelite.api.coords.WorldPoint;
 import net.runelite.client.eventbus.EventBus;
 import net.runelite.client.plugins.tscripts.api.Api;
 import net.runelite.client.plugins.tscripts.api.MethodManager;
@@ -110,10 +111,8 @@ public class Runtime
 
         scope.setCurrent(true);
         postCurrentInstructionChanged();
-        boolean isWhileScope = scope.getConditions() != null && scope.getConditions().getType() != null && scope.getConditions().getType().equals(ConditionType.WHILE);
         boolean isRegisterScope = scope.getConditions() != null && scope.getConditions().getType() != null  && scope.getConditions().getType().equals(ConditionType.REGISTER);
         boolean isUserDefinedFunction = scope.getConditions() != null && scope.getConditions().getType() != null  && scope.getConditions().getType().equals(ConditionType.USER_DEFINED_FUNCTION);
-        boolean shouldProcess = (scope.getConditions() == null || scope.getConditions().getType() == null) || processConditions(scope.getConditions());
         scope.setCurrent(false);
 
         if(isRegisterScope)
@@ -147,7 +146,11 @@ public class Runtime
             return;
         }
 
-        while (shouldProcess) {
+        boolean isWhileScope = scope.getConditions() != null && scope.getConditions().getType() != null && scope.getConditions().getType().equals(ConditionType.WHILE);
+        boolean shouldProcess = (scope.getConditions() == null || scope.getConditions().getType() == null) || processConditions(scope.getConditions());
+
+        while (shouldProcess)
+        {
             if (isScriptInterrupted()) return;
 
             for (Element element : scope.getElements().values()) {
@@ -349,10 +352,16 @@ public class Runtime
 
         Object right = getValue(condition.getRight());
 
-        return right == null ?
-                left instanceof Boolean && (Boolean) left
-                :
-                condition.getComparator() != null && condition.getComparator().process(left, right);
+        if(right == null)
+        {
+            if(left instanceof Boolean)
+            {
+                return (Boolean) left;
+            }
+            return !left.toString().equals("null");
+        }
+
+        return condition.getComparator() != null && condition.getComparator().process(left, right);
     }
 
     /**
@@ -452,6 +461,10 @@ public class Runtime
             String string = (String) object;
             if (string.startsWith("$"))
             {
+                if(!variableMap.containsKey(string))
+                {
+                    return "null";
+                }
                 return variableMap.get(string);
             }
             else if (string.startsWith("!$"))

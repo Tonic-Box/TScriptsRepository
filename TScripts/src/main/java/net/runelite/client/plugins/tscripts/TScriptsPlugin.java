@@ -4,6 +4,7 @@ import com.google.inject.Provides;
 import lombok.Getter;
 import lombok.extern.slf4j.Slf4j;
 import net.runelite.api.*;
+import net.runelite.api.coords.WorldPoint;
 import net.runelite.api.events.MenuEntryAdded;
 import net.runelite.api.events.MenuOptionClicked;
 import net.runelite.client.RuneLite;
@@ -14,6 +15,7 @@ import net.runelite.client.input.KeyListener;
 import net.runelite.client.input.KeyManager;
 import net.runelite.client.plugins.Plugin;
 import net.runelite.client.plugins.PluginDescriptor;
+import net.runelite.client.plugins.itemstats.stats.Stat;
 import net.runelite.client.plugins.tscripts.api.MethodManager;
 import net.runelite.client.plugins.tscripts.runtime.Runtime;
 import net.runelite.client.plugins.tscripts.ui.TScriptsPanel;
@@ -458,6 +460,18 @@ public class TScriptsPlugin  extends Plugin {
                         .setType(MenuAction.RUNELITE)
                         .setParent(objectHelper)
                         .onClick(c -> Logging.copyToClipboard(entry.getItemId() + ""));
+            }
+            else if(opcode == MenuAction.WALK.getId())
+            {
+                if(Static.getClient().getSelectedSceneTile() != null)
+                {
+                    WorldPoint worldPoint = Static.getClient().getSelectedSceneTile().getWorldLocation();
+                    client.createMenuEntry(1)
+                            .setOption("Copy coords [" + worldPoint.getX() + ", " + worldPoint.getY() + "]")
+                            .setTarget(color + name + " ")
+                            .setType(MenuAction.RUNELITE)
+                            .onClick(c -> Logging.copyToClipboard(worldPoint.getX() + ", " + worldPoint.getY()));
+                }
             }
         }
     }

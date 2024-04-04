@@ -1,4 +1,4 @@
-package net.runelite.client.plugins.tscripts.api;
+package net.runelite.client.plugins.tscripts.types.filters;
 
 import net.runelite.api.NPC;
 import net.runelite.client.plugins.tscripts.types.filters.NpcFilterType;

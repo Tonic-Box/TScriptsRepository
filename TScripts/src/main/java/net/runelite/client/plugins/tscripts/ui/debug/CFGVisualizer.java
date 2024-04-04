@@ -11,6 +11,7 @@ import com.mxgraph.view.mxStylesheet;
 import net.runelite.client.plugins.tscripts.eventbus.TEventBus;
 import net.runelite.client.plugins.tscripts.eventbus._Subscribe;
 import net.runelite.client.plugins.tscripts.eventbus.events.CurrentInstructionChanged;
+import net.runelite.client.plugins.tscripts.eventbus.events.ScriptStateChanged;
 import net.runelite.client.plugins.tscripts.lexer.MethodCall;
 import net.runelite.client.plugins.tscripts.lexer.Scope.Scope;
 import net.runelite.client.plugins.tscripts.lexer.Scope.condition.Condition;
@@ -57,13 +58,30 @@ public class CFGVisualizer extends JPanel {
         TEventBus.register(this);
     }
 
+    private long lastUpdateTime = 0;
+
     @_Subscribe
     public void onRuntimeCycleCompleted(CurrentInstructionChanged event) {
         if (!isVisible() || runtime.isDone() || !runtime.getScriptName().equals(scriptName)) {
             return;
         }
 
-        updateGraph(runtime.getRootScope());
+        long currentTime = System.currentTimeMillis();
+        if (currentTime - lastUpdateTime >= 50)
+        {
+            updateGraph(runtime.getRootScope());
+            lastUpdateTime = currentTime;
+        }
+    }
+    @_Subscribe
+    public void onScriptStateChanged(ScriptStateChanged event) {
+        if (!isVisible() || !runtime.getScriptName().equals(scriptName)) {
+            return;
+        }
+
+        if (!event.getRunning()) {
+            updateGraph(runtime.getRootScope());
+        }
     }
 
     private void init(Scope scope)

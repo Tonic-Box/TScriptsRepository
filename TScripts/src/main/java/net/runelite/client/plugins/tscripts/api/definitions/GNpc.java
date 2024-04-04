@@ -5,7 +5,7 @@ import net.runelite.api.Item;
 import net.runelite.api.NPC;
 import net.runelite.client.plugins.tscripts.api.Api;
 import net.runelite.client.plugins.tscripts.api.MethodManager;
-import net.runelite.client.plugins.tscripts.api.UserQueries;
+import net.runelite.client.plugins.tscripts.types.filters.UserQueries;
 import net.runelite.client.plugins.tscripts.types.GroupDefinition;
 import net.runelite.client.plugins.tscripts.types.MethodDefinition;
 import net.runelite.client.plugins.tscripts.types.Pair;

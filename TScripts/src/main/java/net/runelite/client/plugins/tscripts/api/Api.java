@@ -8,8 +8,11 @@ import net.runelite.api.widgets.WidgetID;
 import net.runelite.api.widgets.WidgetInfo;
 import net.runelite.client.eventbus.EventBus;
 import net.runelite.client.plugins.itemstats.stats.Stat;
+import net.runelite.client.plugins.tscripts.cache.Compare;
+import net.runelite.client.plugins.tscripts.cache.EntityCache;
 import net.runelite.client.plugins.tscripts.util.Logging;
 import net.unethicalite.api.entities.NPCs;
+import net.unethicalite.api.entities.TileItems;
 import net.unethicalite.api.entities.TileObjects;
 import net.unethicalite.api.items.Inventory;
 import net.unethicalite.api.magic.Spell;
@@ -330,15 +333,37 @@ public class Api
         }
         if(identifier instanceof Integer)
         {
-            return TileObjects.query()
+            return EntityCache.get().objectStream()
                     .filter(o -> o.getId() == (int) identifier)
-                    .results().nearest();
+                    .min(Compare.DISTANCE).orElse(null);
         }
         else if (identifier instanceof String)
         {
-            return TileObjects.query()
+            return EntityCache.get().objectStream()
                     .filter(o -> o.getName().equals(identifier))
-                    .results().nearest();
+                    .min(Compare.DISTANCE).orElse(null);
+        }
+        return null;
+    }
+
+    public static TileObject getObjectWithin(Object identifier, int distance)
+    {
+        if(identifier instanceof TileObject)
+        {
+            TileObject object = (TileObject) identifier;
+            return object.distanceTo(Static.getClient().getLocalPlayer()) <= distance ? object : null;
+        }
+        if(identifier instanceof Integer)
+        {
+            return EntityCache.get().objectStream()
+                    .filter(o -> o.getId() == (int) identifier && o.distanceTo(Static.getClient().getLocalPlayer()) <= distance)
+                    .min(Compare.DISTANCE).orElse(null);
+        }
+        else if (identifier instanceof String)
+        {
+            return EntityCache.get().objectStream()
+                    .filter(o -> o.getName().equals(identifier) && o.distanceTo(Static.getClient().getLocalPlayer()) <= distance)
+                    .min(Compare.DISTANCE).orElse(null);
         }
         return null;
     }
@@ -347,14 +372,52 @@ public class Api
     {
         if(identifier instanceof Integer)
         {
-            return TileObjects.query()
+            return EntityCache.get().objectStream()
+                    .filter(o -> o.getId() == (int) identifier && o.getWorldLocation().getX() == x && o.getWorldLocation().getY() == y)
+                    .findFirst().orElse(null);
+        }
+        else if (identifier instanceof String)
+        {
+            return EntityCache.get().objectStream()
+                    .filter(o -> o.getName().equals(identifier) && o.getWorldLocation().getX() == x && o.getWorldLocation().getY() == y)
+                    .findFirst().orElse(null);
+        }
+        return null;
+    }
+
+    public static TileItem getTileItem(Object identifier)
+    {
+        if(identifier instanceof TileItem)
+        {
+            return (TileItem) identifier;
+        }
+        if(identifier instanceof Integer)
+        {
+            return TileItems.query()
+                    .filter(o -> o.getId() == (int) identifier)
+                    .results().nearest();
+        }
+        else if (identifier instanceof String)
+        {
+            return TileItems.query()
+                    .filter(o -> o.getName().equals(identifier))
+                    .results().nearest();
+        }
+        return null;
+    }
+
+    public static TileItem getTileItemAt(Object identifier, int x, int y)
+    {
+        if(identifier instanceof Integer)
+        {
+            return TileItems.query()
                     .filter(o -> o.getId() == (int) identifier)
                     .filter(o -> o.getWorldLocation().getX() == x && o.getWorldLocation().getY() == y)
                     .results().nearest();
         }
         else if (identifier instanceof String)
         {
-            return TileObjects.query()
+            return TileItems.query()
                     .filter(o -> o.getName().equals(identifier))
                     .filter(o -> o.getWorldLocation().getX() == x && o.getWorldLocation().getY() == y)
                     .results().nearest();
@@ -373,5 +436,26 @@ public class Api
         {
             Static.getEventBus().unregister(sub);
         }
+    }
+
+    public static int count(Object[] Identifiers)
+    {
+        int count = 0;
+        for (Object identifier : Identifiers)
+        {
+            if (identifier instanceof Integer)
+            {
+                count += Inventory.getCount((int) identifier);
+            }
+            else if (identifier instanceof String)
+            {
+                count += Inventory.getCount((String) identifier);
+            }
+            else if (identifier instanceof Item)
+            {
+                count += Inventory.getCount(((Item) identifier).getName());
+            }
+        }
+        return count;
     }
 }

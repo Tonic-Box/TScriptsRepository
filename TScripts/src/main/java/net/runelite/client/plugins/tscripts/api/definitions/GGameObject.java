@@ -2,6 +2,7 @@ package net.runelite.client.plugins.tscripts.api.definitions;
 
 import com.google.common.collect.ImmutableMap;
 import net.runelite.api.*;
+import net.runelite.api.coords.WorldPoint;
 import net.runelite.api.queries.GameObjectQuery;
 import net.runelite.api.queries.TileObjectQuery;
 import net.runelite.client.plugins.tscripts.api.Api;
@@ -87,17 +88,80 @@ public class GGameObject implements GroupDefinition
                 }, "Gets an object");
         addMethod(methods, "getObjectAt", Type.OBJECT,
                 ImmutableMap.of(
-                        0, Pair.of("identifier", Type.ANY),
-                        1, Pair.of("worldX", Type.ANY),
-                        2, Pair.of("worldY", Type.ANY)
-                        ),
+                        0, Pair.of("identifier", Type.VARARGS),
+                        1, Pair.of("coords", Type.VARARGS)
+                ),
+                function ->
+                {
+                    int size = function.getArgs().length;
+                    int end;
+                    WorldPoint point;
+                    if(function.getArg(size -1, manager) instanceof WorldPoint)
+                    {
+                        point = function.getArg(size - 1, manager);
+                        end = size - 1;
+                    }
+                    else
+                    {
+                        point = new WorldPoint(function.getArg(size - 2, manager), function.getArg(size - 1, manager), Static.getClient().getPlane());
+                        end = size - 2;
+                    }
+
+                    Object identifier;
+                    for(int i = 0; i < end; i++)
+                    {
+                        identifier = function.getArg(i, manager);
+                        TileObject object = Api.getObjectAt(identifier, point.getX(), point.getY());
+                        if(object != null)
+                            return object;
+                    }
+
+                    return null;
+                }, "Gets a game object at the specified location");
+        addMethod(methods, "getObjectLocation", Type.OBJECT,
+                ImmutableMap.of(
+                        0, Pair.of("identifier", Type.ANY)
+                ),
                 function ->
                 {
                     Object identifier = function.getArg(0, manager);
-                    int worldX = function.getArg(1, manager);
-                    int worldY = function.getArg(2, manager);
-                    return Api.getObjectAt(identifier, worldX, worldY);
-                }, "Gets a game object");
+                    TileObject object = Api.getObject(identifier);
+                    if(object == null)
+                        return null;
+                    return new WorldPoint(object.getWorldLocation().getX(), object.getWorldLocation().getY(), object.getWorldLocation().getPlane());
+                }, "Gets a game objects location");
+        addMethod(methods, "objectExists", Type.BOOL,
+                ImmutableMap.of(
+                        0, Pair.of("identifier", Type.ANY)
+                ),
+                function ->
+                {
+                    Object identifier = function.getArg(0, manager);
+                    return Api.getObject(identifier) != null;
+                }, "Gets a game objects location");
+        addMethod(methods, "objectExistsWithin", Type.BOOL,
+                ImmutableMap.of(
+                        0, Pair.of("identifier", Type.ANY),
+                        1, Pair.of("distance", Type.INT)
+                ),
+                function ->
+                {
+                    Object identifier = function.getArg(0, manager);
+                    int distance = function.getArg(1, manager);
+                    return Api.getObjectWithin(identifier, distance) != null;
+                }, "Checks if an object exists within a certain distance");
+        addMethod(methods, "getObjectWithin", Type.BOOL,
+                ImmutableMap.of(
+                        0, Pair.of("identifier", Type.ANY),
+                        1, Pair.of("distance", Type.INT)
+                ),
+                function ->
+                {
+                    Object identifier = function.getArg(0, manager);
+                    int distance = function.getArg(1, manager);
+                    return Api.getObjectWithin(identifier, distance);
+                }, "Gets an object within a certain distance");
+
         return methods;
     }
 }
