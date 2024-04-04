@@ -36,6 +36,8 @@ public class Runtime
     @Getter
     private String scriptName = "";
     @Getter
+    private String profile = "";
+    @Getter
     private Scope rootScope = new Scope(new HashMap<>(), null);
     private boolean breakpointTripped = false;
     private UserDefinedFunction currentFunction = null;
@@ -55,7 +57,7 @@ public class Runtime
      * @param scope The scope.
      * @param scriptName The script name.
      */
-    public void execute(Scope scope, String scriptName)
+    public void execute(Scope scope, String scriptName, String profile)
     {
         this.rootScope = scope;
         this._done = false;
@@ -63,6 +65,7 @@ public class Runtime
         this._break = false;
         this._continue = false;
         this.scriptName = scriptName;
+        this.profile = profile;
         this.breakpointTripped = false;
         this.userDefinedFunctions.clear();
         this.variableMap.clear();
@@ -70,9 +73,9 @@ public class Runtime
             postFlags();
             try
             {
-                TEventBus.post(new ScriptStateChanged(scriptName, true));
+                TEventBus.post(new ScriptStateChanged(scriptName, profile, true));
                 processScope(scope);
-                TEventBus.post(new ScriptStateChanged(scriptName, false));
+                TEventBus.post(new ScriptStateChanged(scriptName, profile, false));
             }
             catch (Exception ex)
             {
@@ -126,7 +129,7 @@ public class Runtime
                         Runtime runtime = new Runtime();
                         Scope eventScope = scope.clone();
                         eventScope.setConditions(null);
-                        new Thread(() -> runtime.execute(eventScope, "TS_EVENT")).start();
+                        new Thread(() -> runtime.execute(eventScope, "TS_EVENT", "TS_EVENT")).start();
                     }
                     catch (Exception ex)
                     {
@@ -547,6 +550,7 @@ public class Runtime
     {
         Map<String,Object> flags = new HashMap<>();
         flags.put("scriptName", scriptName);
+        flags.put("profile", profile);
         flags.put("running", !_done);
         flags.put("subscribers", subscribers.size());
         flags.put("variables", variableMap.getVariableMap().size());

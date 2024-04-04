@@ -234,7 +234,7 @@ public class CFGVisualizer extends JPanel {
             boolean current = conditions.isCurrent();
             ConditionType type = conditions.getType();
 
-            label.append(colorize(type.name().toLowerCase(), Colors.KEYWORDS)).append(colorize("(", current ? Colors.CURRENT : Colors.OPERATORS));
+            label.append(colorize(type.name().toLowerCase(), current ? Colors.CURRENT : Colors.KEYWORDS)).append(colorize("(", current ? Colors.CURRENT : Colors.OPERATORS));
             String compString = "";
             for (Map.Entry<Integer, Condition> entry : scope.getConditions().getConditions().entrySet())
             {
@@ -394,14 +394,16 @@ public class CFGVisualizer extends JPanel {
                 {
                     if(arg instanceof MethodCall)
                     {
-                        valuesStr.append(createLabelFromNode((Element) arg));
+                        valuesStr.append(createLabelFromNode((Element) arg))
+                                .append(colorize(", ", current ? Colors.CURRENT : Colors.OPERATORS));
                     }
                     else
                     {
-                        valuesStr.append(colorize(arg.toString(), current ? Colors.CURRENT : Colors.VALUES));
+                        valuesStr.append(colorize(arg.toString(), current ? Colors.CURRENT : Colors.VALUES))
+                                .append(colorize(", ", current ? Colors.CURRENT : Colors.OPERATORS));
                     }
                     if (valuesStr.length() > 0) {
-                        valuesStr.setLength(valuesStr.length() - 2); // Remove the last comma and space
+                        valuesStr.setLength(valuesStr.length() - colorize(", ", current ? Colors.CURRENT : Colors.OPERATORS).length()); // Remove the last comma and space
                     }
                 }
                 label += name + colorize("(", current ? Colors.CURRENT : Colors.OPERATORS) + valuesStr + colorize(")", current ? Colors.CURRENT : Colors.OPERATORS);

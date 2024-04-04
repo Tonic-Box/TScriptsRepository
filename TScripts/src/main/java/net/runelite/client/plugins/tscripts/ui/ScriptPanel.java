@@ -21,6 +21,7 @@ import java.awt.*;
 import java.awt.event.*;
 import java.awt.image.BufferedImage;
 import java.io.File;
+import java.io.IOException;
 import java.nio.file.Files;
 import java.nio.file.Paths;
 import net.runelite.client.util.HotkeyListener;
@@ -184,6 +185,11 @@ public class ScriptPanel extends JPanel
                     file.renameTo(file2);
                     updateScriptName(input);
                     System.out.println("[TScript] Script '" + oldName + "' has been renamed to '" + input + "'");
+                    try {
+                        ScriptEditor.changeTo(profile, input, oldName);
+                    } catch (IOException ex) {
+                        Logging.errorLog(ex);
+                    }
                     panel.rebuild();
                 }
                 nameInput.setEditable(false);
@@ -504,13 +510,11 @@ public class ScriptPanel extends JPanel
         try {
             if(!plugin.canIRun())
                 return;
-            //runLabel.setEnabled(false);
-            //stopLabel.setEnabled(true);
             String path = profile + getScriptName() + ".script";
             String code = Files.readString(Paths.get(path));
             var tokens = Tokenizer.parse(code);
             Scope scope = Lexer.lex(tokens);
-            plugin.getRuntime().execute(scope, getScriptName());
+            plugin.getRuntime().execute(scope, getScriptName(), plugin.getProfile());
         } catch (Exception ex) {
             Logging.errorLog(ex);
         }

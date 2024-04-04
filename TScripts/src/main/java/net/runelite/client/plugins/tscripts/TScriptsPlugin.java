@@ -2,6 +2,7 @@ package net.runelite.client.plugins.tscripts;
 
 import com.google.inject.Provides;
 import lombok.Getter;
+import lombok.Setter;
 import lombok.extern.slf4j.Slf4j;
 import net.runelite.api.*;
 import net.runelite.api.coords.WorldPoint;
@@ -60,7 +61,9 @@ public class TScriptsPlugin  extends Plugin {
     public TScriptsConfig config;
     @Inject
     public KeyManager keyManager;
-    public String profile = "[Default]";
+    @Getter
+    @Setter
+    private String profile = "[Default]";
     public ConfigHandler configHandler;
     @Inject
     private ClientToolbar clientToolbar;
@@ -207,7 +210,7 @@ public class TScriptsPlugin  extends Plugin {
      * @return true if the script is running, false otherwise
      */
     public boolean amIRunning(String scriptName) {
-        return this.runtime.getScriptName().equals(scriptName) && !canIRun();
+        return this.runtime.getScriptName().equals(scriptName) && this.getRuntime().getProfile().equals(profile) && !canIRun();
     }
 
     /**
@@ -227,6 +230,10 @@ public class TScriptsPlugin  extends Plugin {
         if(this.runtime != null && this.runtime.getScriptName().equals(scriptName)) {
             this.runtime.killScript();
         }
+    }
+
+    public void stopScript() {
+        this.runtime.killScript();
     }
 
     //events

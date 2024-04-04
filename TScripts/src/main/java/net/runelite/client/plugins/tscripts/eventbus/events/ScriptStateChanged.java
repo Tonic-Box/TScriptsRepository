@@ -8,5 +8,6 @@ import lombok.Getter;
 public class ScriptStateChanged
 {
     private final String scriptName;
+    private final String profile;
     private final Boolean running;
 }

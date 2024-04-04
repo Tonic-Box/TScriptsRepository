@@ -27,8 +27,6 @@ import org.fife.ui.rtextarea.RTextScrollPane;
 import javax.swing.*;
 import javax.swing.event.DocumentEvent;
 import javax.swing.event.DocumentListener;
-import javax.swing.event.ListSelectionEvent;
-import javax.swing.event.ListSelectionListener;
 import javax.swing.text.BadLocationException;
 import java.awt.*;
 import java.awt.event.ActionEvent;
@@ -75,15 +73,26 @@ class ScriptEditor extends JFrame implements ActionListener {
         else
         {
             if(!Objects.equals(profile, instance.profile))
-            {
                 instance.profile = profile;
-                instance.updateScriptList();
-            }
+
             instance.changeScript(name);
         }
 
         instance.setVisible(true);
         return instance;
+    }
+
+    public static void changeTo(String profile, String name, String oldName) throws IOException {
+        if (instance == null || !instance.profile.equals(profile))
+            return;
+
+        if(!instance.name.equals(oldName))
+        {
+            instance.updateScriptList();
+            return;
+        }
+
+        instance.changeScript(name);
     }
 
     /**
@@ -110,7 +119,7 @@ class ScriptEditor extends JFrame implements ActionListener {
         {
             ImageIcon running_icon = new ImageIcon(ImageUtil.loadImageResource(TScriptsPlugin.class, "running.gif"));
             running.setIcon(running_icon);
-            this.run.setText("Stop Script");
+            this.run.setText("Stop Script [" + plugin.getRuntime().getProfile() + "::" + plugin.getRuntime().getScriptName() + "]");
         }
         this.breakpoint = generateButton("Untrip Breakpoint");
         this.breakpoint.setForeground(Color.RED);
@@ -212,24 +221,26 @@ class ScriptEditor extends JFrame implements ActionListener {
         switch (s) {
             case "Run Script":
                 start();
-                break;
-            case "Stop Script":
-                stop();
-                break;
+                return;
             case "Always on top  ":
                 JCheckBox cb = (JCheckBox) e.getSource();
                 setAlwaysOnTop(cb.isSelected());
-                break;
+                return;
             case "close":
                 setVisible(false);
-                break;
+                return;
             case "Dev Tools":
                 toggleDebugPanel();
-                break;
+                return;
             case "Untrip Breakpoint":
                 TEventBus.post(BreakpointUnTripped.get());
                 breakpoint.setVisible(false);
-                break;
+                return;
+        }
+
+        if(s.startsWith("Stop Script ["))
+        {
+            stop();
         }
     }
 
@@ -248,7 +259,7 @@ class ScriptEditor extends JFrame implements ActionListener {
 
             var tokens = Tokenizer.parse(code);
             Scope scope = Lexer.lex(tokens);
-            plugin.getRuntime().execute(scope, name);
+            plugin.getRuntime().execute(scope, name, profile);
         } catch (Exception ex) {
             Logging.errorLog(ex);
         }
@@ -262,20 +273,20 @@ class ScriptEditor extends JFrame implements ActionListener {
 
     public void stop()
     {
-        plugin.stopScript(name);
+        plugin.stopScript();
     }
 
     @_Subscribe
     public void onScriptStateChanged(ScriptStateChanged event)
     {
-        if(this.name.equals(event.getScriptName()) && event.getRunning())
+        if(event.getRunning())
         {
             ImageIcon running_icon = new ImageIcon(ImageUtil.loadImageResource(TScriptsPlugin.class, "running.gif"));
             running.setIcon(running_icon);
             getContentPane().repaint();
-            this.run.setText("Stop Script");
+            this.run.setText("Stop Script [" + event.getProfile() + "::" + event.getScriptName() + "]");
         }
-        else if(this.run.getText().equals("Stop Script"))
+        else
         {
             running.setIcon(null);
             getContentPane().repaint();

@@ -162,7 +162,7 @@ public class TScriptsPanel extends PluginPanel
                 String s = (String) profile.getSelectedItem();
                 if(s != null && !current_profile.equals(s)) {
                     current_profile = s;
-                    plugin.profile = s;
+                    plugin.setProfile(s);
                     HOME_DIR = plugin.getProfilePath(s);
                     plugin.configHandler = new ConfigHandler(plugin.getProfilePath(current_profile));
                     rebuild();
@@ -186,7 +186,7 @@ public class TScriptsPanel extends PluginPanel
                         if(f.mkdir()) {
                             System.out.println("[TScripts] new profile `" + name + "` created");
                             current_profile = name;
-                            plugin.profile = name;
+                            plugin.setProfile(name);
                             plugin.configHandler = new ConfigHandler(plugin.getProfilePath(current_profile));
                             rebuild();
                         }
@@ -225,7 +225,7 @@ public class TScriptsPanel extends PluginPanel
                         if(f.exists()) {
                             deleteDirectory(f);
                             current_profile = "[Default]";
-                            plugin.profile = "[Default]";
+                            plugin.setProfile("[Default]");
                             plugin.configHandler = new ConfigHandler(plugin.getProfilePath(current_profile));
                             rebuild();
                         }
