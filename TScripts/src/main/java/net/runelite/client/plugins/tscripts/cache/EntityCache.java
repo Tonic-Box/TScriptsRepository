@@ -5,6 +5,7 @@ import net.runelite.api.events.*;
 import net.runelite.client.eventbus.Subscribe;
 import net.unethicalite.client.Static;
 import java.util.ArrayList;
+import java.util.Iterator;
 import java.util.List;
 import java.util.stream.Stream;
 
@@ -30,50 +31,64 @@ public class EntityCache
     }
 
     @Subscribe
-    public void onSpawned(GameObjectSpawned event)
+    public synchronized void onSpawned(GameObjectSpawned event)
     {
         objectCache.add(event.getGameObject());
     }
 
     @Subscribe
-    public void onDespawned(GameObjectDespawned event)
+    public synchronized void onDespawned(GameObjectDespawned event)
     {
-        objectCache.remove(event.getGameObject());
+        removeTileObject(event.getGameObject());
     }
 
     @Subscribe
-    public void onSpawned(WallObjectSpawned event)
+    public synchronized void onSpawned(WallObjectSpawned event)
     {
         objectCache.add(event.getWallObject());
     }
 
     @Subscribe
-    public void onDespawned(WallObjectDespawned event)
+    public synchronized void onDespawned(WallObjectDespawned event)
     {
-        objectCache.remove(event.getWallObject());
+        removeTileObject(event.getWallObject());
     }
 
     @Subscribe
-    public void onSpawned(DecorativeObjectSpawned event)
+    public synchronized void onSpawned(DecorativeObjectSpawned event)
     {
         objectCache.add(event.getDecorativeObject());
     }
 
     @Subscribe
-    public void onDespawned(DecorativeObjectDespawned event)
+    public synchronized void onDespawned(DecorativeObjectDespawned event)
     {
-        objectCache.remove(event.getDecorativeObject());
+        removeTileObject(event.getDecorativeObject());
     }
 
     @Subscribe
-    public void onSpawned(GroundObjectSpawned event)
+    public synchronized void onSpawned(GroundObjectSpawned event)
     {
         objectCache.add(event.getGroundObject());
     }
 
     @Subscribe
-    public void onDespawned(GroundObjectDespawned event)
+    public synchronized void onDespawned(GroundObjectDespawned event)
     {
-        objectCache.remove(event.getGroundObject());
+        removeTileObject(event.getGroundObject());
+    }
+
+    private synchronized void removeTileObject(TileObject tileObject)
+    {
+        Iterator<TileObject> iterator = objectCache.iterator();
+        while (iterator.hasNext())
+        {
+            TileObject obj = iterator.next();
+            if (obj.equals(tileObject))
+            {
+                iterator.remove();
+                break;
+            }
+        }
     }
 }
