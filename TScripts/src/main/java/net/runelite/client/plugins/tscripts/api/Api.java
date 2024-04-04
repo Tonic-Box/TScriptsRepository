@@ -97,36 +97,6 @@ public class Api
         }
     }
 
-    public static Item getItem(Object identifier)
-    {
-        if(identifier instanceof Item)
-        {
-            return (Item) identifier;
-        }
-        ItemContainer container = Static.getClient().getItemContainer(InventoryID.INVENTORY);
-        if(container == null)
-            return null;
-        Item item = null;
-        if (identifier instanceof Integer)
-        {
-            item = Inventory.getFirst((int)identifier);
-        }
-        else if (identifier instanceof String)
-        {
-            item = Inventory.getFirst((String)identifier);
-            if(item == null)
-            {
-                //idk why this jank is needed for contains, but, cba
-                item = Arrays.stream(container.getItems()).filter(i -> i.getName().contains(identifier.toString())).findFirst().orElse(null);
-                if(item != null)
-                {
-                    item = Inventory.getFirst(item.getId());
-                }
-            }
-        }
-        return item;
-    }
-
     public static NPC getNpc(Object identifier)
     {
         if(identifier instanceof NPC)
@@ -325,66 +295,6 @@ public class Api
         return null;
     }
 
-    public static TileObject getObject(Object identifier)
-    {
-        if(identifier instanceof TileObject)
-        {
-            return (TileObject) identifier;
-        }
-        if(identifier instanceof Integer)
-        {
-            return EntityCache.get().objectStream()
-                    .filter(o -> o.getId() == (int) identifier)
-                    .min(Compare.DISTANCE).orElse(null);
-        }
-        else if (identifier instanceof String)
-        {
-            return EntityCache.get().objectStream()
-                    .filter(o -> o.getName().equals(identifier))
-                    .min(Compare.DISTANCE).orElse(null);
-        }
-        return null;
-    }
-
-    public static TileObject getObjectWithin(Object identifier, int distance)
-    {
-        if(identifier instanceof TileObject)
-        {
-            TileObject object = (TileObject) identifier;
-            return object.distanceTo(Static.getClient().getLocalPlayer()) <= distance ? object : null;
-        }
-        if(identifier instanceof Integer)
-        {
-            return EntityCache.get().objectStream()
-                    .filter(o -> o.getId() == (int) identifier && o.distanceTo(Static.getClient().getLocalPlayer()) <= distance)
-                    .min(Compare.DISTANCE).orElse(null);
-        }
-        else if (identifier instanceof String)
-        {
-            return EntityCache.get().objectStream()
-                    .filter(o -> o.getName().equals(identifier) && o.distanceTo(Static.getClient().getLocalPlayer()) <= distance)
-                    .min(Compare.DISTANCE).orElse(null);
-        }
-        return null;
-    }
-
-    public static TileObject getObjectAt(Object identifier, int x, int y)
-    {
-        if(identifier instanceof Integer)
-        {
-            return EntityCache.get().objectStream()
-                    .filter(o -> o.getId() == (int) identifier && o.getWorldLocation().getX() == x && o.getWorldLocation().getY() == y)
-                    .findFirst().orElse(null);
-        }
-        else if (identifier instanceof String)
-        {
-            return EntityCache.get().objectStream()
-                    .filter(o -> o.getName().equals(identifier) && o.getWorldLocation().getX() == x && o.getWorldLocation().getY() == y)
-                    .findFirst().orElse(null);
-        }
-        return null;
-    }
-
     public static TileItem getTileItem(Object identifier)
     {
         if(identifier instanceof TileItem)
@@ -436,26 +346,5 @@ public class Api
         {
             Static.getEventBus().unregister(sub);
         }
-    }
-
-    public static int count(Object[] Identifiers)
-    {
-        int count = 0;
-        for (Object identifier : Identifiers)
-        {
-            if (identifier instanceof Integer)
-            {
-                count += Inventory.getCount((int) identifier);
-            }
-            else if (identifier instanceof String)
-            {
-                count += Inventory.getCount((String) identifier);
-            }
-            else if (identifier instanceof Item)
-            {
-                count += Inventory.getCount(((Item) identifier).getName());
-            }
-        }
-        return count;
     }
 }

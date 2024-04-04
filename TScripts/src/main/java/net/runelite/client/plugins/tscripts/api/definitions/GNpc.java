@@ -5,6 +5,7 @@ import net.runelite.api.Item;
 import net.runelite.api.NPC;
 import net.runelite.client.plugins.tscripts.api.Api;
 import net.runelite.client.plugins.tscripts.api.MethodManager;
+import net.runelite.client.plugins.tscripts.api.library.TItem;
 import net.runelite.client.plugins.tscripts.types.filters.UserQueries;
 import net.runelite.client.plugins.tscripts.types.GroupDefinition;
 import net.runelite.client.plugins.tscripts.types.MethodDefinition;
@@ -66,7 +67,7 @@ public class GNpc implements GroupDefinition
                 {
                     Object _item = function.getArg(0, manager);
                     Object _npc = function.getArg(1, manager);
-                    Item item = Api.getItem(_item);
+                    Item item = TItem.getItem(_item);
                     if (item == null)
                         return;
                     NPC npc = Api.getFreeNpc(_npc);

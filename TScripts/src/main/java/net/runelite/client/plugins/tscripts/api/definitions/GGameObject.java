@@ -7,6 +7,8 @@ import net.runelite.api.queries.GameObjectQuery;
 import net.runelite.api.queries.TileObjectQuery;
 import net.runelite.client.plugins.tscripts.api.Api;
 import net.runelite.client.plugins.tscripts.api.MethodManager;
+import net.runelite.client.plugins.tscripts.api.library.TItem;
+import net.runelite.client.plugins.tscripts.api.library.TObjects;
 import net.runelite.client.plugins.tscripts.types.GroupDefinition;
 import net.runelite.client.plugins.tscripts.types.MethodDefinition;
 import net.runelite.client.plugins.tscripts.types.Pair;
@@ -37,7 +39,7 @@ public class GGameObject implements GroupDefinition
                 function ->
                 {
                     Object identifier = function.getArg(0, manager);
-                    TileObject object = Api.getObject(identifier);
+                    TileObject object = TObjects.getObject(identifier);
 
                     if(object == null)
                         return;
@@ -46,12 +48,12 @@ public class GGameObject implements GroupDefinition
                     if(interaction instanceof Integer)
                     {
                         int action = (int) interaction;
-                        object.interact(action);
+                        TObjects.interact(object, action);
                     }
                     else if(interaction instanceof String)
                     {
                         String action = (String) interaction;
-                        object.interact(action);
+                        TObjects.interact(object, action);
                     }
                 }, "Interacts with the object");
         addMethod(methods, "itemOnObject",
@@ -67,15 +69,15 @@ public class GGameObject implements GroupDefinition
                     if(container == null)
                         return;
 
-                    Item item = Api.getItem(_item);
+                    Item item = TItem.getItem(_item);
                     if (item == null)
                         return;
 
-                    TileObject object = Api.getObject(_object);
+                    TileObject object = TObjects.getObject(_object);
                     if(object == null)
                         return;
 
-                    item.useOn(object);
+                    TItem.useOn(item, object);
                 }, "Uses an item on an object");
         addMethod(methods, "getObject", Type.OBJECT,
                 ImmutableMap.of(
@@ -84,7 +86,7 @@ public class GGameObject implements GroupDefinition
                 function ->
                 {
                     Object identifier = function.getArg(0, manager);
-                    return Api.getObject(identifier);
+                    return TObjects.getObject(identifier);
                 }, "Gets an object");
         addMethod(methods, "getObjectAt", Type.OBJECT,
                 ImmutableMap.of(
@@ -111,7 +113,7 @@ public class GGameObject implements GroupDefinition
                     for(int i = 0; i < end; i++)
                     {
                         identifier = function.getArg(i, manager);
-                        TileObject object = Api.getObjectAt(identifier, point.getX(), point.getY());
+                        TileObject object = TObjects.getObjectAt(identifier, point.getX(), point.getY());
                         if(object != null)
                             return object;
                     }
@@ -125,7 +127,7 @@ public class GGameObject implements GroupDefinition
                 function ->
                 {
                     Object identifier = function.getArg(0, manager);
-                    TileObject object = Api.getObject(identifier);
+                    TileObject object = TObjects.getObject(identifier);
                     if(object == null)
                         return null;
                     return new WorldPoint(object.getWorldLocation().getX(), object.getWorldLocation().getY(), object.getWorldLocation().getPlane());
@@ -137,7 +139,7 @@ public class GGameObject implements GroupDefinition
                 function ->
                 {
                     Object identifier = function.getArg(0, manager);
-                    return Api.getObject(identifier) != null;
+                    return TObjects.getObject(identifier) != null;
                 }, "Gets a game objects location");
         addMethod(methods, "objectExistsWithin", Type.BOOL,
                 ImmutableMap.of(
@@ -148,7 +150,7 @@ public class GGameObject implements GroupDefinition
                 {
                     Object identifier = function.getArg(0, manager);
                     int distance = function.getArg(1, manager);
-                    return Api.getObjectWithin(identifier, distance) != null;
+                    return TObjects.getObjectWithin(identifier, distance) != null;
                 }, "Checks if an object exists within a certain distance");
         addMethod(methods, "getObjectWithin", Type.BOOL,
                 ImmutableMap.of(
@@ -159,7 +161,7 @@ public class GGameObject implements GroupDefinition
                 {
                     Object identifier = function.getArg(0, manager);
                     int distance = function.getArg(1, manager);
-                    return Api.getObjectWithin(identifier, distance);
+                    return TObjects.getObjectWithin(identifier, distance);
                 }, "Gets an object within a certain distance");
 
         return methods;

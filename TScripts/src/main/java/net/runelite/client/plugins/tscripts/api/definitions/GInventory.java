@@ -6,6 +6,7 @@ import net.runelite.api.Item;
 import net.runelite.api.ItemContainer;
 import net.runelite.client.plugins.tscripts.api.Api;
 import net.runelite.client.plugins.tscripts.api.MethodManager;
+import net.runelite.client.plugins.tscripts.api.library.TItem;
 import net.runelite.client.plugins.tscripts.types.GroupDefinition;
 import net.runelite.client.plugins.tscripts.types.MethodDefinition;
 import net.runelite.client.plugins.tscripts.types.Pair;
@@ -64,7 +65,7 @@ public class GInventory implements GroupDefinition
                         return;
                     Object identifier = function.getArg(0, manager);
 
-                    Item item = Api.getItem(identifier);
+                    Item item = TItem.getItem(identifier);
 
                     if (item == null)
                         return;
@@ -72,11 +73,11 @@ public class GInventory implements GroupDefinition
                     Object operation = function.getArg(1, manager);
                     if (operation instanceof Integer)
                     {
-                        item.interact((int) operation);
+                        TItem.interact(item, (int) operation);
                     }
                     else if (operation instanceof String)
                     {
-                        item.interact((String) operation);
+                        TItem.interact(item, (String) operation);
                     }
                 }, "Interacts with the item in the inventory");
         addMethod(methods, "consume",
@@ -89,17 +90,13 @@ public class GInventory implements GroupDefinition
 
                     for(Object identifier : function.getArgs())
                     {
-                        if (identifier instanceof Integer)
-                        {
-                            item = Inventory.getFirst((int) identifier);
-                        }
-                        else if (identifier instanceof String)
-                        {
-                            item = Inventory.getFirst((String) identifier);
-                        }
-                        else if (identifier instanceof Item)
+                        if (identifier instanceof Item)
                         {
                             item = (Item) identifier;
+                        }
+                        else
+                        {
+                            item = TItem.getItem(identifier);
                         }
 
                         if(item != null)
@@ -111,15 +108,15 @@ public class GInventory implements GroupDefinition
 
                     if(ArrayUtils.contains(item.getActions(), "Eat"))
                     {
-                        item.interact("Eat");
+                        TItem.interact(item, "Eat");
                     }
                     else if(ArrayUtils.contains(item.getActions(), "Sip"))
                     {
-                        item.interact("Sip");
+                        TItem.interact(item, "Sip");
                     }
                     else if(ArrayUtils.contains(item.getActions(), "Drink"))
                     {
-                        item.interact("Drink");
+                        TItem.interact(item, "Drink");
                     }
 
                 }, "Consumes the first occurrence of any of the given items in the inventory");
@@ -149,12 +146,7 @@ public class GInventory implements GroupDefinition
 
                     for(Item item : items)
                     {
-                        item.drop();
-                        try {
-                            Thread.sleep(20);
-                        } catch (InterruptedException ex) {
-                            Logging.errorLog(ex);
-                        }
+                        TItem.interact(item, "Drop");
                     }
                 }, "Drops all items with the given names and/or id's");
         addMethod(methods, "itemOnItem",
@@ -169,7 +161,7 @@ public class GInventory implements GroupDefinition
                     if(container == null)
                         return;
 
-                    Item item = Api.getItem(_item);
+                    Item item = TItem.getItem(_item);
                     if (item == null)
                         return;
 
@@ -198,7 +190,7 @@ public class GInventory implements GroupDefinition
                     if (item2 == null)
                         return;
 
-                    item.useOn(item2);
+                    TItem.useOn(item, item2);
                 }, "Uses the first item on the first occurrence of any of the other items listed");
         addMethod(methods, "getItem", Type.OBJECT,
                 ImmutableMap.of(
@@ -211,7 +203,7 @@ public class GInventory implements GroupDefinition
                     if(container == null)
                         return null;
 
-                    return Api.getItem(_item1);
+                    return TItem.getItem(_item1);
                 }, "gets and item from the inventory");
         addMethod(methods, "equip", ImmutableMap.of(0, Pair.of("item", Type.ANY)),
                 function ->
@@ -220,11 +212,18 @@ public class GInventory implements GroupDefinition
                     ItemContainer container = Static.getClient().getItemContainer(InventoryID.INVENTORY);
                     if(container == null)
                         return;
-                    Item item = Api.getItem(identifier);
+                    Item item = TItem.getItem(identifier);
                     if (item == null)
                         return;
-
-                    item.interact(2);
+                    TItem.interact(item, 2);
+                }, "Equips the item");
+        addMethod(methods, "count", Type.INT, ImmutableMap.of(0, Pair.of("items", Type.VARARGS)),
+                function ->
+                {
+                    ItemContainer container = Static.getClient().getItemContainer(InventoryID.INVENTORY);
+                    if(container == null)
+                        return 0;
+                    return  TItem.count(function.getArgs());
                 }, "Equips the item");
         return methods;
     }

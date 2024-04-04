@@ -5,6 +5,7 @@ import net.runelite.api.GameState;
 import net.runelite.api.coords.WorldPoint;
 import net.runelite.client.plugins.tscripts.api.Api;
 import net.runelite.client.plugins.tscripts.api.MethodManager;
+import net.runelite.client.plugins.tscripts.api.library.TItem;
 import net.runelite.client.plugins.tscripts.types.GroupDefinition;
 import net.runelite.client.plugins.tscripts.types.MethodDefinition;
 import net.runelite.client.plugins.tscripts.types.Pair;
@@ -85,7 +86,7 @@ public class GDelay implements GroupDefinition
                 ),
                 function ->
                 {
-                    int count = Api.count(function.getArgs());
+                    int count = TItem.count(function.getArgs());
                     int current = count;
                     while (count == current)
                     {
@@ -94,7 +95,7 @@ public class GDelay implements GroupDefinition
                             return;
                         }
                         Api.tick(1);
-                        count = Api.count(function.getArgs());
+                        count = TItem.count(function.getArgs());
                     }
                 },
                 "Pauses script until th inventory has gained one of the chosen item(s)"
