@@ -1,16 +1,12 @@
 package net.runelite.client.plugins.tscripts.ui.debug;
 
 import lombok.Getter;
-import lombok.SneakyThrows;
 import net.runelite.client.plugins.tscripts.lexer.Lexer;
 import net.runelite.client.plugins.tscripts.lexer.Scope.Scope;
 import net.runelite.client.plugins.tscripts.lexer.Tokenizer;
 import net.runelite.client.plugins.tscripts.runtime.Runtime;
 import net.runelite.client.plugins.tscripts.util.Logging;
-
 import javax.swing.*;
-import javax.swing.event.ListSelectionEvent;
-import javax.swing.event.ListSelectionListener;
 import java.awt.*;
 import java.nio.file.Files;
 import java.nio.file.Path;

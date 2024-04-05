@@ -72,7 +72,6 @@ public class Runtime
             {
                 TEventBus.post(new ScriptStateChanged(scriptName, profile, true));
                 processScope(scope);
-                TEventBus.post(new ScriptStateChanged(scriptName, profile, false));
             }
             catch (Exception ex)
             {
@@ -80,6 +79,7 @@ public class Runtime
             }
             TGame.unregister(subscribers);
             _done = true;
+            TEventBus.post(new ScriptStateChanged(scriptName, profile, false));
             postFlags();
         }).start();
     }

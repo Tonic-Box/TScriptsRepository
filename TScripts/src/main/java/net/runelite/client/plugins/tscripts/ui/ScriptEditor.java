@@ -59,6 +59,7 @@ class ScriptEditor extends JFrame implements ActionListener {
     private final JSplitPane splitPane; // Add a split pane
     private final JList<String> scriptList;
     private final DefaultListModel<String> scriptListModel = new DefaultListModel<>();
+    private int runningIndex = -1;
     private String name = null;
     private String profile = null;
     private DocumentListener documentListener;
@@ -111,6 +112,7 @@ class ScriptEditor extends JFrame implements ActionListener {
         String path = plugin.getScriptPath(name, profile);
         this.textArea = generateTextArea(path);
         this.scriptList = new JList<>(scriptListModel);
+        this.scriptList.setCellRenderer(new CustomListCellRenderer());
         CompletionProvider provider = plugin.getBaseCompletion();
         generateAutoCompletion(provider).install(textArea);
         setTheme();
@@ -126,25 +128,32 @@ class ScriptEditor extends JFrame implements ActionListener {
         this.breakpoint.setVisible(false);
         generateMenu();
         debugToolPanel = new DebugToolPanel(plugin.getRuntime(), Paths.get(path), name);
-        debugToolPanel.setPreferredSize(new Dimension(600, getHeight())); // Set the preferred width of the debug panel
+        debugToolPanel.setPreferredSize(new Dimension(600, getHeight()));
         splitPane = generateSplitPane();
         TEventBus.register(this);
     }
 
     private void updateScriptList() {
         updatingList = true;
+        runningIndex = -1;
         scriptListModel.clear();
         File dir = new File(plugin.getProfilePath(profile));
         File[] directoryListing = dir.listFiles();
         assert directoryListing != null;
         String selected = "";
+        int i = 0;
         for (File script : directoryListing) {
-            if (script.getName().toLowerCase().contains(".script")) {
+            if (script.getName().toLowerCase().endsWith(".script")) {
                 String s = script.getName().split("\\.")[0];
-                scriptListModel.addElement(s);
                 if (s.equals(name)) { // Assuming 'name' is the variable holding the name of the currently editing script
                     selected = s;
                 }
+
+                if (plugin.getRuntime().getScriptName().equals(s) && plugin.getRuntime().getProfile().equals(profile) && !plugin.getRuntime().isDone()) {
+                    runningIndex = i;
+                }
+                scriptListModel.addElement(s);
+                i++;
             }
         }
         scriptList.setSelectedValue(selected, true); // Select the matching entry and scroll to it
@@ -153,7 +162,7 @@ class ScriptEditor extends JFrame implements ActionListener {
 
     private void changeScript(String name) throws IOException {
         this.name = name;
-        setTitle(name);
+        setTitle("[" + profile + "] " + name);
         String path = plugin.getScriptPath(name, profile);
         Path scriptPath = Paths.get(path);
         debugToolPanel.update(scriptPath, name);
@@ -293,6 +302,7 @@ class ScriptEditor extends JFrame implements ActionListener {
             breakpoint.setVisible(false);
             this.run.setText("Run Script");
         }
+        updateScriptList();
     }
 
     @_Subscribe
@@ -535,6 +545,17 @@ class ScriptEditor extends JFrame implements ActionListener {
         @Override
         public int getIconHeight() {
             return 10;
+        }
+    }
+
+    class CustomListCellRenderer extends DefaultListCellRenderer {
+        @Override
+        public Component getListCellRendererComponent(JList<?> list, Object value, int index, boolean isSelected, boolean cellHasFocus) {
+            JLabel label = (JLabel) super.getListCellRendererComponent(list, value, index, isSelected, cellHasFocus);
+            if (index == runningIndex) {
+                label.setForeground(Color.GREEN);
+            }
+            return label;
         }
     }
 }
