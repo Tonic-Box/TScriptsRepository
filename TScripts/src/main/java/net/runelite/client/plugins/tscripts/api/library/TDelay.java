@@ -7,6 +7,17 @@ import net.unethicalite.client.Static;
 
 public class TDelay
 {
+    public static void sleep(long ms)
+    {
+        try
+        {
+            Thread.sleep(ms);
+        }
+        catch (Exception ex) {
+            Logging.errorLog(ex);
+        }
+    }
+
     public static void tick(int length)
     {
         int next = Static.getClient().getTickCount() + length;
@@ -16,13 +27,7 @@ public class TDelay
             {
                 return;
             }
-            try
-            {
-                Thread.sleep(50);
-            }
-            catch (Exception ex) {
-                Logging.errorLog(ex);
-            }
+            sleep(50);
         }
     }
 

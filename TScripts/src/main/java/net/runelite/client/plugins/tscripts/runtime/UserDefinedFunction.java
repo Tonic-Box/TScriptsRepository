@@ -14,9 +14,4 @@ public class UserDefinedFunction
 
     @Setter
     private Object returnValue = null;
-
-    public boolean hasReturnValue()
-    {
-        return returnValue != null;
-    }
 }

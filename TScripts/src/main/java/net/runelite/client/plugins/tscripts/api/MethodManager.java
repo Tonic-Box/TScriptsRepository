@@ -3,6 +3,7 @@ package net.runelite.client.plugins.tscripts.api;
 import com.google.common.reflect.ClassPath;
 import lombok.Getter;
 import net.runelite.client.plugins.tscripts.TScriptsPlugin;
+import net.runelite.client.plugins.tscripts.api.library.TDelay;
 import net.runelite.client.plugins.tscripts.types.GroupDefinition;
 import net.runelite.client.plugins.tscripts.types.MethodDefinition;
 import net.runelite.client.plugins.tscripts.types.Pair;
@@ -68,10 +69,7 @@ public class MethodManager
         }
 
         //bc menuactions
-        try {
-            Thread.sleep(20);
-        } catch (InterruptedException ignored) {
-        }
+        TDelay.sleep(20);
 
         return out == null ? "null" : out;
     }

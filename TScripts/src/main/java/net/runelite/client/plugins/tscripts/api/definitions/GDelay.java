@@ -40,14 +40,8 @@ public class GDelay implements GroupDefinition
         addMethod(methods, "sleep", ImmutableMap.of(0, Pair.of("length", Type.INT)),
                 function ->
                 {
-                    try
-                    {
-                        int length = function.getArg(0, manager);
-                        Thread.sleep(length);
-                    } catch (InterruptedException ex)
-                    {
-                        Logging.errorLog(ex);
-                    }
+                    int length = function.getArg(0, manager);
+                    TDelay.sleep(length);
                 }, "Pauses script for a # of milliseconds.");
         addMethod(methods, "waitUntilIdle", ImmutableMap.of(),
                 function -> TDelay.waitUntilIdle(),
@@ -56,14 +50,8 @@ public class GDelay implements GroupDefinition
         addMethod(methods, "sleep", ImmutableMap.of(0, Pair.of("length", Type.INT)),
                 function ->
                 {
-                    try
-                    {
-                        int length = function.getArg(0, manager);
-                        Thread.sleep(length);
-                    } catch (InterruptedException ex)
-                    {
-                        Logging.errorLog(ex);
-                    }
+                    int length = function.getArg(0, manager);
+                    TDelay.sleep(length);
                 }, "Pauses script for a # of milliseconds.");
         addMethod(methods, "waitUntilOnTile", ImmutableMap.of(
                 0, Pair.of("coords", Type.VARARGS)

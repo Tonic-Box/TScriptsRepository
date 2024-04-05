@@ -3,6 +3,7 @@ package net.runelite.client.plugins.tscripts.runtime;
 import lombok.Getter;
 import net.runelite.client.eventbus.EventBus;
 import net.runelite.client.plugins.tscripts.api.MethodManager;
+import net.runelite.client.plugins.tscripts.api.library.TDelay;
 import net.runelite.client.plugins.tscripts.api.library.TGame;
 import net.runelite.client.plugins.tscripts.lexer.MethodCall;
 import net.runelite.client.plugins.tscripts.lexer.Scope.Scope;
@@ -30,18 +31,12 @@ public class Runtime
     private final Map<String, UserDefinedFunction> userDefinedFunctions = new HashMap<>();
     @Getter
     private final MethodManager methodManager;
-    private boolean _die = false;
-    private boolean _break = false;
-    private boolean _continue = false;
-    private boolean _done = true;
-    @Getter
-    private String scriptName = "";
-    @Getter
-    private String profile = "";
+    private UserDefinedFunction currentFunction = null;
     @Getter
     private Scope rootScope = new Scope(new HashMap<>(), null);
-    private boolean breakpointTripped = false;
-    private UserDefinedFunction currentFunction = null;
+    @Getter
+    private String scriptName = "", profile = "";
+    private boolean _die = false, _break = false, _continue = false, _done = true, _return = false, breakpointTripped = false;
 
     /**
      * Creates a new instance of the Runtime class.
@@ -65,6 +60,7 @@ public class Runtime
         this._die = false;
         this._break = false;
         this._continue = false;
+        this._return = false;
         this.scriptName = scriptName;
         this.profile = profile;
         this.breakpointTripped = false;
@@ -83,7 +79,7 @@ public class Runtime
                 Logging.errorLog(ex);
             }
             TGame.unregister(subscribers);
-            setDone(true);
+            _done = true;
             postFlags();
         }).start();
     }
@@ -94,42 +90,24 @@ public class Runtime
      * @param scope The scope.
      */
     private void processScope(Scope scope) {
-        if(_die || (currentFunction != null && currentFunction.hasReturnValue())) return;
+        if(_die || _return) return;
 
         scope.setCurrent(true);
         postCurrentInstructionChanged();
 
         boolean isRegisterScope = scope.getConditions() != null && scope.getConditions().getType() != null  && scope.getConditions().getType().equals(ConditionType.REGISTER);
-        boolean isUserDefinedFunction = scope.getConditions() != null && scope.getConditions().getType() != null  && scope.getConditions().getType().equals(ConditionType.USER_DEFINED_FUNCTION);
-
         if(isRegisterScope)
         {
-            Class<?> event = methodManager.getEventClass(scope.getConditions().getConditions().get(0).getLeft().toString());
-            if(event != null)
-            {
-                EventBus.Subscriber subscriber = TGame.register(event, object -> {
-                    try
-                    {
-                        Runtime runtime = new Runtime();
-                        Scope eventScope = scope.clone();
-                        eventScope.setConditions(null);
-                        new Thread(() -> runtime.execute(eventScope, "TS_EVENT", "TS_EVENT")).start();
-                    }
-                    catch (Exception ex)
-                    {
-                        Logging.errorLog(ex);
-                    }
-                });
-                subscribers.add(subscriber);
-            }
+            addAnonymousEventSubscriber(scope);
+            scope.setCurrent(false);
             return;
         }
-        else if(isUserDefinedFunction)
+
+        boolean isUserDefinedFunction = scope.getConditions() != null && scope.getConditions().getType() != null  && scope.getConditions().getType().equals(ConditionType.USER_DEFINED_FUNCTION);
+        if(isUserDefinedFunction)
         {
-            String name = scope.getConditions().getConditions().get(0).getLeft().toString().replace("\"", "");
-            Scope userDefinedFunction = scope.clone();
-            userDefinedFunction.setConditions(null);
-            userDefinedFunctions.put(name, new UserDefinedFunction(name, userDefinedFunction));
+            addUserDefinedFunction(scope);
+            scope.setCurrent(false);
             return;
         }
 
@@ -139,19 +117,14 @@ public class Runtime
 
         while (shouldProcess)
         {
-            if (isScriptInterrupted()) return;
-
             for (Element element : scope.getElements().values()) {
-                if (isScriptInterrupted()) return;
                 processElement(element);
                 postFlags();
-                if (_die || _break || _continue) break;
-                if(currentFunction != null && currentFunction.hasReturnValue()) return;
+                if (_die || _break || _continue || _return) break;
             }
 
             if (handleControlFlow(isWhileScope)) break;
 
-            // Re-evaluate condition for while loop
             shouldProcess = isWhileScope && processConditions(scope.getConditions());
         }
     }
@@ -205,18 +178,8 @@ public class Runtime
                 postFlags();
                 while (breakpointTripped)
                 {
-                    if(isScriptInterrupted())
-                    {
-                        break;
-                    }
-                    try
-                    {
-                        Thread.sleep(100);
-                    }
-                    catch (InterruptedException ex)
-                    {
-                        Logging.errorLog(ex);
-                    }
+                    if(_done || _die) break;
+                    TDelay.sleep(100);
                 }
                 break;
             case "return":
@@ -226,6 +189,7 @@ public class Runtime
                         currentFunction.setReturnValue(getValue(call.getArgs()[0]));
                     else
                         currentFunction.setReturnValue("null");
+                    _return = true;
                 }
                 break;
             default:
@@ -364,16 +328,8 @@ public class Runtime
         Object output = function.getReturnValue() == null ? "null" : function.getReturnValue();
         function.setReturnValue(null);
         currentFunction = null;
+        _return = false;
         return output;
-    }
-
-    /**
-     * Checks if the script is interrupted.
-     *
-     * @return Whether the script is interrupted.
-     */
-    private boolean isScriptInterrupted() {
-        return _done || _die;
     }
 
     /**
@@ -382,7 +338,7 @@ public class Runtime
      * @return Whether the control flow was handled.
      */
     private boolean handleControlFlow(boolean isWhileScope) {
-        if (_die) return true;
+        if (_die || _return) return true;
 
         if (isWhileScope) {
             if (_break) {
@@ -395,11 +351,7 @@ public class Runtime
             }
         }
 
-        if (_break || _continue) {
-            return true;
-        }
-
-        return currentFunction != null && currentFunction.hasReturnValue();
+        return _break || _continue;
     }
 
     /**
@@ -482,6 +434,46 @@ public class Runtime
     }
 
     /**
+     * Adds a user-defined function.
+     *
+     * @param scope The scope.
+     */
+    private void addUserDefinedFunction(Scope scope)
+    {
+        String name = scope.getConditions().getConditions().get(0).getLeft().toString().replace("\"", "");
+        Scope userDefinedFunction = scope.clone();
+        userDefinedFunction.setConditions(null);
+        userDefinedFunctions.put(name, new UserDefinedFunction(name, userDefinedFunction));
+    }
+
+    /**
+     * Adds an anonymous event subscriber.
+     *
+     * @param scope The scope.
+     */
+    private void addAnonymousEventSubscriber(Scope scope)
+    {
+        Class<?> event = methodManager.getEventClass(scope.getConditions().getConditions().get(0).getLeft().toString());
+        if(event != null)
+        {
+            EventBus.Subscriber subscriber = TGame.register(event, object -> {
+                try
+                {
+                    Runtime runtime = new Runtime();
+                    Scope eventScope = scope.clone();
+                    eventScope.setConditions(null);
+                    new Thread(() -> runtime.execute(eventScope, "TS_EVENT", "TS_EVENT")).start();
+                }
+                catch (Exception ex)
+                {
+                    Logging.errorLog(ex);
+                }
+            });
+            subscribers.add(subscriber);
+        }
+    }
+
+    /**
      * Checks if the object is an instance of the classes.
      *
      * @param test The object to test.
@@ -504,7 +496,6 @@ public class Runtime
     public void killScript()
     {
         _die = true;
-        _done = true;
     }
 
     /**
@@ -515,16 +506,6 @@ public class Runtime
     public boolean isDone()
     {
         return _done;
-    }
-
-    /**
-     * Sets whether the script is done.
-     *
-     * @param done Whether the script is done.
-     */
-    public void setDone(boolean done)
-    {
-        _done = done;
     }
 
     //********** EVENT STUFF **********//
@@ -544,6 +525,7 @@ public class Runtime
         flags.put("die", _die);
         flags.put("break", _break);
         flags.put("continue", _continue);
+        flags.put("return", _return);
         flags.put("breakpointTripped", breakpointTripped);
         flags.put("userDefinedFunctions", userDefinedFunctions.size());
         TEventBus.post(new FlagChanged(flags));
