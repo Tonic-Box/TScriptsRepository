@@ -48,6 +48,7 @@ public class CFGVisualizer extends JPanel {
     private final Runtime runtime;
     private boolean isCurrent = false;
     private double scale = 1.0;
+    private long lastUpdateTime = 0;
 
     public static CFGVisualizer create(Runtime runtime, Scope scope, String name) {
         CFGVisualizer panel = new CFGVisualizer(runtime, scope, name);
@@ -68,27 +69,6 @@ public class CFGVisualizer extends JPanel {
             }
         });
     }
-
-    public void zoomIn() {
-        System.out.println("Zooming in");
-        scale += 0.1;
-        graph.getView().setScale(scale);
-        revalidate();
-        repaint();
-    }
-
-    public void zoomOut() {
-        System.out.println("Zooming out");
-        scale -= 0.1; // Decrease scale by 10%
-        if (scale < 0.1) {
-            scale = 0.1; // Minimum scale limit
-        }
-        graph.getView().setScale(scale);
-        revalidate();
-        repaint();
-    }
-
-    private long lastUpdateTime = 0;
 
     @_Subscribe
     public void onRuntimeCycleCompleted(CurrentInstructionChanged event) {
@@ -497,5 +477,28 @@ public class CFGVisualizer extends JPanel {
             return str.substring(1);
         }
         return str.replaceAll("(?m)^[ \t]*\r?\n", "");
+    }
+
+    /**
+     * Zooms in on the graph
+     */
+    private void zoomIn() {
+        scale += 0.1;
+        graph.getView().setScale(scale);
+        revalidate();
+        repaint();
+    }
+
+    /**
+     * Zooms out on the graph
+     */
+    private void zoomOut() {
+        scale -= 0.1;
+        if (scale < 0.1) {
+            scale = 0.1;
+        }
+        graph.getView().setScale(scale);
+        revalidate();
+        repaint();
     }
 }
