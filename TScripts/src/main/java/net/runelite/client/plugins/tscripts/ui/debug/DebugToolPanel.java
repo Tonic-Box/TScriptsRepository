@@ -42,14 +42,23 @@ public class DebugToolPanel extends JPanel {
         add(mainView, BorderLayout.CENTER);
 
         // Add components to the main view
-        controlFlowGraphVisualizer = CFGVisualizer.create(runtime, getScope(), name); // Placeholder for the actual visualizer
-        mainView.add(controlFlowGraphVisualizer, "ControlFlowGraph");
+        controlFlowGraphVisualizer = CFGVisualizer.create(runtime, getScope(), name);
+        JScrollPane controlFlowGraphScrollPane = new JScrollPane(controlFlowGraphVisualizer);
+        controlFlowGraphScrollPane.setVerticalScrollBarPolicy(JScrollPane.VERTICAL_SCROLLBAR_AS_NEEDED);
+        controlFlowGraphScrollPane.setHorizontalScrollBarPolicy(JScrollPane.HORIZONTAL_SCROLLBAR_AS_NEEDED);
+        mainView.add(controlFlowGraphScrollPane, "ControlFlowGraph");
 
-        VariableInspector variableInspector = VariableInspector.getInstance(runtime); // Placeholder for the actual variable inspector
-        mainView.add(variableInspector, "VariableInspector");
+        VariableInspector variableInspector = VariableInspector.getInstance(runtime);
+        JScrollPane variableInspectorScrollPane = new JScrollPane(variableInspector);
+        variableInspectorScrollPane.setVerticalScrollBarPolicy(JScrollPane.VERTICAL_SCROLLBAR_AS_NEEDED);
+        variableInspectorScrollPane.setHorizontalScrollBarPolicy(JScrollPane.HORIZONTAL_SCROLLBAR_AS_NEEDED);
+        mainView.add(variableInspectorScrollPane, "VariableInspector");
 
         RuntimeInspector runtimeInspector = RuntimeInspector.getInstance();
-        mainView.add(runtimeInspector, "RuntimeInspector");
+        JScrollPane runtimeInspectorScrollPane = new JScrollPane(runtimeInspector);
+        runtimeInspectorScrollPane.setVerticalScrollBarPolicy(JScrollPane.VERTICAL_SCROLLBAR_AS_NEEDED);
+        runtimeInspectorScrollPane.setHorizontalScrollBarPolicy(JScrollPane.HORIZONTAL_SCROLLBAR_AS_NEEDED);
+        mainView.add(runtimeInspectorScrollPane, "RuntimeInspector");
 
         toolingList.addListSelectionListener(e -> {
             String selectedScript = toolingList.getSelectedValue();

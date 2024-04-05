@@ -1,4 +1,4 @@
-package net.runelite.client.plugins.tscripts.util.controlflow;
+package net.runelite.client.plugins.tscripts.util.iterators;
 
 /**
  * This class is used to iterate through numbers.

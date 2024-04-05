@@ -8,6 +8,7 @@ import com.mxgraph.util.mxConstants;
 import com.mxgraph.view.mxCellState;
 import com.mxgraph.view.mxGraph;
 import com.mxgraph.view.mxStylesheet;
+import net.runelite.client.plugins.tscripts.util.HashUtil;
 import net.runelite.client.plugins.tscripts.util.eventbus.TEventBus;
 import net.runelite.client.plugins.tscripts.util.eventbus._Subscribe;
 import net.runelite.client.plugins.tscripts.util.eventbus.events.CurrentInstructionChanged;
@@ -24,6 +25,8 @@ import net.runelite.client.plugins.tscripts.lexer.variable.VariableAssignment;
 import net.runelite.client.plugins.tscripts.runtime.Runtime;
 import net.runelite.client.plugins.tscripts.util.TextUtil;
 import net.runelite.client.plugins.tscripts.util.controlflow.*;
+import net.runelite.client.plugins.tscripts.util.iterators.AlphabetIterator;
+import net.runelite.client.plugins.tscripts.util.iterators.NumericIterator;
 import javax.swing.*;
 import java.util.HashMap;
 import java.util.Map;
@@ -44,6 +47,7 @@ public class CFGVisualizer extends JPanel {
     private String scriptName;
     private final Runtime runtime;
     private boolean isCurrent = false;
+    private double scale = 1.0;
 
     public static CFGVisualizer create(Runtime runtime, Scope scope, String name) {
         CFGVisualizer panel = new CFGVisualizer(runtime, scope, name);
@@ -56,6 +60,32 @@ public class CFGVisualizer extends JPanel {
         this.scriptName = name;
         this.runtime = runtime;
         TEventBus.register(this);
+        addMouseWheelListener(e -> {
+            if (e.getPreciseWheelRotation() < 0) {
+                zoomIn();
+            } else {
+                zoomOut();
+            }
+        });
+    }
+
+    public void zoomIn() {
+        System.out.println("Zooming in");
+        scale += 0.1;
+        graph.getView().setScale(scale);
+        revalidate();
+        repaint();
+    }
+
+    public void zoomOut() {
+        System.out.println("Zooming out");
+        scale -= 0.1; // Decrease scale by 10%
+        if (scale < 0.1) {
+            scale = 0.1; // Minimum scale limit
+        }
+        graph.getView().setScale(scale);
+        revalidate();
+        repaint();
     }
 
     private long lastUpdateTime = 0;
@@ -87,6 +117,7 @@ public class CFGVisualizer extends JPanel {
     private void init(Scope scope)
     {
         this.graph = new mxGraph();
+        this.graph.getView().setScale(scale);
         this.graph.setCellsEditable(false);
         this.graph.setAutoOrigin(true);
         this.graph.setAutoSizeCells(true);
@@ -116,7 +147,16 @@ public class CFGVisualizer extends JPanel {
 
         applyTreeLayout();
 
-        mxGraphComponent graphComponent = new mxGraphComponent(graph);
+        removeAll();
+        graph.setEventsEnabled(false);
+        mxGraphComponent  graphComponent = new mxGraphComponent(graph);
+        graphComponent.addMouseWheelListener(e -> {
+            if (e.getPreciseWheelRotation() < 0) {
+                zoomIn();
+            } else {
+                zoomOut();
+            }
+        });
         add(graphComponent);
         edgeLabels.clear();
         nodesMap.clear();
@@ -125,11 +165,6 @@ public class CFGVisualizer extends JPanel {
     public void updateGraph(Scope scope) {
         SwingUtilities.invokeLater(() -> {
             init(scope);
-
-            // Update the UI
-            removeAll();
-            mxGraphComponent graphComponent = new mxGraphComponent(graph);
-            add(graphComponent);
             revalidate();
             repaint();
         });
@@ -179,7 +214,7 @@ public class CFGVisualizer extends JPanel {
         String edgeLabel = "";
         int stackNumber = numericIterator.getNextNumber();
         String label = "<html>" + colorize("//Block-" + stackNumber, Colors.NOTATION) + "\n" + createLabelFromScope(scope) + "</html>";
-        String nodeHash = JsonHashUtil.getSha256Hash(scope.toJson());
+        String nodeHash = HashUtil.getSha256Hash(scope.toJson());
         if(edgeLabels.containsKey(nodeHash))
         {
             edgeLabel = edgeLabels.get(nodeHash);
@@ -318,7 +353,7 @@ public class CFGVisualizer extends JPanel {
             {
                 String newScopeLabel = alphabetIterator.getNextLetter();
                 label.append("\n").append(tab).append(colorize("[scope] ", Colors.FUNCTIONS)).append(colorize("//flows to edge " + newScopeLabel, Colors.NOTATION));
-                edgeLabels.put(JsonHashUtil.getSha256Hash(((Scope)element).toJson()), "<html>" + colorize(newScopeLabel, Colors.EDGE_LABEL_COLOR) + "</html>");
+                edgeLabels.put(HashUtil.getSha256Hash(((Scope)element).toJson()), "<html>" + colorize(newScopeLabel, Colors.EDGE_LABEL_COLOR) + "</html>");
                 continue;
             }
             label.append("\n").append(tab).append(createLabelFromNode(element));
