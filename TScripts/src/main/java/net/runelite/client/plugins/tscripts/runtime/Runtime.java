@@ -88,36 +88,19 @@ public class Runtime
         }).start();
     }
 
-    private Object processUserFunction(UserDefinedFunction function)
-    {
-        currentFunction = function;
-        processScope(function.getScope());
-        Object output = function.getReturnValue() == null ? "null" : function.getReturnValue();
-        function.setReturnValue(null);
-        currentFunction = null;
-        return output;
-    }
-
     /**
      * Processes a scope.
      *
      * @param scope The scope.
      */
     private void processScope(Scope scope) {
-        if (_die) {
-            return;
-        }
-
-        if(currentFunction != null && currentFunction.hasReturnValue())
-        {
-            return;
-        }
+        if(_die || (currentFunction != null && currentFunction.hasReturnValue())) return;
 
         scope.setCurrent(true);
         postCurrentInstructionChanged();
+
         boolean isRegisterScope = scope.getConditions() != null && scope.getConditions().getType() != null  && scope.getConditions().getType().equals(ConditionType.REGISTER);
         boolean isUserDefinedFunction = scope.getConditions() != null && scope.getConditions().getType() != null  && scope.getConditions().getType().equals(ConditionType.USER_DEFINED_FUNCTION);
-        scope.setCurrent(false);
 
         if(isRegisterScope)
         {
@@ -152,6 +135,7 @@ public class Runtime
 
         boolean isWhileScope = scope.getConditions() != null && scope.getConditions().getType() != null && scope.getConditions().getType().equals(ConditionType.WHILE);
         boolean shouldProcess = (scope.getConditions() == null || scope.getConditions().getType() == null) || processConditions(scope.getConditions());
+        scope.setCurrent(false);
 
         while (shouldProcess)
         {
@@ -159,13 +143,10 @@ public class Runtime
 
             for (Element element : scope.getElements().values()) {
                 if (isScriptInterrupted()) return;
-                processElement(element); //.clone());
+                processElement(element);
                 postFlags();
                 if (_die || _break || _continue) break;
-                if(currentFunction != null && currentFunction.hasReturnValue())
-                {
-                    return;
-                }
+                if(currentFunction != null && currentFunction.hasReturnValue()) return;
             }
 
             if (handleControlFlow(isWhileScope)) break;
@@ -304,6 +285,11 @@ public class Runtime
         return new MethodCall(methodCall.getName(), objects, methodCall.isNegate());
     }
 
+    /**
+     * Processes conditions.
+     * @param conditions The conditions.
+     * @return Whether the conditions are true.
+     */
     private boolean processConditions(Conditions conditions) {
         boolean result = true;
         for (Map.Entry<Integer, Condition> entry : conditions.getConditions().entrySet())
@@ -364,6 +350,21 @@ public class Runtime
         }
 
         return condition.getComparator() != null && condition.getComparator().process(left, right);
+    }
+
+    /**
+     * Processes a user-defined function.
+     * @param function The function.
+     * @return The output of the function.
+     */
+    private Object processUserFunction(UserDefinedFunction function)
+    {
+        currentFunction = function;
+        processScope(function.getScope());
+        Object output = function.getReturnValue() == null ? "null" : function.getReturnValue();
+        function.setReturnValue(null);
+        currentFunction = null;
+        return output;
     }
 
     /**
@@ -528,6 +529,9 @@ public class Runtime
 
     //********** EVENT STUFF **********//
 
+    /**
+     * Posts the flags.
+     */
     private void postFlags()
     {
         Map<String,Object> flags = new HashMap<>();
@@ -545,6 +549,9 @@ public class Runtime
         TEventBus.post(new FlagChanged(flags));
     }
 
+    /**
+     * Posts the current instruction changed event.
+     */
     private void postCurrentInstructionChanged()
     {
         TEventBus.post(CurrentInstructionChanged.get());
