@@ -25,7 +25,7 @@ public class EntityCache
     {
         synchronized (objectCache)
         {
-            return objectCache.stream();
+            return new ArrayList<>(objectCache).stream();
         }
     }
 
