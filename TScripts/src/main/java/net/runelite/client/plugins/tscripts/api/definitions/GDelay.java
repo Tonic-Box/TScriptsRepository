@@ -7,6 +7,7 @@ import net.runelite.client.plugins.tscripts.api.Api;
 import net.runelite.client.plugins.tscripts.api.MethodManager;
 import net.runelite.client.plugins.tscripts.api.library.TDelay;
 import net.runelite.client.plugins.tscripts.api.library.TItem;
+import net.runelite.client.plugins.tscripts.api.library.TWorldPoint;
 import net.runelite.client.plugins.tscripts.types.GroupDefinition;
 import net.runelite.client.plugins.tscripts.types.MethodDefinition;
 import net.runelite.client.plugins.tscripts.types.Pair;
@@ -58,15 +59,19 @@ public class GDelay implements GroupDefinition
                 ),
                 function ->
                 {
+                    WorldPoint destination;
                     if(function.getArg(0, manager) instanceof WorldPoint)
                     {
-                        WorldPoint destination = function.getArg(0, manager);
-                        TDelay.waitUntilOnTile(destination.getX(), destination.getY());
-                        return;
+                        destination = TWorldPoint.translate(function.getArg(0, manager));
                     }
-                    int x = function.getArg(0, manager);
-                    int y = function.getArg(1, manager);
-                    TDelay.waitUntilOnTile(x, y);
+                    else
+                    {
+                        int x = function.getArg(0, manager);
+                        int y = function.getArg(1, manager);
+                        destination = TWorldPoint.translate(new WorldPoint(x, y, Static.getClient().getPlane()));
+                    }
+
+                    TDelay.waitUntilOnTile(destination.getX(), destination.getY());
                 },
                 "Pauses script until the local player is on a given tile"
         );

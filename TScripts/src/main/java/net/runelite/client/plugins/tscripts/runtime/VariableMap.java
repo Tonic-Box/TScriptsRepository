@@ -20,7 +20,7 @@ public class VariableMap
     {
         if (!isFrozen(key))
             variableMap.put(key, value);
-        pollVariableInspector(key, value);
+        postChangedEvent(key, value);
     }
 
     public Object get(String key)
@@ -40,7 +40,7 @@ public class VariableMap
         TEventBus.post(VariablesCleared.get());
     }
 
-    private void pollVariableInspector(String key, Object value)
+    private void postChangedEvent(String key, Object value)
     {
         TEventBus.post(new VariableUpdated(key, value));
     }

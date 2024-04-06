@@ -18,6 +18,7 @@ import net.runelite.client.plugins.Plugin;
 import net.runelite.client.plugins.PluginDescriptor;
 import net.runelite.client.plugins.itemstats.stats.Stat;
 import net.runelite.client.plugins.tscripts.api.MethodManager;
+import net.runelite.client.plugins.tscripts.api.library.TWorldPoint;
 import net.runelite.client.plugins.tscripts.runtime.Runtime;
 import net.runelite.client.plugins.tscripts.ui.TScriptsPanel;
 import net.runelite.client.plugins.tscripts.ui.debug.VariableInspector;
@@ -472,7 +473,7 @@ public class TScriptsPlugin  extends Plugin {
             {
                 if(Static.getClient().getSelectedSceneTile() != null)
                 {
-                    WorldPoint worldPoint = Static.getClient().getSelectedSceneTile().getWorldLocation();
+                    WorldPoint worldPoint = TWorldPoint.get(Static.getClient().getSelectedSceneTile().getWorldLocation());
                     client.createMenuEntry(1)
                             .setOption("Copy coords [" + worldPoint.getX() + ", " + worldPoint.getY() + "]")
                             .setTarget(color + name + " ")

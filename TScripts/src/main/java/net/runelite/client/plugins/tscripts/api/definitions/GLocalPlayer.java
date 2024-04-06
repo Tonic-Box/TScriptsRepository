@@ -4,6 +4,7 @@ import com.google.common.collect.ImmutableMap;
 import net.runelite.client.plugins.tscripts.api.Api;
 import net.runelite.client.plugins.tscripts.api.MethodManager;
 import net.runelite.client.plugins.tscripts.api.library.TActor;
+import net.runelite.client.plugins.tscripts.api.library.TWorldPoint;
 import net.runelite.client.plugins.tscripts.types.GroupDefinition;
 import net.runelite.client.plugins.tscripts.types.MethodDefinition;
 import net.runelite.client.plugins.tscripts.types.Type;
@@ -24,11 +25,11 @@ public class GLocalPlayer implements GroupDefinition
     {
         List<MethodDefinition> methods = new ArrayList<>();
         addMethod(methods, "getX", Type.INT, ImmutableMap.of(),
-                function -> Static.getClient().getLocalPlayer().getWorldLocation().getX(),
+                function -> TWorldPoint.get(Static.getClient().getLocalPlayer().getWorldLocation()).getX(),
                 "Returns the x coordinate of the local player"
         );
         addMethod(methods, "getY", Type.INT, ImmutableMap.of(),
-                function -> Static.getClient().getLocalPlayer().getWorldLocation().getY(),
+                function -> TWorldPoint.get(Static.getClient().getLocalPlayer().getWorldLocation()).getY(),
                 "Returns the y coordinate of the local player"
         );
         addMethod(methods, "inCombat", Type.BOOL, ImmutableMap.of(),

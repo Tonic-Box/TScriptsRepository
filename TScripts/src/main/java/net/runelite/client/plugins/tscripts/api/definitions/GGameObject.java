@@ -9,6 +9,7 @@ import net.runelite.client.plugins.tscripts.api.Api;
 import net.runelite.client.plugins.tscripts.api.MethodManager;
 import net.runelite.client.plugins.tscripts.api.library.TItem;
 import net.runelite.client.plugins.tscripts.api.library.TObjects;
+import net.runelite.client.plugins.tscripts.api.library.TWorldPoint;
 import net.runelite.client.plugins.tscripts.types.GroupDefinition;
 import net.runelite.client.plugins.tscripts.types.MethodDefinition;
 import net.runelite.client.plugins.tscripts.types.Pair;
@@ -108,6 +109,8 @@ public class GGameObject implements GroupDefinition
                         point = new WorldPoint(function.getArg(size - 2, manager), function.getArg(size - 1, manager), Static.getClient().getPlane());
                         end = size - 2;
                     }
+
+                    point = TWorldPoint.translate(point);
 
                     Object identifier;
                     for(int i = 0; i < end; i++)

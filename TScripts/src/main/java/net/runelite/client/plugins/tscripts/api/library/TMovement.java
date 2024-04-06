@@ -8,8 +8,9 @@ public class TMovement
 {
     public static void walkTo(int worldX, int worldY)
     {
+        WorldPoint wp = TWorldPoint.translate(new WorldPoint(worldX, worldY, Static.getClient().getPlane()));
         TPackets.sendClickPacket(-1, -1);
-        TPackets.sendWalkPacket(worldX, worldY, false);
+        TPackets.sendWalkPacket(wp.getX(), wp.getY(), false);
     }
     public static void walkTo(WorldPoint point)
     {
@@ -17,7 +18,8 @@ public class TMovement
     }
     public static boolean isReachable(WorldPoint point)
     {
-        WorldPoint player = Static.getClient().getLocalPlayer().getWorldLocation();
+        point = TWorldPoint.translate(point);
+        WorldPoint player = TWorldPoint.translate(Static.getClient().getLocalPlayer().getWorldLocation());
         return Walker.canPathTo(player, point);
     }
 }

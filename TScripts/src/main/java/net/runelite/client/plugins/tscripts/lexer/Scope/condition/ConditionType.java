@@ -7,6 +7,6 @@ public enum ConditionType
 {
     WHILE,
     IF,
-    REGISTER,
+    SUBSCRIBE,
     USER_DEFINED_FUNCTION
 }

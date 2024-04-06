@@ -17,6 +17,7 @@ import javax.swing.*;
 import javax.swing.border.Border;
 import javax.swing.border.CompoundBorder;
 import javax.swing.border.EmptyBorder;
+import javax.swing.text.Segment;
 import java.awt.*;
 import java.awt.event.*;
 import java.awt.image.BufferedImage;
@@ -26,6 +27,9 @@ import java.nio.file.Files;
 import java.nio.file.Paths;
 import net.runelite.client.util.HotkeyListener;
 import net.runelite.client.util.ImageUtil;
+import org.fife.ui.rsyntaxtextarea.AbstractTokenMaker;
+import org.fife.ui.rsyntaxtextarea.Token;
+import org.fife.ui.rsyntaxtextarea.TokenMap;
 
 /**
  * The panel that holds the script name and the buttons to run, stop, edit, and delete the script

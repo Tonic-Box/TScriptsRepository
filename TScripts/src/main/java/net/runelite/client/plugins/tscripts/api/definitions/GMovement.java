@@ -6,6 +6,7 @@ import net.runelite.client.plugins.tscripts.api.Api;
 import net.runelite.client.plugins.tscripts.api.MethodManager;
 import net.runelite.client.plugins.tscripts.api.library.TDelay;
 import net.runelite.client.plugins.tscripts.api.library.TMovement;
+import net.runelite.client.plugins.tscripts.api.library.TWorldPoint;
 import net.runelite.client.plugins.tscripts.types.GroupDefinition;
 import net.runelite.client.plugins.tscripts.types.MethodDefinition;
 import net.runelite.client.plugins.tscripts.types.Pair;
@@ -102,7 +103,7 @@ public class GMovement implements GroupDefinition
                     int x = function.getArg(0, manager);
                     int y = function.getArg(1, manager);
                     int z = function.getArgs().length > 2 ? function.getArg(2, manager) : Static.getClient().getPlane();
-                    return new WorldPoint(x, y, z);
+                    return TWorldPoint.get(new WorldPoint(x, y, z));
                 }, "Gets a world point object from the specified coordinates.");
         return methods;
     }

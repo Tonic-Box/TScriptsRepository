@@ -7,6 +7,7 @@ import net.runelite.api.NPC;
 import net.runelite.api.queries.NPCQuery;
 import net.runelite.client.plugins.tscripts.api.library.TMovement;
 import net.unethicalite.client.Static;
+import org.apache.commons.lang3.ArrayUtils;
 
 import java.util.function.BiPredicate;
 import java.util.function.Predicate;
@@ -54,15 +55,12 @@ public enum NpcFilterType
     public static NPC filter(Object identifier, String... filter)
     {
         NpcFilterType[] filters = new NpcFilterType[filter.length];
-        for (int i = 0; i < filter.length; i++)
+        int i = 0;
+        for (NpcFilterType f : NpcFilterType.values())
         {
-            for (NpcFilterType f : NpcFilterType.values())
+            if(ArrayUtils.contains(filter, f.getName()))
             {
-                if (f.getName().equals(filter[i]))
-                {
-                    filters[i] = f;
-                    break;
-                }
+                filters[i++] = f;
             }
         }
         return filter(identifier, filters);

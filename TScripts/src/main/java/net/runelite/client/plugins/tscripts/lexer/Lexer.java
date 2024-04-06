@@ -1,7 +1,6 @@
 package net.runelite.client.plugins.tscripts.lexer;
 
-import lombok.Getter;
-import lombok.Setter;
+import lombok.Data;
 import net.runelite.client.plugins.tscripts.api.MethodManager;
 import net.runelite.client.plugins.tscripts.lexer.Scope.Scope;
 import net.runelite.client.plugins.tscripts.lexer.Scope.condition.*;
@@ -11,8 +10,6 @@ import net.runelite.client.plugins.tscripts.lexer.models.TokenType;
 import net.runelite.client.plugins.tscripts.lexer.variable.AssignmentType;
 import net.runelite.client.plugins.tscripts.lexer.variable.VariableAssignment;
 import org.apache.commons.lang3.NotImplementedException;
-
-import java.lang.reflect.Field;
 import java.rmi.UnexpectedException;
 import java.util.ArrayList;
 import java.util.HashMap;
@@ -22,13 +19,10 @@ import java.util.Map;
 /**
  * The Lexer class is responsible for parsing the tokens into an AST.
  */
+@Data
 public class Lexer
 {
-    @Setter
-    @Getter
     private boolean verify = true;
-    @Setter
-    @Getter
     private boolean debug = false;
 
     /**
@@ -214,7 +208,7 @@ public class Lexer
                 segment.add(token);
                 currentType = ElemType.CONDITION;
             }
-            else if (token.getType().equals(TokenType.KEYWORD_REGISTER))
+            else if (token.getType().equals(TokenType.KEYWORD_SUBSCRIBE))
             {
                 segment.add(token);
                 currentType = ElemType.CONDITION;
@@ -450,8 +444,7 @@ public class Lexer
         MethodManager.CHECK_RESPONSE check = MethodManager.getInstance().check(methodCall);
         if(!check.equals(MethodManager.CHECK_RESPONSE.OK))
         {
-            //TODO: Rewrite this checking shit
-            //throw new UnexpectedException("Lexer::flushFunction method '" + name + "' contained errors: " + check.name());
+            throw new UnexpectedException("Lexer::flushFunction method '" + name + "' contained errors: " + check.name());
         }
         return methodCall;
     }
@@ -468,8 +461,8 @@ public class Lexer
             case KEYWORD_WHILE:
                 type = ConditionType.WHILE;
                 break;
-            case KEYWORD_REGISTER:
-                type = ConditionType.REGISTER;
+            case KEYWORD_SUBSCRIBE:
+                type = ConditionType.SUBSCRIBE;
                 break;
             case KEYWORD_USER_DEFINED_FUNCTION:
                 type = ConditionType.USER_DEFINED_FUNCTION;

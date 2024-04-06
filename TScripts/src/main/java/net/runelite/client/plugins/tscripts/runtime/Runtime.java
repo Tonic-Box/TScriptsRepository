@@ -95,7 +95,7 @@ public class Runtime
         scope.setCurrent(true);
         postCurrentInstructionChanged();
 
-        boolean isRegisterScope = scope.getConditions() != null && scope.getConditions().getType() != null  && scope.getConditions().getType().equals(ConditionType.REGISTER);
+        boolean isRegisterScope = scope.getConditions() != null && scope.getConditions().getType() != null  && scope.getConditions().getType().equals(ConditionType.SUBSCRIBE);
         if(isRegisterScope)
         {
             addAnonymousEventSubscriber(scope);

@@ -68,7 +68,7 @@ public class CompletionSupplier
         completions.add(new BasicCompletion(provider, "continue();", ""));
         completions.add(new BasicCompletion(provider, "break();", ""));
         completions.add(new BasicCompletion(provider, "die();", ""));
-        completions.add(new BasicCompletion(provider, "register(", "String event) { ... }"));
+        completions.add(new BasicCompletion(provider, "subscribe(", "String event) { ... }"));
         completions.add(new BasicCompletion(provider, "function(", "String name) { ... }"));
 
         for(Class<?> event : MethodManager.getInstance().getEventClasses())
