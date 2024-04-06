@@ -5,6 +5,8 @@ import net.runelite.api.coords.LocalPoint;
 import net.runelite.api.coords.WorldPoint;
 import net.unethicalite.client.Static;
 import java.util.ArrayList;
+import java.util.Collections;
+
 import static net.runelite.api.Constants.*;
 
 public class TWorldPoint
@@ -64,9 +66,7 @@ public class TWorldPoint
         Client client = Static.getClient();
         if (!client.isInInstancedRegion())
         {
-            ArrayList<WorldPoint> list = new ArrayList<>();
-            list.add(worldPoint);
-            return list;
+            return new ArrayList<>(Collections.singletonList(worldPoint));
         }
 
         // find instance chunks using the template point. there might be more than one.
