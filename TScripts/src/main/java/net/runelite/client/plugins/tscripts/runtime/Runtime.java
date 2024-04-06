@@ -221,7 +221,6 @@ public class Runtime
         }
 
         Object value = getValue(variableAssignment.getValues().get(0));
-
         switch (variableAssignment.getAssignmentType())
         {
             case ASSIGNMENT:
