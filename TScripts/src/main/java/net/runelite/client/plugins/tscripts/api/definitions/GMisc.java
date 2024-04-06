@@ -8,6 +8,7 @@ import net.runelite.client.plugins.tscripts.types.GroupDefinition;
 import net.runelite.client.plugins.tscripts.types.MethodDefinition;
 import net.runelite.client.plugins.tscripts.types.Pair;
 import net.runelite.client.plugins.tscripts.types.Type;
+import net.runelite.client.plugins.tscripts.util.Logging;
 import net.unethicalite.client.Static;
 
 import java.awt.*;
@@ -58,6 +59,7 @@ public class GMisc implements GroupDefinition
                     Static.getClientThread().invoke(() -> {
                         if(Static.getClient().getGameState().equals(GameState.LOGGED_IN) || Static.getClient().getGameState().equals(GameState.LOADING) || Static.getClient().getGameState().equals(GameState.HOPPING))
                             Static.getClient().addChatMessage(ChatMessageType.GAMEMESSAGE, msg, msg, "", true);
+                        Logging.logToEditor(msg, Color.WHITE);
                     });
                 }, "Prints the arguments to the console and chatbox");
 

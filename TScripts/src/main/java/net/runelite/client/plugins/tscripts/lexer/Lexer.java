@@ -24,6 +24,7 @@ public class Lexer
 {
     private boolean verify = true;
     private boolean debug = false;
+    private List<String> userFunctions = new ArrayList<>();
 
     /**
      * Lexes the tokens into a scope.
@@ -187,6 +188,10 @@ public class Lexer
                             currentType = null;
                             depthCounter = -1;
                             _conditions = flushConditions(segment);
+                            if(_conditions.getType().equals(ConditionType.USER_DEFINED_FUNCTION))
+                            {
+                                userFunctions.add(_conditions.getConditions().get(0).getLeft().toString().toLowerCase().replace("\"", ""));
+                            }
                             if (!tokens.get(pointer + 1).getType().equals(TokenType.OPEN_BRACE))
                             {
                                 throw new UnexpectedException("Lexer::parseScope[CONDITION->SCOPE] unexpected value, expected start of scope [T:" + pointer + "] got [" + tokens.get(pointer + 1).getType().name() + "]");
@@ -442,7 +447,7 @@ public class Lexer
         }
         MethodCall methodCall = new MethodCall(name, _values.toArray(), negated);
         MethodManager.CHECK_RESPONSE check = MethodManager.getInstance().check(methodCall);
-        if(!check.equals(MethodManager.CHECK_RESPONSE.OK))
+        if(!check.equals(MethodManager.CHECK_RESPONSE.OK) && !userFunctions.contains(name.toLowerCase()))
         {
             throw new UnexpectedException("Lexer::flushFunction method '" + name + "' contained errors: " + check.name());
         }

@@ -33,6 +33,8 @@ public class TWorldPoint
         //get local
         Client client = Static.getClient();
         LocalPoint localPoint = LocalPoint.fromWorld(client, worldPoint);
+
+        // if local point is null or not in an instanced region, return the world point as is
         if(localPoint == null || !client.isInInstancedRegion())
             return worldPoint;
 
@@ -64,6 +66,8 @@ public class TWorldPoint
     private static ArrayList<WorldPoint> toInstance(WorldPoint worldPoint)
     {
         Client client = Static.getClient();
+
+        // if not in an instanced region, return the world point as is
         if (!client.isInInstancedRegion())
         {
             return new ArrayList<>(Collections.singletonList(worldPoint));

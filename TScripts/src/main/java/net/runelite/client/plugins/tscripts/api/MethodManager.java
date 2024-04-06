@@ -30,7 +30,7 @@ public class MethodManager
     private List<Class<?>> eventClasses = null;
     @Getter
     private final HashMap<String, MethodDefinition> methods = new HashMap<>();
-    private final Set<String> blacklist = Set.of("continue", "break", "die", "debug", "subscribe", "breakpoint", "function", "tick");
+    private final Set<String> blacklist = Set.of("continue", "break", "die", "debug", "subscribe", "breakpoint", "function", "tick", "return");
 
     /**
      * Constructor
@@ -99,6 +99,7 @@ public class MethodManager
     {
         if (blacklist.contains(methodCall.getName().toLowerCase()))
             return CHECK_RESPONSE.OK;
+
         else if (methods.containsKey(methodCall.getName().toLowerCase()))
         {
             MethodDefinition method = methods.getOrDefault(methodCall.getName().toLowerCase(), null);
@@ -128,8 +129,8 @@ public class MethodManager
             }
             return CHECK_RESPONSE.OK;
         }
-        //return CHECK_RESPONSE.NOT_FOUND;
-        return CHECK_RESPONSE.OK; //likely a user defined function, if not the runtime will handle the screaming
+        return CHECK_RESPONSE.NOT_FOUND;
+        //return CHECK_RESPONSE.OK; //likely a user defined function, if not the runtime will handle the screaming
     }
 
     /**

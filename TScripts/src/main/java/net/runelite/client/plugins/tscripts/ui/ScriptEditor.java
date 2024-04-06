@@ -26,6 +26,9 @@ import javax.swing.event.DocumentEvent;
 import javax.swing.event.DocumentListener;
 import javax.swing.text.BadLocationException;
 import javax.swing.text.Segment;
+import javax.swing.text.Style;
+import javax.swing.text.StyleConstants;
+import javax.swing.text.StyledDocument;
 import java.awt.*;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
@@ -42,13 +45,17 @@ import java.nio.file.Paths;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.Objects;
+import java.util.logging.Logger;
 
 /**
  * Script Editor
  */
-class ScriptEditor extends JFrame implements ActionListener {
+public class ScriptEditor extends JFrame implements ActionListener {
     private static ScriptEditor instance = null;
     private final RSyntaxTextArea textArea;
+    private final JTextPane consoleArea;
+    private final JScrollPane consoleScrollPane;
+    private final JSplitPane verticalSplitPane;
     private final JButton run;
     private final JButton breakpoint;
     private final JLabel running = new JLabel();
@@ -64,6 +71,11 @@ class ScriptEditor extends JFrame implements ActionListener {
     private boolean updatingList = false;
     private final Map<Integer, BreakPoint> breakpoints = new HashMap<>();
     private final JMenuBar menu = new JMenuBar();
+
+    public static ScriptEditor get()
+    {
+        return instance;
+    }
 
     public static ScriptEditor get(TScriptsPlugin plugin, String profile, String name) throws IOException {
         if (instance == null) {
@@ -128,6 +140,10 @@ class ScriptEditor extends JFrame implements ActionListener {
         debugToolPanel = new DebugToolPanel(plugin.getRuntime(), Paths.get(path), name);
         debugToolPanel.setPreferredSize(new Dimension(600, getHeight()));
         splitPane = generateSplitPane();
+        consoleArea = generateConsole();
+        consoleScrollPane = generateConsoleScrollPane();
+        verticalSplitPane = generateVerticalJSplitPane();
+        add(verticalSplitPane, BorderLayout.CENTER);
         TEventBus.register(this);
     }
 
@@ -417,15 +433,53 @@ class ScriptEditor extends JFrame implements ActionListener {
         alwaysOnTop.setSelected(true);
         alwaysOnTop.addActionListener(this);
         JButton devTools = generateButton("Dev Tools");
+        JButton toggleConsoleItem = new JButton("Console");
+        toggleConsoleItem.addActionListener(e -> toggleConsole());
+        menu.add(toggleConsoleItem);
 
         //menu
         menu.add(this.run);
         menu.add(this.running);
         menu.add(this.breakpoint);
         menu.add(Box.createHorizontalGlue());
+        menu.add(toggleConsoleItem);
         menu.add(devTools);
         menu.add(alwaysOnTop);
         setJMenuBar(menu);
+    }
+
+    private void toggleConsole() {
+        boolean isVisible = consoleScrollPane.isVisible();
+        if (isVisible) {
+            // If the console is currently visible, hide it and move the divider to the bottom
+            consoleScrollPane.setVisible(false);
+            if ((getExtendedState() & JFrame.MAXIMIZED_BOTH) != JFrame.MAXIMIZED_BOTH) {
+                setSize(getWidth(), getHeight() - consoleScrollPane.getPreferredSize().height);
+            }
+            verticalSplitPane.setDividerLocation(verticalSplitPane.getHeight());
+        } else {
+            // If the console is currently hidden, show it and move the divider to show the console
+            consoleScrollPane.setVisible(true);
+            if ((getExtendedState() & JFrame.MAXIMIZED_BOTH) != JFrame.MAXIMIZED_BOTH) {
+                setSize(getWidth(), getHeight() + consoleScrollPane.getPreferredSize().height);
+            }
+            verticalSplitPane.setDividerLocation(getHeight() - consoleScrollPane.getPreferredSize().height);
+        }
+    }
+
+    public void logToConsole(String message, Color color) {
+        StyledDocument doc = consoleArea.getStyledDocument();
+        Style style = consoleArea.addStyle("Style", null);
+        StyleConstants.setForeground(style, color);
+
+        try {
+            doc.insertString(doc.getLength(), message + "\n", style);
+        } catch (BadLocationException ex) {
+            Logging.errorLog(ex);
+        }
+
+        // Scroll to the bottom
+        consoleArea.setCaretPosition(doc.getLength());
     }
 
     private JSplitPane generateSplitPane()
@@ -459,9 +513,33 @@ class ScriptEditor extends JFrame implements ActionListener {
         JSplitPane splitPane = new JSplitPane(JSplitPane.HORIZONTAL_SPLIT, leftPanel, debugToolPanel);
         splitPane.setOneTouchExpandable(true);
         splitPane.setDividerLocation(getWidth());
-        add(splitPane, BorderLayout.CENTER);
         debugToolPanel.setVisible(false);
         return splitPane;
+    }
+
+    private JSplitPane generateVerticalJSplitPane() {
+        JSplitPane verticalSplitPane = new JSplitPane(JSplitPane.VERTICAL_SPLIT, splitPane, consoleScrollPane);
+        verticalSplitPane.setOneTouchExpandable(true);
+        verticalSplitPane.setDividerLocation(getHeight() - 100);
+        add(verticalSplitPane, BorderLayout.CENTER);
+        return verticalSplitPane;
+    }
+
+    private JTextPane generateConsole()
+    {
+        JTextPane pane = new JTextPane();
+        pane.setEditable(false);
+        pane.setContentType("text/html");
+
+        return pane;
+    }
+
+    private JScrollPane generateConsoleScrollPane()
+    {
+        JScrollPane pane = new JScrollPane(consoleArea);
+        pane.setPreferredSize(new Dimension(getWidth(), 150));
+        pane.setVisible(false);
+        return pane;
     }
 
     private void toggleBreakpoint(RSyntaxTextArea textArea, int line, int offset, String word) throws BadLocationException {

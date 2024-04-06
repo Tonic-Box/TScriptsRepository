@@ -23,7 +23,7 @@
  * SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  */
 
-version = "0.0.3-beta"
+version = "0.1.0-alpha"
 
 project.extra["PluginName"] = "TScripts"
 project.extra["PluginDescription"] = "Stuff and Things"

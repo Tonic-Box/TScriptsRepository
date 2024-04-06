@@ -53,8 +53,6 @@ public class MethodCall extends Element
     public String toString()
     {
         StringBuilder out = new StringBuilder(name + "(");
-        int i = 0;
-        String str = "";
         for (Object arg : args)
         {
             out.append(arg.toString()).append(", ");

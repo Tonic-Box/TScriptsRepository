@@ -2,8 +2,10 @@ package net.runelite.client.plugins.tscripts.util;
 
 import lombok.SneakyThrows;
 import net.runelite.api.ChatMessageType;
+import net.runelite.client.plugins.tscripts.ui.ScriptEditor;
 import net.unethicalite.client.Static;
 
+import javax.swing.*;
 import java.awt.*;
 import java.awt.datatransfer.StringSelection;
 import java.io.FileWriter;
@@ -28,6 +30,7 @@ public class Logging {
                 fileWriter.close();
             }
         });
+        logToEditor(ex.toString(), Color.RED);
         ex.printStackTrace();
         thread.start();
     }
@@ -53,5 +56,15 @@ public class Logging {
     public static void copyToClipboard(String out) {
         StringSelection selection = new StringSelection(out);
         Toolkit.getDefaultToolkit().getSystemClipboard().setContents(selection, null);
+    }
+
+    public static void logToEditor(String message, Color color) {
+        ScriptEditor editor = ScriptEditor.get();
+        if (editor == null)
+            return;
+        SwingUtilities.invokeLater(() ->
+        {
+            editor.logToConsole(message, color);
+        });
     }
 }
