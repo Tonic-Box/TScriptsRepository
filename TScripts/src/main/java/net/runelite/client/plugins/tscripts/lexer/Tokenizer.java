@@ -177,6 +177,7 @@ public class Tokenizer
         if (tokenValue.equals("while")) return TokenType.KEYWORD_WHILE;
         if (tokenValue.equals("subscribe")) return TokenType.KEYWORD_SUBSCRIBE;
         if (tokenValue.equals("function")) return TokenType.KEYWORD_USER_DEFINED_FUNCTION;
+        if (tokenValue.equals("func")) return TokenType.KEYWORD_USER_DEFINED_FUNCTION;
         if (tokenValue.equals(">")) return TokenType.CONDITION_GT;
         if (tokenValue.equals("<")) return TokenType.CONDITION_LT;
         if (tokenValue.equals(">=")) return TokenType.CONDITION_GTEQ;

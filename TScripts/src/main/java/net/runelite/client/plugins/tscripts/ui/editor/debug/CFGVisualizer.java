@@ -249,7 +249,17 @@ public class CFGVisualizer extends JPanel {
             boolean current = conditions.isCurrent();
             ConditionType type = conditions.getType();
 
-            label.append(colorize(type.name().toLowerCase(), current ? Colors.CURRENT : Colors.KEYWORDS)).append(colorize("(", current ? Colors.CURRENT : Colors.OPERATORS));
+            if(conditions.getUserFunctionName() != null)
+            {
+                label.append(colorize("function", current ? Colors.CURRENT : Colors.KEYWORDS)).append(" ")
+                     .append(colorize(conditions.getUserFunctionName(), current ? Colors.CURRENT : Colors.FUNCTIONS))
+                     .append(colorize("(", current ? Colors.CURRENT : Colors.OPERATORS));
+            }
+            else
+            {
+                label.append(colorize(type.name().toLowerCase(), current ? Colors.CURRENT : Colors.KEYWORDS)).append(colorize("(", current ? Colors.CURRENT : Colors.OPERATORS));
+            }
+
             String compString = "";
             for (Map.Entry<Integer, Condition> entry : scope.getConditions().getConditions().entrySet())
             {
@@ -302,7 +312,8 @@ public class CFGVisualizer extends JPanel {
                 }
                 else
                 {
-                    right = colorize(condition.getRight().toString(), current ? Colors.CURRENT : Colors.VALUES);
+                    String value = condition.getRight() instanceof String ? "\"" + condition.getRight() + "\"" : condition.getRight().toString();
+                    right = colorize(value, current ? Colors.CURRENT : Colors.VALUES);
                 }
 
                 label.append(left)
@@ -369,7 +380,8 @@ public class CFGVisualizer extends JPanel {
                 }
                 else
                 {
-                    valuesStr = colorize(element.toString(), current ? Colors.CURRENT : Colors.VALUES);
+                    String value = element instanceof String ? "\"" + element + "\"" : element.toString();
+                    valuesStr = colorize(value, current ? Colors.CURRENT : Colors.VALUES);
                 }
             }
 

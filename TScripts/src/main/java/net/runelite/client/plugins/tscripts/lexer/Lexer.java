@@ -61,6 +61,7 @@ public class Lexer
 
         ElemType currentType = null;
         Conditions _conditions = null;
+        String userFunctionName = null;
         List<Token> segment = new ArrayList<>();
         int depthCounter = -1;
 
@@ -161,11 +162,17 @@ public class Lexer
                             segment.clear();
                         }
                         continue;
+                    case USER_DEFINED_FUNCTION:
                     case CONDITION:
                         if (depthCounter == -1 && token.getType().equals(TokenType.OPEN_PAREN))
                         {
                             depthCounter = 1;
                             segment.add(token);
+                            continue;
+                        }
+                        else if (depthCounter == -1 && token.getType().equals(TokenType.IDENTIFIER) && userFunctionName == null)
+                        {
+                            userFunctionName = token.getValue();
                             continue;
                         }
 
@@ -188,9 +195,11 @@ public class Lexer
                             currentType = null;
                             depthCounter = -1;
                             _conditions = flushConditions(segment);
-                            if(_conditions.getType().equals(ConditionType.USER_DEFINED_FUNCTION))
+                            if(_conditions.getType().equals(ConditionType.USER_DEFINED_FUNCTION) && userFunctionName != null)
                             {
-                                userFunctions.add(_conditions.getConditions().get(0).getLeft().toString().toLowerCase());
+                                userFunctions.add(userFunctionName.toLowerCase());
+                                _conditions.setUserFunctionName(userFunctionName);
+                                userFunctionName = null;
                             }
                             if (!tokens.get(pointer + 1).getType().equals(TokenType.OPEN_BRACE))
                             {
@@ -221,7 +230,7 @@ public class Lexer
             else if (token.getType().equals(TokenType.KEYWORD_USER_DEFINED_FUNCTION))
             {
                 segment.add(token);
-                currentType = ElemType.CONDITION;
+                currentType = ElemType.USER_DEFINED_FUNCTION;
             }
             else if (token.getType().equals(TokenType.OPEN_BRACE))
             {
@@ -679,6 +688,7 @@ public class Lexer
         CONDITION,
         FUNCTION,
         SCOPE,
+        USER_DEFINED_FUNCTION,
         VARIABLE_ASSIGNMENT
     }
 }

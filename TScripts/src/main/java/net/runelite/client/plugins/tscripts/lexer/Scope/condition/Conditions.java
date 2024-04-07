@@ -10,6 +10,7 @@ public class Conditions
     private final Map<Integer, Condition> conditions = new HashMap<>();
     private final Map<Integer, Glue> glues = new HashMap<>();
     private ConditionType type;
+    private String userFunctionName = null;
     private boolean current = false;
 
     public Conditions clone()
@@ -24,6 +25,7 @@ public class Conditions
             newConditions.getGlues().put(entry.getKey(), entry.getValue());
         }
         newConditions.setType(getType());
+        newConditions.setUserFunctionName(getUserFunctionName());
         return newConditions;
     }
 

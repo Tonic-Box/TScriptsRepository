@@ -30,7 +30,7 @@ public class MethodManager
     private List<Class<?>> eventClasses = null;
     @Getter
     private final HashMap<String, MethodDefinition> methods = new HashMap<>();
-    private final Set<String> blacklist = Set.of("continue", "break", "die", "debug", "subscribe", "breakpoint", "function", "tick", "return");
+    private final Set<String> blacklist = Set.of("continue", "break", "die", "subscribe", "breakpoint", "tick", "return");
 
     /**
      * Constructor

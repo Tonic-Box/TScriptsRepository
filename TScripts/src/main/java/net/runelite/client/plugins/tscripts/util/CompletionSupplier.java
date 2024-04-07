@@ -69,7 +69,7 @@ public class CompletionSupplier
         completions.add(new BasicCompletion(provider, "break();", ""));
         completions.add(new BasicCompletion(provider, "die();", ""));
         completions.add(new BasicCompletion(provider, "subscribe(", "String event) { ... }"));
-        completions.add(new BasicCompletion(provider, "function(", "String name) { ... }"));
+        completions.add(new BasicCompletion(provider, "function", " FUNCTION_NAME() { ... }"));
 
         for(Class<?> event : MethodManager.getInstance().getEventClasses())
         {
@@ -124,13 +124,13 @@ public class CompletionSupplier
         }
 
         docs.append("\n# ").append("Built-In Constructs").append("\n");
-        docs.append("// while loop\nwhile(CONDITION) { ... }\n");
-        docs.append("// if statement\nif(CONDITION) { ... }\n");
+        docs.append("// while loop\nwhile(CONDITION) { /* code... */ }\n");
+        docs.append("// if statement\nif(CONDITION) { /* code... */ }\n");
         docs.append("// continue statement\ncontinue();\n");
         docs.append("// break statement\nbreak();\n");
         docs.append("// die statement\ndie();\n");
-        docs.append("// register event\nregister(String event) { ... }\n");
-        docs.append("// function declaration\nfunction(String name) { ... }\n");
+        docs.append("// subscribe to an event\nsubscribe(String event) { /* code... */ }\n");
+        docs.append("// function declaration\nfunction FUNCTION_NAME() { /* code... */ }\n");
         docs.append("// end execution in a user defined method early\n<optional any> return(any optionalReturnValue);\n");
 
         docs.append("\n# ").append("Subscribable Events").append("\n");
