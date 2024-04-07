@@ -9,6 +9,7 @@ import net.runelite.client.plugins.tscripts.lexer.models.Element;
 import net.runelite.client.plugins.tscripts.lexer.models.ElementType;
 
 import java.util.Map;
+import java.util.UUID;
 
 /**
  * Represents a scope of elements
@@ -41,6 +42,8 @@ public class Scope extends Element
     private final Map<Integer, Element> elements;
     @Setter
     private Conditions conditions = null;
+    @Getter
+    private final String hash = UUID.randomUUID().toString();
 
     /**
      * Clones the scope

@@ -18,7 +18,7 @@ public class DebugToolPanel extends JPanel {
     private Path scriptPath;
     private final CFGVisualizer controlFlowGraphVisualizer;
     private final TokenDumper tokenDumper;
-    private final JList<String> toolingList = new JList<>(new String[]{"Control-Flow", "Variables", "Runtime", "Tokens"});
+    private final JList<String> toolingList = new JList<>(new String[]{"Control-Flow", "Variables", "Runtime", "Tokens", "Documentation"});
 
     public DebugToolPanel(Runtime runtime, Path scriptPath, String name) {
         setSize(800, 600);
@@ -61,6 +61,12 @@ public class DebugToolPanel extends JPanel {
         tokenDumperScrollPane.setHorizontalScrollBarPolicy(JScrollPane.HORIZONTAL_SCROLLBAR_AS_NEEDED);
         mainView.add(tokenDumperScrollPane, "TokenDumper");
 
+        DocumentationPanel documentationPanel = DocumentationPanel.getInstance();
+        JScrollPane documentationScrollPane = new JScrollPane(documentationPanel);
+        documentationScrollPane.setVerticalScrollBarPolicy(JScrollPane.VERTICAL_SCROLLBAR_AS_NEEDED);
+        documentationScrollPane.setHorizontalScrollBarPolicy(JScrollPane.HORIZONTAL_SCROLLBAR_AS_NEEDED);
+        mainView.add(documentationScrollPane, "DocumentationPanel");
+
         toolingList.addListSelectionListener(e -> {
             String selectedScript = toolingList.getSelectedValue();
             switch (selectedScript) {
@@ -77,6 +83,9 @@ public class DebugToolPanel extends JPanel {
                 case "Tokens":
                     tokenDumper.dump(scriptPath);
                     cardLayout.show(mainView, "TokenDumper");
+                    break;
+                case "Documentation":
+                    cardLayout.show(mainView, "DocumentationPanel");
                     break;
             }
         });
