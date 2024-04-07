@@ -12,6 +12,7 @@ public class Token
 {
     private final TokenType type;
     private final String value;
+    private final int line;
 
     @Override
     public String toString()

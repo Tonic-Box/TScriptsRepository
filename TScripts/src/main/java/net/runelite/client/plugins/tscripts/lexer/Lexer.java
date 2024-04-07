@@ -237,7 +237,7 @@ public class Lexer
                 TokenType btt = tokens.get(pointer + 1).getType();
                 if (!btt.equals(TokenType.VARIABLE_ASSIGNMENT) && !btt.equals(TokenType.VARIABLE_INCREMENT) && !btt.equals(TokenType.VARIABLE_DECREMENT) && !btt.equals(TokenType.VARIABLE_ADD_ONE) && !btt.equals(TokenType.VARIABLE_REMOVE_ONE))
                 {
-                    throw new UnexpectedException("Lexer::parseScope[VARIABLE] unexpected value, expected VALUE_ASSIGNMENT token [T:" + (pointer + 1) + "] got [" + tokens.get(pointer + 1).getType().name() + "]");
+                    throw new UnexpectedException("Lexer::parseScope[VARIABLE] unexpected value, expected VALUE_ASSIGNMENT token [T:" + (pointer + 1) + "] got [" + tokens.get(pointer + 1).getType().name() + "] on line {" + token.getLine() + "}");
                 }
                 segment.add(token);
                 currentType = ElemType.VARIABLE_ASSIGNMENT;
@@ -449,7 +449,7 @@ public class Lexer
         MethodManager.CHECK_RESPONSE check = MethodManager.getInstance().check(methodCall);
         if(!check.equals(MethodManager.CHECK_RESPONSE.OK) && !userFunctions.contains(name.toLowerCase()))
         {
-            throw new UnexpectedException("Lexer::flushFunction method '" + name + "' contained errors: " + check.name());
+            throw new UnexpectedException("Lexer::flushFunction method '" + name + "' contained errors: " + check.name() + " on line {" + tokens.get(0).getLine() + "}");
         }
         return methodCall;
     }
@@ -473,7 +473,7 @@ public class Lexer
                 type = ConditionType.USER_DEFINED_FUNCTION;
                 break;
             default:
-                throw new UnexpectedException("Lexer::flushCondition unexpected condition type");
+                throw new UnexpectedException("Lexer::flushCondition unexpected condition type  on line {" + tokens.get(0).getLine() + "}");
         }
 
         conditions.setType(type);
@@ -591,7 +591,7 @@ public class Lexer
                     {
                         right = Integer.parseInt(tok.getValue());
                     }
-                    else throw new UnexpectedException("Lexer::flushCondition[" + tok.getType() + "] unexpected value in condition");
+                    else throw new UnexpectedException("Lexer::flushCondition[" + tok.getType() + "] unexpected value in condition on line {" + tok.getLine() + "}");
                     break;
                 case BOOLEAN:
                     if(!segment.isEmpty() && segment.get(0).getType().equals(TokenType.NEGATE))
@@ -611,7 +611,7 @@ public class Lexer
                         if(negated)
                             right = !(boolean)right;
                     }
-                    else throw new UnexpectedException("Lexer::flushCondition[" + tok.getType() + "] unexpected value in condition");
+                    else throw new UnexpectedException("Lexer::flushCondition[" + tok.getType() + "] unexpected value in condition on line {" + tok.getLine() + "}");
                     break;
                 case IDENTIFIER:
                     if(tokens.get(i + 1).getType().equals(TokenType.OPEN_PAREN))
@@ -628,7 +628,7 @@ public class Lexer
                     {
                         right = tok.getValue();
                     }
-                    else throw new UnexpectedException("Lexer::flushCondition[" + tok.getType() + "] unexpected value in condition");
+                    else throw new UnexpectedException("Lexer::flushCondition[" + tok.getType() + "] unexpected value in condition on line {" + tok.getLine() + "}");
                     break;
                 case STRING:
                     if(!segment.isEmpty() && segment.get(0).getType().equals(TokenType.NEGATE))
@@ -643,7 +643,7 @@ public class Lexer
                     {
                         right = tok.getValue();
                     }
-                    else throw new UnexpectedException("Lexer::flushCondition[" + tok.getType() + "] unexpected value in condition");
+                    else throw new UnexpectedException("Lexer::flushCondition[" + tok.getType() + "] unexpected value in condition on line {" + tok.getLine() + "}");
                     break;
                 case VARIABLE:
                     if(!segment.isEmpty() && segment.get(0).getType().equals(TokenType.NEGATE))
@@ -663,7 +663,7 @@ public class Lexer
                         if(negated)
                             right = "!" + right;
                     }
-                    else throw new UnexpectedException("Lexer::flushCondition[" + tok.getType() + "] unexpected value in condition");
+                    else throw new UnexpectedException("Lexer::flushCondition[" + tok.getType() + "] unexpected value in condition on line {" + tok.getLine() + "}");
                     break;
             }
         }

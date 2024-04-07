@@ -33,35 +33,23 @@ public class Tokenizer
         List<Token> tokens = new ArrayList<>();
         StringBuilder currentToken = new StringBuilder();
         boolean inString = false;
-
-        script = removeComments(script);
+        boolean inComment = false;
+        boolean inMultiLineComment = false;
 
         char[] chars = script.toCharArray();
-        int pointer = -1;
+        int line = 1;
 
         for (int i = 0; i < chars.length; i++)
         {
             char c = chars[i];
             char next;
             char previous;
-            if (i + 1 < chars.length)
-            {
-                next = chars[i + 1];
-            }
-            else
-            {
-                next = ' ';
-            }
-            if (i - 1 > 0)
-            {
-                previous = chars[i - 1];
-            }
-            else
-            {
-                previous = ' ';
-            }
+            if (i + 1 < chars.length) next = chars[i + 1];
+            else next = ' ';
+            if (i - 1 > 0) previous = chars[i - 1];
+            else previous = ' ';
+            if (c == '\n') line++;
 
-            pointer++;
             if (inString && (c != '"' || previous == '\\'))
             {
                 currentToken.append(c);
@@ -71,20 +59,36 @@ public class Tokenizer
                 currentToken.append(c);
                 if (inString)
                 {
-                    flushToken(currentToken, tokens);
+                    flushToken(currentToken, tokens, line);
                     inString = false;
                 }
                 else
                     inString = true;
             }
+            else if(inComment && c == '\n')
+            {
+                inComment = false;
+            }
+            else if(c == '/' && next == '/' || inComment)
+            {
+                inComment = true;
+            }
+            else if (c == '/' && previous == '*' && inMultiLineComment)
+            {
+                inMultiLineComment = false;
+            }
+            else if (c == '/' && next == '*' || inMultiLineComment)
+            {
+                inMultiLineComment = true;
+            }
             else if (Character.isWhitespace(c))
             {
-                flushToken(currentToken, tokens);
+                flushToken(currentToken, tokens, line);
             }
             else if (c == '{' || c == '}' || c == '(' || c == ')' || c == ',' || c == ';')
             {
-                flushToken(currentToken, tokens);
-                tokens.add(new Token(getTokenType(String.valueOf(c)), String.valueOf(c)));
+                flushToken(currentToken, tokens, line);
+                tokens.add(new Token(getTokenType(String.valueOf(c)), String.valueOf(c), line));
             }
             else if (isOperatorStart(c, next))
             {
@@ -92,26 +96,28 @@ public class Tokenizer
                 {
                     if (currentToken.length() != 1 || !isOperatorStart(currentToken.charAt(0), next))
                     {
-                        flushToken(currentToken, tokens);
+                        flushToken(currentToken, tokens, line);
                     }
                 }
 
-                if (isTwoCharOperator(String.valueOf(c) + chars[pointer + 1]))
+                if (isTwoCharOperator(String.valueOf(c) + next))
                 {
                     currentToken.append(c);
-                } else
-                {
-                    currentToken.append(c);
-                    flushToken(currentToken, tokens);
                 }
-            } else
+                else
+                {
+                    currentToken.append(c);
+                    flushToken(currentToken, tokens, line);
+                }
+            }
+            else
             {
                 currentToken.append(c);
             }
         }
 
-        flushToken(currentToken, tokens);
-        tokens.add(new Token(TokenType.EOF, ""));
+        flushToken(currentToken, tokens, line);
+        tokens.add(new Token(TokenType.EOF, "", line));
 
         return tokens;
     }
@@ -147,7 +153,7 @@ public class Tokenizer
      * @param currentToken the current token
      * @param tokens       the list of tokens
      */
-    private void flushToken(StringBuilder currentToken, List<Token> tokens) {
+    private void flushToken(StringBuilder currentToken, List<Token> tokens, int line) {
         if (currentToken.length() != 0) {
             TokenType tokenType = getTokenType(currentToken.toString());
             if(tokenType == TokenType.STRING)
@@ -155,7 +161,7 @@ public class Tokenizer
                 currentToken.deleteCharAt(0);
                 currentToken.deleteCharAt(currentToken.length() - 1);
             }
-            tokens.add(new Token(tokenType, currentToken.toString()));
+            tokens.add(new Token(tokenType, currentToken.toString(), line));
             currentToken.setLength(0);
         }
     }
@@ -193,22 +199,12 @@ public class Tokenizer
         if (tokenValue.equals(";")) return TokenType.SEMICOLON;
         if (tokenValue.startsWith("$")) return TokenType.VARIABLE;
         if (tokenValue.startsWith("//")) return TokenType.COMMENT;
+        if (tokenValue.startsWith("/*")) return TokenType.MULTI_LINE_COMMENT;
         if (tokenValue.startsWith("\"")) return TokenType.STRING;
         if (TextUtil.isNumeric(tokenValue)) return TokenType.INTEGER;
         if (tokenValue.equalsIgnoreCase("true")) return TokenType.BOOLEAN;
         if (tokenValue.equalsIgnoreCase("false")) return TokenType.BOOLEAN;
         if (tokenValue.contains(".")) return TokenType.STATIC_VALUE;
         return TokenType.IDENTIFIER;
-    }
-
-    /**
-     * Remove comments from the code
-     *
-     * @param input the code
-     * @return the code without comments
-     */
-    private String removeComments(String input) {
-        String noComments = input.replaceAll("//.*", "");
-        return noComments.replaceAll("/\\*(?s).*?\\*/", "");
     }
 }

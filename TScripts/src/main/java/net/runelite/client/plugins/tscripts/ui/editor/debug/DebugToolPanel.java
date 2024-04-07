@@ -1,6 +1,5 @@
 package net.runelite.client.plugins.tscripts.ui.editor.debug;
 
-import lombok.Getter;
 import net.runelite.client.plugins.tscripts.lexer.Lexer;
 import net.runelite.client.plugins.tscripts.lexer.Scope.Scope;
 import net.runelite.client.plugins.tscripts.lexer.Tokenizer;
@@ -17,9 +16,9 @@ public class DebugToolPanel extends JPanel {
     private final JPanel mainView;
     private final CardLayout cardLayout;
     private Path scriptPath;
-    @Getter
     private final CFGVisualizer controlFlowGraphVisualizer;
-    private final JList<String> toolingList = new JList<>(new String[]{"Control-Flow", "Variables", "Runtime"});
+    private final TokenDumper tokenDumper;
+    private final JList<String> toolingList = new JList<>(new String[]{"Control-Flow", "Variables", "Runtime", "Tokens"});
 
     public DebugToolPanel(Runtime runtime, Path scriptPath, String name) {
         setSize(800, 600);
@@ -56,6 +55,12 @@ public class DebugToolPanel extends JPanel {
         runtimeInspectorScrollPane.setHorizontalScrollBarPolicy(JScrollPane.HORIZONTAL_SCROLLBAR_AS_NEEDED);
         mainView.add(runtimeInspectorScrollPane, "RuntimeInspector");
 
+        tokenDumper = TokenDumper.getInstance();
+        JScrollPane tokenDumperScrollPane = new JScrollPane(tokenDumper);
+        tokenDumperScrollPane.setVerticalScrollBarPolicy(JScrollPane.VERTICAL_SCROLLBAR_AS_NEEDED);
+        tokenDumperScrollPane.setHorizontalScrollBarPolicy(JScrollPane.HORIZONTAL_SCROLLBAR_AS_NEEDED);
+        mainView.add(tokenDumperScrollPane, "TokenDumper");
+
         toolingList.addListSelectionListener(e -> {
             String selectedScript = toolingList.getSelectedValue();
             switch (selectedScript) {
@@ -69,6 +74,10 @@ public class DebugToolPanel extends JPanel {
                 case "Runtime":
                     cardLayout.show(mainView, "RuntimeInspector");
                     break;
+                case "Tokens":
+                    tokenDumper.dump(scriptPath);
+                    cardLayout.show(mainView, "TokenDumper");
+                    break;
             }
         });
 
@@ -78,6 +87,7 @@ public class DebugToolPanel extends JPanel {
     public void update(Path scriptPath, String name)
     {
         this.scriptPath = scriptPath;
+        tokenDumper.dump(scriptPath);
         controlFlowGraphVisualizer.changeScript(name);
         controlFlowGraphVisualizer.updateGraph(getScope());
     }
