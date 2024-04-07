@@ -130,7 +130,6 @@ public class MethodManager
             return CHECK_RESPONSE.OK;
         }
         return CHECK_RESPONSE.NOT_FOUND;
-        //return CHECK_RESPONSE.OK; //likely a user defined function, if not the runtime will handle the screaming
     }
 
     /**

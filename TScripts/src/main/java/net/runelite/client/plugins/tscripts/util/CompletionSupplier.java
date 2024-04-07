@@ -124,13 +124,13 @@ public class CompletionSupplier
         }
 
         docs.append("\n# ").append("Built-In Constructs").append("\n");
-        docs.append("// while loop\nwhile(CONDITION) { /* code... */ }\n");
-        docs.append("// if statement\nif(CONDITION) { /* code... */ }\n");
         docs.append("// continue statement\ncontinue();\n");
         docs.append("// break statement\nbreak();\n");
         docs.append("// die statement\ndie();\n");
-        docs.append("// subscribe to an event\nsubscribe(String event) { /* code... */ }\n");
-        docs.append("// function declaration\nfunction FUNCTION_NAME() { /* code... */ }\n");
+        docs.append("// while loop\nwhile(CONDITION) { \n\t/* code... */ \n}\n");
+        docs.append("// if statement\nif(CONDITION) { \n\t/* code... */ \n}\n");
+        docs.append("// subscribe to an event\nsubscribe(String event) { \n\t/* code... */ \n}\n");
+        docs.append("// function declaration\nfunction FUNCTION_NAME() { \n\t/* code... */ \n}\n");
         docs.append("// end execution in a user defined method early\n<optional any> return(any optionalReturnValue);\n");
 
         docs.append("\n# ").append("Subscribable Events").append("\n");
