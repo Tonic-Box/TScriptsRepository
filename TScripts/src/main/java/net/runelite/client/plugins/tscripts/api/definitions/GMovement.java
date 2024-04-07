@@ -1,6 +1,7 @@
 package net.runelite.client.plugins.tscripts.api.definitions;
 
 import com.google.common.collect.ImmutableMap;
+import net.runelite.api.Tile;
 import net.runelite.api.coords.WorldPoint;
 import net.runelite.client.plugins.tscripts.api.Api;
 import net.runelite.client.plugins.tscripts.api.MethodManager;
@@ -104,6 +105,18 @@ public class GMovement implements GroupDefinition
                     int y = function.getArg(1, manager);
                     int z = function.getArgs().length > 2 ? function.getArg(2, manager) : Static.getClient().getPlane();
                     return TWorldPoint.get(new WorldPoint(x, y, z));
+                }, "Gets a world point object from the specified coordinates.");
+        addMethod(methods, "walkHere",
+                ImmutableMap.of(
+                        0, Pair.of("coords", Type.VARARGS)
+                ),
+                function ->
+                {
+                    Tile tile = Static.getClient().getSelectedSceneTile();
+                    if(tile == null)
+                        return;
+
+                    TMovement.walkTo(tile.getWorldLocation());
                 }, "Gets a world point object from the specified coordinates.");
         return methods;
     }

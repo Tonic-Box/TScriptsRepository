@@ -439,7 +439,7 @@ public class Runtime
      */
     private void addUserDefinedFunction(Scope scope)
     {
-        String name = scope.getConditions().getConditions().get(0).getLeft().toString().replace("\"", "");
+        String name = scope.getConditions().getConditions().get(0).getLeft().toString();
         Scope userDefinedFunction = scope.clone();
         userDefinedFunction.setConditions(null);
         userDefinedFunctions.put(name, new UserDefinedFunction(name, userDefinedFunction));

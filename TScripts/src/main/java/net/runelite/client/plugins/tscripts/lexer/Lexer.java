@@ -190,7 +190,7 @@ public class Lexer
                             _conditions = flushConditions(segment);
                             if(_conditions.getType().equals(ConditionType.USER_DEFINED_FUNCTION))
                             {
-                                userFunctions.add(_conditions.getConditions().get(0).getLeft().toString().toLowerCase().replace("\"", ""));
+                                userFunctions.add(_conditions.getConditions().get(0).getLeft().toString().toLowerCase());
                             }
                             if (!tokens.get(pointer + 1).getType().equals(TokenType.OPEN_BRACE))
                             {

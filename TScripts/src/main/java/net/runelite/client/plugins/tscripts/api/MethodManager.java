@@ -270,7 +270,6 @@ public class MethodManager
      */
     public Class<?> getEventClass(String name)
     {
-        name = name.replace("\"", "");
         for(Class<?> clazz : getEventClasses())
         {
             if(clazz.getSimpleName().equals(name))

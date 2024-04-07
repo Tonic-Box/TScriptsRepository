@@ -38,10 +38,12 @@ public class Tokenizer
 
         char[] chars = script.toCharArray();
         int pointer = -1;
+
         for (int i = 0; i < chars.length; i++)
         {
             char c = chars[i];
             char next;
+            char previous;
             if (i + 1 < chars.length)
             {
                 next = chars[i + 1];
@@ -50,27 +52,41 @@ public class Tokenizer
             {
                 next = ' ';
             }
+            if (i - 1 > 0)
+            {
+                previous = chars[i - 1];
+            }
+            else
+            {
+                previous = ' ';
+            }
+
             pointer++;
-            if (inString && c != '"')
+            if (inString && (c != '"' || previous == '\\'))
             {
                 currentToken.append(c);
-            } else if (c == '"')
+            }
+            else if (c == '"')
             {
                 currentToken.append(c);
                 if (inString)
                 {
                     flushToken(currentToken, tokens);
                     inString = false;
-                } else
+                }
+                else
                     inString = true;
-            } else if (Character.isWhitespace(c))
+            }
+            else if (Character.isWhitespace(c))
             {
                 flushToken(currentToken, tokens);
-            } else if (c == '{' || c == '}' || c == '(' || c == ')' || c == ',' || c == ';')
+            }
+            else if (c == '{' || c == '}' || c == '(' || c == ')' || c == ',' || c == ';')
             {
                 flushToken(currentToken, tokens);
                 tokens.add(new Token(getTokenType(String.valueOf(c)), String.valueOf(c)));
-            } else if (isOperatorStart(c, next))
+            }
+            else if (isOperatorStart(c, next))
             {
                 if (currentToken.length() != 0)
                 {
@@ -133,7 +149,13 @@ public class Tokenizer
      */
     private void flushToken(StringBuilder currentToken, List<Token> tokens) {
         if (currentToken.length() != 0) {
-            tokens.add(new Token(getTokenType(currentToken.toString()), currentToken.toString()));
+            TokenType tokenType = getTokenType(currentToken.toString());
+            if(tokenType == TokenType.STRING)
+            {
+                currentToken.deleteCharAt(0);
+                currentToken.deleteCharAt(currentToken.length() - 1);
+            }
+            tokens.add(new Token(tokenType, currentToken.toString()));
             currentToken.setLength(0);
         }
     }
