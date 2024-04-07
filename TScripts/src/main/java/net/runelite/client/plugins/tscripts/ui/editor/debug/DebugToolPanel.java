@@ -1,4 +1,4 @@
-package net.runelite.client.plugins.tscripts.ui.debug;
+package net.runelite.client.plugins.tscripts.ui.editor.debug;
 
 import lombok.Getter;
 import net.runelite.client.plugins.tscripts.lexer.Lexer;

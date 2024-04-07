@@ -5,6 +5,7 @@ import lombok.SneakyThrows;
 import net.runelite.client.config.Keybind;
 import net.runelite.client.plugins.tscripts.TScriptsConfig;
 import net.runelite.client.plugins.tscripts.TScriptsPlugin;
+import net.runelite.client.plugins.tscripts.ui.editor.ScriptEditor;
 import net.runelite.client.plugins.tscripts.util.eventbus.events.ScriptStateChanged;
 import net.runelite.client.plugins.tscripts.lexer.Lexer;
 import net.runelite.client.plugins.tscripts.lexer.Scope.Scope;
@@ -17,7 +18,6 @@ import javax.swing.*;
 import javax.swing.border.Border;
 import javax.swing.border.CompoundBorder;
 import javax.swing.border.EmptyBorder;
-import javax.swing.text.Segment;
 import java.awt.*;
 import java.awt.event.*;
 import java.awt.image.BufferedImage;
@@ -27,9 +27,6 @@ import java.nio.file.Files;
 import java.nio.file.Paths;
 import net.runelite.client.util.HotkeyListener;
 import net.runelite.client.util.ImageUtil;
-import org.fife.ui.rsyntaxtextarea.AbstractTokenMaker;
-import org.fife.ui.rsyntaxtextarea.Token;
-import org.fife.ui.rsyntaxtextarea.TokenMap;
 
 /**
  * The panel that holds the script name and the buttons to run, stop, edit, and delete the script
@@ -190,7 +187,7 @@ public class ScriptPanel extends JPanel
                     updateScriptName(input);
                     System.out.println("[TScript] Script '" + oldName + "' has been renamed to '" + input + "'");
                     try {
-                        ScriptEditor.changeTo(profile, input, oldName);
+                        net.runelite.client.plugins.tscripts.ui.editor.ScriptEditor.changeTo(profile, input, oldName);
                     } catch (IOException ex) {
                         Logging.errorLog(ex);
                     }

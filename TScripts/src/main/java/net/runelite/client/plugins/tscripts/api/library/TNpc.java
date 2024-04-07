@@ -18,7 +18,6 @@ public class TNpc
             npc =  new NPCQuery()
                     .filter(n -> n.getId() == (int)identifier)
                     .filter(n -> !n.isDead())
-                    .filter(n -> TMovement.isReachable(n.getWorldLocation()))
                     .result(Static.getClient())
                     .nearestTo(Static.getClient().getLocalPlayer());
         }
@@ -27,7 +26,6 @@ public class TNpc
             npc =  new NPCQuery()
                     .filter(n -> n.getName().equals(identifier))
                     .filter(n -> !n.isDead())
-                    .filter(n -> TMovement.isReachable(n.getWorldLocation()) || identifier.equals("Fishing spot"))
                     .result(Static.getClient())
                     .nearestTo(Static.getClient().getLocalPlayer());
         }

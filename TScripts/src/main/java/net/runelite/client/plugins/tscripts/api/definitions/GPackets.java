@@ -29,6 +29,7 @@ public class GPackets implements GroupDefinition
                 {
                     int action = function.getArg(0, manager);
                     int id = function.getArg(1, manager);
+                    TPackets.sendClickPacket();
                     TPackets.sendPlayerActionPacket(action, id, false);
                 }, "Interact with a player using a packet");
         addMethod(methods, "npcPacket",
@@ -40,6 +41,7 @@ public class GPackets implements GroupDefinition
                 {
                     int action = function.getArg(0, manager);
                     int npcIndex = function.getArg(1, manager);
+                    TPackets.sendClickPacket();
                     TPackets.sendNpcActionPacket(action, npcIndex, false);
                 }, "Interact with a player using a packet");
         addMethod(methods, "objectPacket",
@@ -55,6 +57,7 @@ public class GPackets implements GroupDefinition
                     int action = function.getArg(1, manager);
                     int x = function.getArg(2, manager);
                     int y = function.getArg(3, manager);
+                    TPackets.sendClickPacket();
                     TPackets.sendObjectActionPacket(action, id, x, y, false);
                 }, "Interact with a tile object using a packet");
         addMethod(methods, "itemPacket",
@@ -68,6 +71,7 @@ public class GPackets implements GroupDefinition
                     int id = function.getArg(0, manager);
                     int action = function.getArg(1, manager);
                     int slot = function.getArg(2, manager);
+                    TPackets.sendClickPacket();
                     TPackets.sendItemActionPacket(slot, id, action);
                 }, "Interact with an item using a packet");
 
@@ -84,6 +88,7 @@ public class GPackets implements GroupDefinition
                     int action = function.getArg(1, manager);
                     int x = function.getArg(2, manager);
                     int y = function.getArg(3, manager);
+                    TPackets.sendClickPacket();
                     TPackets.sendGroundItemActionPacket(action, id, x, y, false);
                 }, "Interact with an item using a packet");
 
@@ -100,6 +105,7 @@ public class GPackets implements GroupDefinition
                     int widgetId = function.getArg(1, manager);
                     int itemId = function.getArg(2, manager);
                     int childId = function.getArg(3, manager);
+                    TPackets.sendClickPacket();
                     TPackets.sendWidgetActionPacket(action, widgetId, itemId, childId);
                 }, "Interact with a widget using a packet");
 
@@ -112,6 +118,7 @@ public class GPackets implements GroupDefinition
                 {
                     int x = function.getArg(0, manager);
                     int y = function.getArg(1, manager);
+                    TPackets.sendClickPacket();
                     TPackets.sendWalkPacket(x, y, false);
                 }, "Interact with a widget using a packet");
         return methods;

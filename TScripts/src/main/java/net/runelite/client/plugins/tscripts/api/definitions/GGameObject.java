@@ -3,18 +3,14 @@ package net.runelite.client.plugins.tscripts.api.definitions;
 import com.google.common.collect.ImmutableMap;
 import net.runelite.api.*;
 import net.runelite.api.coords.WorldPoint;
-import net.runelite.api.queries.GameObjectQuery;
-import net.runelite.api.queries.TileObjectQuery;
-import net.runelite.client.plugins.tscripts.api.Api;
 import net.runelite.client.plugins.tscripts.api.MethodManager;
-import net.runelite.client.plugins.tscripts.api.library.TItem;
+import net.runelite.client.plugins.tscripts.api.library.TInventory;
 import net.runelite.client.plugins.tscripts.api.library.TObjects;
 import net.runelite.client.plugins.tscripts.api.library.TWorldPoint;
 import net.runelite.client.plugins.tscripts.types.GroupDefinition;
 import net.runelite.client.plugins.tscripts.types.MethodDefinition;
 import net.runelite.client.plugins.tscripts.types.Pair;
 import net.runelite.client.plugins.tscripts.types.Type;
-import net.unethicalite.api.entities.TileObjects;
 import net.unethicalite.client.Static;
 
 import java.util.ArrayList;
@@ -70,7 +66,7 @@ public class GGameObject implements GroupDefinition
                     if(container == null)
                         return;
 
-                    Item item = TItem.getItem(_item);
+                    Item item = TInventory.getItem(_item);
                     if (item == null)
                         return;
 
@@ -78,7 +74,7 @@ public class GGameObject implements GroupDefinition
                     if(object == null)
                         return;
 
-                    TItem.useOn(item, object);
+                    TInventory.useOn(item, object);
                 }, "Uses an item on an object");
         addMethod(methods, "getObject", Type.OBJECT,
                 ImmutableMap.of(

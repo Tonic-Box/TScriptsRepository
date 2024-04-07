@@ -1,4 +1,4 @@
-package net.runelite.client.plugins.tscripts.ui.debug;
+package net.runelite.client.plugins.tscripts.ui.editor.debug;
 
 import net.runelite.client.plugins.tscripts.util.eventbus.TEventBus;
 import net.runelite.client.plugins.tscripts.util.eventbus._Subscribe;

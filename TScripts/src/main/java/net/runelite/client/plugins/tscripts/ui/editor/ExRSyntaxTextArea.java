@@ -1,4 +1,4 @@
-package net.runelite.client.plugins.tscripts.ui;
+package net.runelite.client.plugins.tscripts.ui.editor;
 
 import lombok.Getter;
 import lombok.SneakyThrows;
@@ -93,7 +93,7 @@ public class ExRSyntaxTextArea extends RSyntaxTextArea
         return toggleBreakpointItem;
     }
 
-    public String getWordAtCaret() {
+    private String getWordAtCaret() {
         try {
             int caretPosition = getCaretPosition();
             String text = getText();
@@ -118,7 +118,7 @@ public class ExRSyntaxTextArea extends RSyntaxTextArea
         }
     }
 
-    public int getWordStartPosAtCaret() {
+    private int getWordStartPosAtCaret() {
         try {
             int caretPosition = getCaretPosition();
             String text = getText();
@@ -135,7 +135,7 @@ public class ExRSyntaxTextArea extends RSyntaxTextArea
         }
     }
 
-    public void toggleBreakpoint(int line, int offset, String word) throws BadLocationException {
+    private void toggleBreakpoint(int line, int offset, String word) throws BadLocationException {
         Gutter gutter = ((RTextScrollPane) getParent().getParent()).getGutter();
 
         if (breakpoints.containsKey(line)) {
@@ -193,11 +193,13 @@ public class ExRSyntaxTextArea extends RSyntaxTextArea
 
     private void setTheme()
     {
-        try {
-            Theme theme = Theme.load(getClass().getResourceAsStream(
-                    "/org/fife/ui/rsyntaxtextarea/themes/dark.xml"));
+        try
+        {
+            Theme theme = Theme.load(getClass().getResourceAsStream("/org/fife/ui/rsyntaxtextarea/themes/dark.xml"));
             theme.apply(this);
-        } catch (IOException ex) { // Never happens
+        }
+        catch (IOException ex)
+        {
             Logging.errorLog(ex);
         }
     }

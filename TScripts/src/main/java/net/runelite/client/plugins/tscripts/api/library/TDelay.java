@@ -61,4 +61,12 @@ public class TDelay
             tick(1);
         }
     }
+
+    public static void invokeLater(Runnable runnable, int ticks)
+    {
+        new Thread(() -> {
+            tick(ticks);
+            Static.getClientThread().invoke(runnable);
+        }).start();
+    }
 }

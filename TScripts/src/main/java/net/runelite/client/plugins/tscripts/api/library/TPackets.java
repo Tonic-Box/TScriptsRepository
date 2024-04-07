@@ -14,6 +14,11 @@ import java.util.Map;
  */
 public class TPackets
 {
+    public static void sendClickPacket()
+    {
+        sendClickPacket(-1, -1);
+    }
+
     public static void sendClickPacket(int mouseX, int mouseY)
     {
         Static.getClient().setMouseLastPressedMillis(System.currentTimeMillis());

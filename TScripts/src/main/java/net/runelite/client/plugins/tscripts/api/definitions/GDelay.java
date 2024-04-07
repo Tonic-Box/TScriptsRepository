@@ -3,16 +3,14 @@ package net.runelite.client.plugins.tscripts.api.definitions;
 import com.google.common.collect.ImmutableMap;
 import net.runelite.api.GameState;
 import net.runelite.api.coords.WorldPoint;
-import net.runelite.client.plugins.tscripts.api.Api;
 import net.runelite.client.plugins.tscripts.api.MethodManager;
 import net.runelite.client.plugins.tscripts.api.library.TDelay;
-import net.runelite.client.plugins.tscripts.api.library.TItem;
+import net.runelite.client.plugins.tscripts.api.library.TInventory;
 import net.runelite.client.plugins.tscripts.api.library.TWorldPoint;
 import net.runelite.client.plugins.tscripts.types.GroupDefinition;
 import net.runelite.client.plugins.tscripts.types.MethodDefinition;
 import net.runelite.client.plugins.tscripts.types.Pair;
 import net.runelite.client.plugins.tscripts.types.Type;
-import net.runelite.client.plugins.tscripts.util.Logging;
 import net.unethicalite.client.Static;
 
 import java.util.ArrayList;
@@ -80,7 +78,7 @@ public class GDelay implements GroupDefinition
                 ),
                 function ->
                 {
-                    int count = TItem.count(function.getArgs());
+                    int count = TInventory.count(function.getArgs());
                     int current = count;
                     while (count == current)
                     {
@@ -89,7 +87,7 @@ public class GDelay implements GroupDefinition
                             return;
                         }
                         TDelay.tick(1);
-                        count = TItem.count(function.getArgs());
+                        count = TInventory.count(function.getArgs());
                     }
                 },
                 "Pauses script until th inventory has gained one of the chosen item(s)"

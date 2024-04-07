@@ -10,7 +10,7 @@ import net.unethicalite.client.Static;
 
 import java.util.Arrays;
 
-public class TItem
+public class TInventory
 {
     public static void interact(Item item, int action)
     {
@@ -52,18 +52,54 @@ public class TItem
         {
             if (identifier instanceof Integer)
             {
-                count += Inventory.getCount((int) identifier);
+                count += count((int) identifier);
             }
             else if (identifier instanceof String)
             {
-                count += Inventory.getCount((String) identifier);
+                count += count((String) identifier);
             }
             else if (identifier instanceof Item)
             {
-                count += Inventory.getCount(((Item) identifier).getName());
+                count += count(((Item) identifier).getId());
             }
         }
         return count;
+    }
+
+    public static int count(int itemId)
+    {
+        return TGame.invoke(() -> {
+            ItemContainer inventory = Static.getClient().getItemContainer(InventoryID.INVENTORY);
+            if(inventory == null)
+                return 0;
+            int count = 0;
+            for(Item item : inventory.getItems())
+            {
+                if(item != null && item.getId() == itemId)
+                {
+                    count += item.getQuantity();
+                }
+            }
+            return count;
+        });
+    }
+
+    public static int count(String itemName)
+    {
+        return TGame.invoke(() -> {
+            ItemContainer inventory = Static.getClient().getItemContainer(InventoryID.INVENTORY);
+            if(inventory == null)
+                return 0;
+            int count = 0;
+            for(Item item : inventory.getItems())
+            {
+                if(item != null && item.getName().contains(itemName))
+                {
+                    count += item.getQuantity();
+                }
+            }
+            return count;
+        });
     }
 
     public static Item getItem(Object identifier)

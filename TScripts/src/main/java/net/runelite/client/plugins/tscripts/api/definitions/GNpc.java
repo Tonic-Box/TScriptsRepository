@@ -4,7 +4,7 @@ import com.google.common.collect.ImmutableMap;
 import net.runelite.api.Item;
 import net.runelite.api.NPC;
 import net.runelite.client.plugins.tscripts.api.MethodManager;
-import net.runelite.client.plugins.tscripts.api.library.TItem;
+import net.runelite.client.plugins.tscripts.api.library.TInventory;
 import net.runelite.client.plugins.tscripts.api.library.TNpc;
 import net.runelite.client.plugins.tscripts.types.NpcFilterType;
 import net.runelite.client.plugins.tscripts.util.UserQueries;
@@ -68,7 +68,7 @@ public class GNpc implements GroupDefinition
                 {
                     Object _item = function.getArg(0, manager);
                     Object _npc = function.getArg(1, manager);
-                    Item item = TItem.getItem(_item);
+                    Item item = TInventory.getItem(_item);
                     if (item == null)
                         return;
                     NPC npc = TNpc.getNpc(_npc);

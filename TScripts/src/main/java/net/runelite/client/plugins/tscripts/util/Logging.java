@@ -2,7 +2,7 @@ package net.runelite.client.plugins.tscripts.util;
 
 import lombok.SneakyThrows;
 import net.runelite.api.ChatMessageType;
-import net.runelite.client.plugins.tscripts.ui.ScriptEditor;
+import net.runelite.client.plugins.tscripts.ui.editor.ScriptEditor;
 import net.unethicalite.client.Static;
 
 import javax.swing.*;

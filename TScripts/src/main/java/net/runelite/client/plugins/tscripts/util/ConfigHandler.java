@@ -69,7 +69,7 @@ public class ConfigHandler {
     public void addNewScript(String script) {
         try {
             Properties properties = new Properties();
-            properties.setProperty("minimized", "true");
+            properties.setProperty("minimized", "false");
             properties.setProperty("keycode", "0");
             properties.setProperty("mod", "0");
             try (FileOutputStream output = new FileOutputStream(CONFIG_DIR + script + ".cfg")) {

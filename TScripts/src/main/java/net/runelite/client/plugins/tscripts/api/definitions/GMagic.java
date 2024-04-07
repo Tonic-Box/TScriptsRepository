@@ -6,9 +6,8 @@ import net.runelite.api.NPC;
 import net.runelite.api.Player;
 import net.runelite.api.TileObject;
 import net.runelite.api.queries.PlayerQuery;
-import net.runelite.client.plugins.tscripts.api.Api;
 import net.runelite.client.plugins.tscripts.api.MethodManager;
-import net.runelite.client.plugins.tscripts.api.library.TItem;
+import net.runelite.client.plugins.tscripts.api.library.TInventory;
 import net.runelite.client.plugins.tscripts.api.library.TMagic;
 import net.runelite.client.plugins.tscripts.api.library.TNpc;
 import net.runelite.client.plugins.tscripts.api.library.TObjects;
@@ -43,7 +42,7 @@ public class GMagic implements GroupDefinition {
                     String _spell = function.getArg(0, manager);
                     Object _item = function.getArg(1, manager);
 
-                    Item item = TItem.getItem(_item);
+                    Item item = TInventory.getItem(_item);
                     if(item == null)
                         return;
 

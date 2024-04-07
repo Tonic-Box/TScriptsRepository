@@ -1,4 +1,4 @@
-package net.runelite.client.plugins.tscripts.ui.debug;
+package net.runelite.client.plugins.tscripts.ui.editor.debug;
 
 import com.mxgraph.canvas.mxGraphics2DCanvas;
 import com.mxgraph.layout.mxCompactTreeLayout;

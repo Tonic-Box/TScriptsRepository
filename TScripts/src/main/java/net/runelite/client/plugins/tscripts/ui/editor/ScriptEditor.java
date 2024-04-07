@@ -1,4 +1,4 @@
-package net.runelite.client.plugins.tscripts.ui;
+package net.runelite.client.plugins.tscripts.ui.editor;
 
 import lombok.SneakyThrows;
 import net.runelite.client.plugins.tscripts.TScriptsPlugin;
@@ -11,7 +11,7 @@ import net.runelite.client.plugins.tscripts.lexer.Lexer;
 import net.runelite.client.plugins.tscripts.lexer.Scope.Scope;
 import net.runelite.client.plugins.tscripts.lexer.Tokenizer;
 import net.runelite.client.plugins.tscripts.types.BreakPoint;
-import net.runelite.client.plugins.tscripts.ui.debug.DebugToolPanel;
+import net.runelite.client.plugins.tscripts.ui.editor.debug.DebugToolPanel;
 import net.runelite.client.plugins.tscripts.util.Logging;
 import net.runelite.client.util.ImageUtil;
 import org.fife.ui.autocomplete.AutoCompletion;
