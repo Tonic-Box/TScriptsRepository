@@ -37,6 +37,7 @@ public class Runtime
     @Getter
     private String scriptName = "", profile = "";
     private boolean _die = false, _break = false, _continue = false, _done = true, _return = false, breakpointTripped = false;
+    private boolean child = false;
 
     /**
      * Creates a new instance of the Runtime class.
@@ -45,6 +46,13 @@ public class Runtime
     {
         this.methodManager = MethodManager.getInstance();
         TEventBus.register(this);
+    }
+
+    public Runtime getRuntimeChild()
+    {
+        Runtime runtime = new Runtime();
+        runtime.child = true;
+        return runtime;
     }
 
     /**
@@ -70,7 +78,7 @@ public class Runtime
             postFlags();
             try
             {
-                TEventBus.post(new ScriptStateChanged(scriptName, profile, true));
+                postScriptStateChanged(true);
                 processScope(scope);
             }
             catch (Exception ex)
@@ -79,7 +87,7 @@ public class Runtime
             }
             TGame.unregister(subscribers);
             _done = true;
-            TEventBus.post(new ScriptStateChanged(scriptName, profile, false));
+            postScriptStateChanged(false);
             postFlags();
         }).start();
     }
@@ -135,8 +143,10 @@ public class Runtime
      *
      * @param element The element.
      */
-    private void processElement(Element element) {
-        switch (element.getType()) {
+    private void processElement(Element element)
+    {
+        switch (element.getType())
+        {
             case SCOPE:
                 processScope((Scope) element);
                 break;
@@ -174,7 +184,7 @@ public class Runtime
                 _continue = true;
                 break;
             case "breakpoint":
-                TEventBus.post(BreakpointTripped.get());
+                postBreakpointTripped();
                 breakpointTripped = true;
                 postFlags();
                 while (breakpointTripped)
@@ -460,13 +470,13 @@ public class Runtime
      */
     private void addAnonymousEventSubscriber(Scope scope)
     {
-        Class<?> event = methodManager.getEventClass(scope.getConditions().getConditions().get(0).getLeft().toString());
+        Class<?> event = methodManager.getEventClass(scope.getConditions().getUserFunctionName());
         if(event != null)
         {
             EventBus.Subscriber subscriber = TGame.register(event, object -> {
                 try
                 {
-                    Runtime runtime = new Runtime();
+                    Runtime runtime = getRuntimeChild();
                     Scope eventScope = scope.clone();
                     eventScope.setConditions(null);
                     new Thread(() -> runtime.execute(eventScope, "TS_EVENT", "TS_EVENT")).start();
@@ -522,6 +532,7 @@ public class Runtime
      */
     private void postFlags()
     {
+        if(child) return;
         Map<String,Object> flags = new HashMap<>();
         flags.put("scriptName", scriptName);
         flags.put("profile", profile);
@@ -544,6 +555,17 @@ public class Runtime
     private void postCurrentInstructionChanged()
     {
         TEventBus.post(CurrentInstructionChanged.get());
+    }
+
+    private void postScriptStateChanged(boolean state)
+    {
+        if(child) return;
+        TEventBus.post(new ScriptStateChanged(scriptName, profile, state));
+    }
+
+    private void postBreakpointTripped()
+    {
+        TEventBus.post(BreakpointTripped.get());
     }
 
     @_Subscribe

@@ -18,7 +18,8 @@ public class TGame
             Runnable runnable = () -> future.complete(supplier.get());
             Static.getClientThread().invoke(runnable);
             return future.join();
-        } else
+        }
+        else
         {
             return supplier.get();
         }

@@ -4,7 +4,6 @@ import lombok.Getter;
 import net.runelite.client.plugins.tscripts.util.eventbus.TEventBus;
 import net.runelite.client.plugins.tscripts.util.eventbus.events.VariableUpdated;
 import net.runelite.client.plugins.tscripts.util.eventbus.events.VariablesCleared;
-
 import java.util.*;
 
 public class VariableMap
@@ -70,7 +69,7 @@ public class VariableMap
 
     public boolean isFrozen(String key)
     {
-        return false; //frozenVariables.contains(key);
+        return frozenVariables.contains(key);
     }
 
     public void toggleFreeze(String key)
@@ -83,12 +82,12 @@ public class VariableMap
 
     private void freeze(String key)
     {
-        //frozenVariables.add(key);
+        frozenVariables.add(key);
     }
 
     private void unfreeze(String key)
     {
-        //frozenVariables.remove(key);
+        frozenVariables.remove(key);
     }
 
     public void cleanScope(String scope)
@@ -121,8 +120,7 @@ public class VariableMap
 
     public String popScope2()
     {
-        String scope = scopeStack.pop();
-        return scope;
+        return scopeStack.pop();
     }
 
     public String peekScope()

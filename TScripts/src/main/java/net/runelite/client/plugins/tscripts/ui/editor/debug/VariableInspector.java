@@ -10,6 +10,7 @@ import net.runelite.client.plugins.tscripts.runtime.Runtime;
 import javax.swing.*;
 import javax.swing.table.DefaultTableCellRenderer;
 import javax.swing.table.DefaultTableModel;
+import javax.swing.table.TableColumnModel;
 import java.awt.*;
 import java.awt.event.MouseAdapter;
 import java.awt.event.MouseEvent;
@@ -35,7 +36,7 @@ public class VariableInspector extends JPanel {
 
     private VariableInspector(Runtime runtime) {
         // Set up the table model
-        tableModel = new DefaultTableModel(new Object[]{"Variable", "Value"}, 0) {
+        tableModel = new DefaultTableModel(new Object[]{"Variable", "Value", "Key"}, 0) {
             @Override
             public boolean isCellEditable(int row, int column) {
                 return false;
@@ -43,6 +44,9 @@ public class VariableInspector extends JPanel {
         };
         variableTable = new JTable(tableModel);
         variableTable.setFillsViewportHeight(true);
+
+        TableColumnModel columnModel = variableTable.getColumnModel();
+        columnModel.getColumn(2).setMinWidth(0);
 
         // Custom cell renderer to change row background colors
         variableTable.setDefaultRenderer(Object.class, new DefaultTableCellRenderer() {
@@ -70,7 +74,8 @@ public class VariableInspector extends JPanel {
         JPopupMenu popupMenu = new JPopupMenu();
         JMenuItem freezeItem = new JMenuItem("Toggle Freeze");
         freezeItem.addActionListener(e -> {
-            String variableName = (String) tableModel.getValueAt(selectedRow, 0);
+            String variableName = (String) tableModel.getValueAt(selectedRow, 2);
+            System.out.println(variableName);
             runtime.getVariableMap().toggleFreeze(variableName);
         });
         popupMenu.add(freezeItem);
@@ -108,6 +113,7 @@ public class VariableInspector extends JPanel {
                     frozenRows.add(tableModel.getRowCount());
                 row.add(entry.getValue().getName());
                 row.add(entry.getValue().getValue());
+                row.add(entry.getKey());
                 tableModel.addRow(row);
             }
         });

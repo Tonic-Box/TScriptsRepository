@@ -195,7 +195,7 @@ public class Lexer
                             currentType = null;
                             depthCounter = -1;
                             _conditions = flushConditions(segment);
-                            if(_conditions.getType().equals(ConditionType.USER_DEFINED_FUNCTION) && userFunctionName != null)
+                            if((_conditions.getType().equals(ConditionType.USER_DEFINED_FUNCTION) || _conditions.getType().equals(ConditionType.SUBSCRIBE)) && userFunctionName != null)
                             {
                                 userFunctions.add(userFunctionName.toLowerCase());
                                 _conditions.setUserFunctionName(userFunctionName);
@@ -487,7 +487,7 @@ public class Lexer
 
         conditions.setType(type);
 
-        if(type.equals(ConditionType.USER_DEFINED_FUNCTION))
+        if(type.equals(ConditionType.USER_DEFINED_FUNCTION) || type.equals(ConditionType.SUBSCRIBE))
         {
             for (int i = 2; i < tokens.size() - 1; i++)
             {
