@@ -37,6 +37,7 @@ public class Runtime
     @Getter
     private String scriptName = "", profile = "";
     private boolean _die = false, _break = false, _continue = false, _done = true, _return = false, breakpointTripped = false;
+    private final Stack<String> scopeStack = new Stack<>();
 
     /**
      * Creates a new instance of the Runtime class.
@@ -91,7 +92,6 @@ public class Runtime
      */
     private void processScope(Scope scope) {
         if(_die || _return) return;
-
         scope.setCurrent(true);
         postCurrentInstructionChanged();
 
@@ -111,6 +111,7 @@ public class Runtime
             return;
         }
 
+        scopeStack.push(scope.getHash());
         boolean isWhileScope = scope.getConditions() != null && scope.getConditions().getType() != null && scope.getConditions().getType().equals(ConditionType.WHILE);
         boolean shouldProcess = (scope.getConditions() == null || scope.getConditions().getType() == null) || processConditions(scope.getConditions());
         scope.setCurrent(false);
@@ -127,6 +128,7 @@ public class Runtime
 
             shouldProcess = isWhileScope && processConditions(scope.getConditions());
         }
+        variableMap.cleanScope(scopeStack.pop());
     }
 
     /**
@@ -195,7 +197,7 @@ public class Runtime
             default:
                 if(userDefinedFunctions.containsKey(call.getName()))
                 {
-                    processUserFunction(userDefinedFunctions.get(call.getName()));
+                    processUserFunction(userDefinedFunctions.get(call.getName()), call);
                     break;
                 }
                 methodManager.call(processMethodCallArguments(call));
@@ -224,7 +226,7 @@ public class Runtime
         switch (variableAssignment.getAssignmentType())
         {
             case ASSIGNMENT:
-                variableMap.put(name, value);
+                variableMap.put(name, value, scopeStack);
                 return;
             case INCREMENT:
                 incrementVariable(name, value);
@@ -320,10 +322,19 @@ public class Runtime
      * @param function The function.
      * @return The output of the function.
      */
-    private Object processUserFunction(UserDefinedFunction function)
+    private Object processUserFunction(UserDefinedFunction function, MethodCall call)
     {
+        Scope scope = function.getScope().clone();
+        scope.setConditions(null);
         currentFunction = function;
-        processScope(function.getScope());
+        scopeStack.push(scope.getHash());
+        for (int i = 0; i < call.getArgs().length; i++)
+        {
+            variableMap.put(function.getArguments().get(i), getValue(call.getArgs()[i]), scopeStack);
+        }
+        scopeStack.pop();
+
+        processScope(scope);
         Object output = function.getReturnValue() == null ? "null" : function.getReturnValue();
         function.setReturnValue(null);
         currentFunction = null;
@@ -362,12 +373,12 @@ public class Runtime
     private void incrementVariable(String name, Object value) {
         if (value instanceof Integer) {
             int integer = (int) value;
-            int prev = variableMap.containsKey(name) ? (int) variableMap.get(name) : 0;
-            variableMap.put(name, prev + integer);
+            int prev = variableMap.containsKey(name, scopeStack) ? (int) variableMap.get(name, scopeStack) : 0;
+            variableMap.put(name, prev + integer, scopeStack);
         } else if (value instanceof String) {
             String string = (String) value;
-            String prev = variableMap.containsKey(name) ? (String) variableMap.get(name) : "";
-            variableMap.put(name, prev + string);
+            String prev = variableMap.containsKey(name, scopeStack) ? (String) variableMap.get(name, scopeStack) : "";
+            variableMap.put(name, prev + string, scopeStack);
         }
     }
 
@@ -380,8 +391,8 @@ public class Runtime
     private void decrementVariable(String name, Object value) {
         if (value instanceof Integer) {
             int integer = (int) value;
-            int prev = variableMap.containsKey(name) ? (int) variableMap.get(name) : 0;
-            variableMap.put(name, prev - integer);
+            int prev = variableMap.containsKey(name, scopeStack) ? (int) variableMap.get(name, scopeStack) : 0;
+            variableMap.put(name, prev - integer, scopeStack);
         }
     }
 
@@ -398,16 +409,16 @@ public class Runtime
             String string = (String) object;
             if (string.startsWith("$"))
             {
-                if(!variableMap.containsKey(string))
+                if(!variableMap.containsKey(string, scopeStack))
                 {
                     return "null";
                 }
-                return variableMap.get(string);
+                return variableMap.get(string, scopeStack);
             }
             else if (string.startsWith("!$"))
             {
                 String varName = string.substring(1);
-                Object value = variableMap.get(varName);
+                Object value = variableMap.get(varName, scopeStack);
                 return (value instanceof Boolean) ? !((Boolean) value) : value;
             }
             else
@@ -420,7 +431,7 @@ public class Runtime
             MethodCall methodCall = (MethodCall) object;
             if(userDefinedFunctions.containsKey(methodCall.getName()))
             {
-                return processUserFunction(userDefinedFunctions.get(methodCall.getName()));
+                return processUserFunction(userDefinedFunctions.get(methodCall.getName()), methodCall);
             }
             return methodManager.call(processMethodCallArguments((MethodCall) object));
         }
@@ -440,9 +451,7 @@ public class Runtime
     private void addUserDefinedFunction(Scope scope)
     {
         String name = scope.getConditions().getUserFunctionName();
-        Scope userDefinedFunction = scope.clone();
-        userDefinedFunction.setConditions(null);
-        userDefinedFunctions.put(name, new UserDefinedFunction(name, userDefinedFunction));
+        userDefinedFunctions.put(name, new UserDefinedFunction(name, scope));
     }
 
     /**

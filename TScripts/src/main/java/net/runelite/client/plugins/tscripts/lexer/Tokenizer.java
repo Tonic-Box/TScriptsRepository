@@ -173,39 +173,41 @@ public class Tokenizer
      * @return the token type
      */
     private TokenType getTokenType(String tokenValue) {
-        if (tokenValue.equals("if")) return TokenType.KEYWORD_IF;
-        if (tokenValue.equals("while")) return TokenType.KEYWORD_WHILE;
-        if (tokenValue.equals("subscribe")) return TokenType.KEYWORD_SUBSCRIBE;
-        if (tokenValue.equals("function")) return TokenType.KEYWORD_USER_DEFINED_FUNCTION;
-        if (tokenValue.equals("func")) return TokenType.KEYWORD_USER_DEFINED_FUNCTION;
-        if (tokenValue.equals(">")) return TokenType.CONDITION_GT;
-        if (tokenValue.equals("<")) return TokenType.CONDITION_LT;
-        if (tokenValue.equals(">=")) return TokenType.CONDITION_GTEQ;
-        if (tokenValue.equals("<=")) return TokenType.CONDITION_LTEQ;
-        if (tokenValue.equals("==")) return TokenType.CONDITION_EQ;
-        if (tokenValue.equals("!=")) return TokenType.CONDITION_NEQ;
-        if (tokenValue.equals("&&")) return TokenType.CONDITION_AND;
-        if (tokenValue.equals("||")) return TokenType.CONDITION_OR;
-        if (tokenValue.equals("!")) return TokenType.NEGATE;
-        if (tokenValue.equals("=")) return TokenType.VARIABLE_ASSIGNMENT;
-        if (tokenValue.equals("+=")) return TokenType.VARIABLE_INCREMENT;
-        if (tokenValue.equals("-=")) return TokenType.VARIABLE_DECREMENT;
-        if (tokenValue.equals("++")) return TokenType.VARIABLE_ADD_ONE;
-        if (tokenValue.equals("--")) return TokenType.VARIABLE_REMOVE_ONE;
-        if (tokenValue.equals("{")) return TokenType.OPEN_BRACE;
-        if (tokenValue.equals("}")) return TokenType.CLOSE_BRACE;
-        if (tokenValue.equals("(")) return TokenType.OPEN_PAREN;
-        if (tokenValue.equals(")")) return TokenType.CLOSE_PAREN;
-        if (tokenValue.equals(",")) return TokenType.COMMA;
-        if (tokenValue.equals(";")) return TokenType.SEMICOLON;
-        if (tokenValue.startsWith("$")) return TokenType.VARIABLE;
-        if (tokenValue.startsWith("//")) return TokenType.COMMENT;
-        if (tokenValue.startsWith("/*")) return TokenType.MULTI_LINE_COMMENT;
-        if (tokenValue.startsWith("\"")) return TokenType.STRING;
-        if (TextUtil.isNumeric(tokenValue)) return TokenType.INTEGER;
-        if (tokenValue.equalsIgnoreCase("true")) return TokenType.BOOLEAN;
-        if (tokenValue.equalsIgnoreCase("false")) return TokenType.BOOLEAN;
-        if (tokenValue.contains(".")) return TokenType.STATIC_VALUE;
-        return TokenType.IDENTIFIER;
+        switch (tokenValue) {
+            case "if": return TokenType.KEYWORD_IF;
+            case "while": return TokenType.KEYWORD_WHILE;
+            case "subscribe": return TokenType.KEYWORD_SUBSCRIBE;
+            case "function":
+            case "func": return TokenType.KEYWORD_USER_DEFINED_FUNCTION;
+            case ">": return TokenType.CONDITION_GT;
+            case "<": return TokenType.CONDITION_LT;
+            case ">=": return TokenType.CONDITION_GTEQ;
+            case "<=": return TokenType.CONDITION_LTEQ;
+            case "==": return TokenType.CONDITION_EQ;
+            case "!=": return TokenType.CONDITION_NEQ;
+            case "&&": return TokenType.CONDITION_AND;
+            case "||": return TokenType.CONDITION_OR;
+            case "!": return TokenType.NEGATE;
+            case "=": return TokenType.VARIABLE_ASSIGNMENT;
+            case "+=": return TokenType.VARIABLE_INCREMENT;
+            case "-=": return TokenType.VARIABLE_DECREMENT;
+            case "++": return TokenType.VARIABLE_ADD_ONE;
+            case "--": return TokenType.VARIABLE_REMOVE_ONE;
+            case "{": return TokenType.OPEN_BRACE;
+            case "}": return TokenType.CLOSE_BRACE;
+            case "(": return TokenType.OPEN_PAREN;
+            case ")": return TokenType.CLOSE_PAREN;
+            case ",": return TokenType.COMMA;
+            case ";": return TokenType.SEMICOLON;
+            default:
+                if (tokenValue.startsWith("$")) return TokenType.VARIABLE;
+                if (tokenValue.startsWith("//")) return TokenType.COMMENT;
+                if (tokenValue.startsWith("/*")) return TokenType.MULTI_LINE_COMMENT;
+                if (tokenValue.startsWith("\"")) return TokenType.STRING;
+                if (TextUtil.isNumeric(tokenValue)) return TokenType.INTEGER;
+                if (tokenValue.equalsIgnoreCase("true") || tokenValue.equalsIgnoreCase("false")) return TokenType.BOOLEAN;
+                if (tokenValue.contains(".")) return TokenType.STATIC_VALUE;
+                return TokenType.IDENTIFIER;
+        }
     }
 }

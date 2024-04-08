@@ -62,6 +62,11 @@ public class GMisc implements GroupDefinition
                         Logging.logToEditor(msg, Color.WHITE);
                     });
                 }, "Prints the arguments to the console and chatbox");
+        addMethod(methods, "rand", Type.INT,
+                ImmutableMap.of(),
+                function -> (int) (Math.random() * Integer.MAX_VALUE),
+                "Clicks the mouse"
+        );
 
         return methods;
     }

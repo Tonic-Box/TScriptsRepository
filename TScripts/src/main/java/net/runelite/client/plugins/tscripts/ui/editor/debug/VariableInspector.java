@@ -1,5 +1,6 @@
 package net.runelite.client.plugins.tscripts.ui.editor.debug;
 
+import net.runelite.client.plugins.tscripts.runtime.Variable;
 import net.runelite.client.plugins.tscripts.util.eventbus.TEventBus;
 import net.runelite.client.plugins.tscripts.util.eventbus._Subscribe;
 import net.runelite.client.plugins.tscripts.util.eventbus.events.VariableUpdated;
@@ -24,7 +25,7 @@ public class VariableInspector extends JPanel {
     private final Runtime runtime;
     private int selectedRow = -1;
     private final List<Integer> frozenRows = new ArrayList<>();
-    private final Map<String, Object> variableMap;
+    private final Map<String, Variable> variableMap;
 
     public static VariableInspector getInstance(Runtime runtime) {
         if (instance == null)
@@ -101,12 +102,12 @@ public class VariableInspector extends JPanel {
             frozenRows.clear();
 
             // Add new rows for each variable
-            for (Map.Entry<String, Object> entry : variableMap.entrySet()) {
+            for (Map.Entry<String, Variable> entry : variableMap.entrySet()) {
                 Vector<Object> row = new Vector<>();
                 if (runtime.getVariableMap().isFrozen(entry.getKey()))
                     frozenRows.add(tableModel.getRowCount());
-                row.add(entry.getKey());
-                row.add(entry.getValue());
+                row.add(entry.getValue().getName());
+                row.add(entry.getValue().getValue());
                 tableModel.addRow(row);
             }
         });
@@ -114,7 +115,7 @@ public class VariableInspector extends JPanel {
 
     @_Subscribe
     public void onVariableUpdate(VariableUpdated event) {
-        variableMap.put(event.getName(), event.getValue());
+        variableMap.put(event.getName(), new Variable(event.getName(), event.getValue(), ""));
         updateVariables();
     }
 

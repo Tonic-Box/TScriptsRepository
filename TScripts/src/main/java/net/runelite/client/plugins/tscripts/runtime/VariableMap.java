@@ -5,32 +5,54 @@ import net.runelite.client.plugins.tscripts.util.eventbus.TEventBus;
 import net.runelite.client.plugins.tscripts.util.eventbus.events.VariableUpdated;
 import net.runelite.client.plugins.tscripts.util.eventbus.events.VariablesCleared;
 
-import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
+import java.util.*;
 
 public class VariableMap
 {
     @Getter
-    private final Map<String, Object> variableMap = new HashMap<>();
+    private final Map<String, Variable> variableMap = new HashMap<>();
+
     private final List<String> frozenVariables = new ArrayList<>();
 
-    public void put(String key, Object value)
+    public void put(String key, Object value, Stack<String> scopeStack)
     {
         if (!isFrozen(key))
-            variableMap.put(key, value);
+        {
+            for(Variable variable : variableMap.values())
+            {
+                if(variable.getName().equals(key) && scopeStack.contains(variable.getScopeHash()))
+                {
+                    variable.setValue(value);
+                    return;
+                }
+            }
+            variableMap.put(key + " " + scopeStack.peek(), new Variable(key, value, scopeStack.peek()));
+        }
         postChangedEvent(key, value);
     }
 
-    public Object get(String key)
+    public Object get(String key, Stack<String> scopeStack)
     {
-        return variableMap.getOrDefault(key, "");
+        for (Variable variable : variableMap.values())
+        {
+            if (variable.getName().equals(key) && scopeStack.contains(variable.getScopeHash()))
+            {
+                return variable.getValue();
+            }
+        }
+        return variableMap.getOrDefault(key + " " + scopeStack.peek(), new Variable(key, "null", scopeStack.peek())).getValue();
     }
 
-    public boolean containsKey(String key)
+    public boolean containsKey(String key, Stack<String> scopeStack)
     {
-        return variableMap.containsKey(key);
+        for (Variable variable : variableMap.values())
+        {
+            if (variable.getName().equals(key) && scopeStack.contains(variable.getScopeHash()))
+            {
+                return true;
+            }
+        }
+        return false;
     }
 
     public void clear()
@@ -47,7 +69,7 @@ public class VariableMap
 
     public boolean isFrozen(String key)
     {
-        return frozenVariables.contains(key);
+        return false; //frozenVariables.contains(key);
     }
 
     public void toggleFreeze(String key)
@@ -60,11 +82,27 @@ public class VariableMap
 
     private void freeze(String key)
     {
-        frozenVariables.add(key);
+        //frozenVariables.add(key);
     }
 
     private void unfreeze(String key)
     {
-        frozenVariables.remove(key);
+        //frozenVariables.remove(key);
+    }
+
+    public void cleanScope(String scope)
+    {
+        List<String> keysToRemove = new ArrayList<>();
+        for (Variable variable : variableMap.values())
+        {
+            if (variable.getScopeHash().equals(scope))
+            {
+                keysToRemove.add(variable.getName() + " " + variable.getScopeHash());
+            }
+        }
+        for (String key : keysToRemove)
+        {
+            variableMap.remove(key);
+        }
     }
 }

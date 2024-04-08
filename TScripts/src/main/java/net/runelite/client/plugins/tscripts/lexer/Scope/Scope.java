@@ -43,7 +43,7 @@ public class Scope extends Element
     @Setter
     private Conditions conditions = null;
     @Getter
-    private final String hash = UUID.randomUUID().toString();
+    private String hash = UUID.randomUUID().toString();
 
     /**
      * Clones the scope

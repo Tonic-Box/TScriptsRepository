@@ -487,6 +487,20 @@ public class Lexer
 
         conditions.setType(type);
 
+        if(type.equals(ConditionType.USER_DEFINED_FUNCTION))
+        {
+            for (int i = 2; i < tokens.size() - 1; i++)
+            {
+                Token token = tokens.get(i);
+                if (token.getType().equals(TokenType.VARIABLE))
+                {
+                    Condition condition = new Condition(token.getValue(), null, null);
+                    conditions.getConditions().put(conditions.getConditions().size(), condition);
+                }
+            }
+            return conditions;
+        }
+
         List<Token> tokenList = new ArrayList<>();
         for(int i = 2; i < tokens.size() - 1; i++)
         {
