@@ -37,7 +37,6 @@ public class Runtime
     @Getter
     private String scriptName = "", profile = "";
     private boolean _die = false, _break = false, _continue = false, _done = true, _return = false, breakpointTripped = false;
-    private final Stack<String> scopeStack = new Stack<>();
 
     /**
      * Creates a new instance of the Runtime class.
@@ -111,7 +110,7 @@ public class Runtime
             return;
         }
 
-        scopeStack.push(scope.getHash());
+        variableMap.pushScope(scope.getHash());
         boolean isWhileScope = scope.getConditions() != null && scope.getConditions().getType() != null && scope.getConditions().getType().equals(ConditionType.WHILE);
         boolean shouldProcess = (scope.getConditions() == null || scope.getConditions().getType() == null) || processConditions(scope.getConditions());
         scope.setCurrent(false);
@@ -128,7 +127,7 @@ public class Runtime
 
             shouldProcess = isWhileScope && processConditions(scope.getConditions());
         }
-        variableMap.cleanScope(scopeStack.pop());
+        variableMap.popScope();
     }
 
     /**
@@ -226,7 +225,7 @@ public class Runtime
         switch (variableAssignment.getAssignmentType())
         {
             case ASSIGNMENT:
-                variableMap.put(name, value, scopeStack);
+                variableMap.put(name, value);
                 return;
             case INCREMENT:
                 incrementVariable(name, value);
@@ -327,12 +326,12 @@ public class Runtime
         Scope scope = function.getScope().clone();
         scope.setConditions(null);
         currentFunction = function;
-        scopeStack.push(scope.getHash());
+        variableMap.pushScope(scope.getHash());
         for (int i = 0; i < call.getArgs().length; i++)
         {
-            variableMap.put(function.getArguments().get(i), getValue(call.getArgs()[i]), scopeStack);
+            variableMap.put(function.getArguments().get(i), getValue(call.getArgs()[i]));
         }
-        scopeStack.pop();
+        variableMap.popScope2();
 
         processScope(scope);
         Object output = function.getReturnValue() == null ? "null" : function.getReturnValue();
@@ -373,12 +372,12 @@ public class Runtime
     private void incrementVariable(String name, Object value) {
         if (value instanceof Integer) {
             int integer = (int) value;
-            int prev = variableMap.containsKey(name, scopeStack) ? (int) variableMap.get(name, scopeStack) : 0;
-            variableMap.put(name, prev + integer, scopeStack);
+            int prev = variableMap.containsKey(name) ? (int) variableMap.get(name) : 0;
+            variableMap.put(name, prev + integer);
         } else if (value instanceof String) {
             String string = (String) value;
-            String prev = variableMap.containsKey(name, scopeStack) ? (String) variableMap.get(name, scopeStack) : "";
-            variableMap.put(name, prev + string, scopeStack);
+            String prev = variableMap.containsKey(name) ? (String) variableMap.get(name) : "";
+            variableMap.put(name, prev + string);
         }
     }
 
@@ -391,8 +390,8 @@ public class Runtime
     private void decrementVariable(String name, Object value) {
         if (value instanceof Integer) {
             int integer = (int) value;
-            int prev = variableMap.containsKey(name, scopeStack) ? (int) variableMap.get(name, scopeStack) : 0;
-            variableMap.put(name, prev - integer, scopeStack);
+            int prev = variableMap.containsKey(name) ? (int) variableMap.get(name) : 0;
+            variableMap.put(name, prev - integer);
         }
     }
 
@@ -409,16 +408,16 @@ public class Runtime
             String string = (String) object;
             if (string.startsWith("$"))
             {
-                if(!variableMap.containsKey(string, scopeStack))
+                if(!variableMap.containsKey(string))
                 {
                     return "null";
                 }
-                return variableMap.get(string, scopeStack);
+                return variableMap.get(string);
             }
             else if (string.startsWith("!$"))
             {
                 String varName = string.substring(1);
-                Object value = variableMap.get(varName, scopeStack);
+                Object value = variableMap.get(varName);
                 return (value instanceof Boolean) ? !((Boolean) value) : value;
             }
             else

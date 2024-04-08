@@ -66,7 +66,6 @@ public class DocumentationPanel extends JPanel
 
         DefaultMutableTreeNode events = new DefaultMutableTreeNode("Event Subscribers");
         events.add(new DefaultMutableTreeNode("subscribe"));
-        events.add(new DefaultMutableTreeNode("events"));
         root.add(events);
 
         MethodManager methodManager = MethodManager.getInstance();
@@ -87,10 +86,94 @@ public class DocumentationPanel extends JPanel
         tree.setShowsRootHandles(true);
         tree.addTreeSelectionListener(e -> {
             DefaultMutableTreeNode selectedNode = (DefaultMutableTreeNode) categoryTree.getLastSelectedPathComponent();
-            if (selectedNode != null && selectedNode.isLeaf() && selectedNode instanceof ExTreeNode) {
-                ExTreeNode exTreeNode = (ExTreeNode) selectedNode;
-                MethodDefinition methodDefinition = exTreeNode.getMethod();
-                updateDocumentation(methodDefinition);
+            if (selectedNode != null && selectedNode.isLeaf()) {
+                if (selectedNode instanceof ExTreeNode) {
+                    ExTreeNode exTreeNode = (ExTreeNode) selectedNode;
+                    MethodDefinition methodDefinition = exTreeNode.getMethod();
+                    updateDocumentation(methodDefinition);
+                    return;
+                }
+                StringBuilder usage;
+                switch (selectedNode.toString())
+                {
+                    case "if":
+                        usage = new StringBuilder("/*\n * The condition can be any expression that evaluates to a boolean value\n *\n" +
+                                "* The code block will only execute if the condition is true\n */\n" +
+                                "if(condition) {\n\t//code\n}\n\n//Examples\nif(true) {\n\t//code\n}\n\n$var = 7;\nif($var <= 10) {\n\t//code\n}\n\n" +
+                                "// Conditional Operators:\n" +
+                                "// ==, !=, <, >, <=, >=, &&, ||, !");
+                        codeTextPane.setText(usage.toString());
+                        codeTextPane.setCaretPosition(0);
+                        break;
+                    case "while":
+                        usage = new StringBuilder("/*\n * The condition can be any expression that evaluates to a boolean value\n *\n" +
+                                "* The code block will execute until the condition is false\n */\n" +
+                                "while(condition) {\n\tcode\n}\n\n//Examples\nwhile(true) {\n\tcode\n}\n\n$var = 7;\nwhile($var <= 10) {\n\t//code\n}\n\n" +
+                                "// Conditional Operators:\n" +
+                                "// ==, !=, <, >, <=, >=, &&, ||, !");
+                        codeTextPane.setText(usage.toString());
+                        codeTextPane.setCaretPosition(0);
+                        break;
+                    case "continue":
+                        usage = new StringBuilder("/*\n * The continue statement is used to skip the rest of the code block and continue to the next iteration of the loop\n */" +
+                                "\n$i = 0;\nwhile(true) {\n\tif($i == 5) {\n\t\tcontinue();\n\t}\n\t$i++;\n\t//code\n}\n\n" +
+                                "// The above code will skip the code block when $i is 5");
+                        codeTextPane.setText(usage.toString());
+                        codeTextPane.setCaretPosition(0);
+                        break;
+                    case "break":
+                        usage = new StringBuilder("/*\n * The break statement is used to exit the loop\n */" +
+                                "\n$i = 0;\nwhile(true) {\n\tif($i == 5) {\n\t\tbreak();\n\t}\n\t$i++;\n\t//code\n}\n\n" +
+                                "// The above code will exit the loop when $i is 5");
+                        codeTextPane.setText(usage.toString());
+                        codeTextPane.setCaretPosition(0);
+                        break;
+                    case "die":
+                        usage = new StringBuilder("/*\n * The die statement is used to stop the script\n */" +
+                                "\ndie();\n\n" +
+                                "// The above code will stop the script");
+                        codeTextPane.setText(usage.toString());
+                        codeTextPane.setCaretPosition(0);
+                        break;
+                    case "function":
+                        usage = new StringBuilder("/*\n * The function statement is used to define a function\n *\n" +
+                                "* The function can be called by its name\n" +
+                                "* The function can have parameters\n" +
+                                "* The function can return a value\n */" +
+                                "\nfunction name() {\n\t//code\n}\n\n//Examples\nfunction test() {\n\t//code\n}\n\nfunction test2($a) {\n\treturn($a);\n}\n\n" +
+                                "// Calling a function\nname();\n\n// Calling a function with parameters\n$num = test2(5);" +
+                                "\n\n// you can use return(); to return a function at any point with no return value, or\n" +
+                                "// return($value); to return a value");
+                        codeTextPane.setText(usage.toString());
+                        codeTextPane.setCaretPosition(0);
+                        break;
+                    case "variables":
+                        usage = new StringBuilder("/*\n * Variables are used to store data\n *\n" +
+                                "* Variables can be of any type\n" +
+                                "* Variables can be assigned a value\n" +
+                                "* Variables can be used in expressions\n */" +
+                                "\n$var = 5;\n\n// The above code assigns the value 5 to the variable $var\n\n");
+                        codeTextPane.setText(usage.toString());
+                        codeTextPane.setCaretPosition(0);
+                        break;
+                    case "subscribe":
+                        usage = new StringBuilder("/*\n * The subscribe statement is used to subscribe to an event\n *\n" +
+                                "* The event can be any event defined in the client\n" +
+                                "* The event can be handled by a function\n */\n" +
+                                "subscribe(\"MenuOptionClicked\") {\n\t//code to do things\n}\n" +
+                                "// The above code will run the code when the MenuOptionClicked event is triggered" +
+                                "\n\n/* Available Events:\n");
+                        List<Class<?>> eventClasses = MethodManager.getInstance().getEventClasses();
+                        for (Class<?> event : eventClasses)
+                        {
+                            usage.append(" * ").append(event.getSimpleName()).append("\n");
+                        }
+                        usage.append(" */");
+                        codeTextPane.setText(usage.toString());
+                        codeTextPane.setCaretPosition(0);
+                        break;
+
+                }
             }
         });
 
@@ -99,6 +182,7 @@ public class DocumentationPanel extends JPanel
 
     public void updateDocumentation(MethodDefinition methodDefinition) {
         codeTextPane.setText("//" + methodDefinition.getDescription() + "\n" + generateUsage(methodDefinition));
+        codeTextPane.setCaretPosition(0);
     }
 
     private String generateUsage(MethodDefinition method) {

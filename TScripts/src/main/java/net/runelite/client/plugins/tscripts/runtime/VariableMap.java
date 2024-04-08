@@ -11,10 +11,11 @@ public class VariableMap
 {
     @Getter
     private final Map<String, Variable> variableMap = new HashMap<>();
+    private final Stack<String> scopeStack = new Stack<>();
 
     private final List<String> frozenVariables = new ArrayList<>();
 
-    public void put(String key, Object value, Stack<String> scopeStack)
+    public void put(String key, Object value)
     {
         if (!isFrozen(key))
         {
@@ -31,7 +32,7 @@ public class VariableMap
         postChangedEvent(key, value);
     }
 
-    public Object get(String key, Stack<String> scopeStack)
+    public Object get(String key)
     {
         for (Variable variable : variableMap.values())
         {
@@ -43,7 +44,7 @@ public class VariableMap
         return variableMap.getOrDefault(key + " " + scopeStack.peek(), new Variable(key, "null", scopeStack.peek())).getValue();
     }
 
-    public boolean containsKey(String key, Stack<String> scopeStack)
+    public boolean containsKey(String key)
     {
         for (Variable variable : variableMap.values())
         {
@@ -104,5 +105,28 @@ public class VariableMap
         {
             variableMap.remove(key);
         }
+    }
+
+    public void pushScope(String scope)
+    {
+        scopeStack.push(scope);
+    }
+
+    public String popScope()
+    {
+        String scope = scopeStack.pop();
+        cleanScope(scope);
+        return scope;
+    }
+
+    public String popScope2()
+    {
+        String scope = scopeStack.pop();
+        return scope;
+    }
+
+    public String peekScope()
+    {
+        return scopeStack.peek();
     }
 }
