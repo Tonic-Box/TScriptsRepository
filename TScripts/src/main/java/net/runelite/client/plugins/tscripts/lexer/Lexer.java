@@ -21,6 +21,7 @@ import java.util.*;
 @Data
 public class Lexer
 {
+    private static final Lexer lexer = new Lexer();
     private List<String> userFunctions = new ArrayList<>();
 
     /**
@@ -30,7 +31,8 @@ public class Lexer
      * @throws Exception if an error occurs
      */
     public static Scope lex(List<Token> tokens) throws Exception {
-        return new Lexer().parse(tokens);
+        lexer.getUserFunctions().clear();
+        return lexer.parse(tokens);
     }
 
     /**
