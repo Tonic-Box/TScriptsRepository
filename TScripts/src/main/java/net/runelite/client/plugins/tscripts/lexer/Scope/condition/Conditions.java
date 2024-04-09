@@ -11,8 +11,10 @@ public class Conditions
     private final Map<Integer, Glue> glues = new HashMap<>();
     private ConditionType type;
     private String userFunctionName = null;
+    private ForCondition forCondition = null;
     private boolean current = false;
 
+    @Override
     public Conditions clone()
     {
         Conditions newConditions = new Conditions();
@@ -26,6 +28,7 @@ public class Conditions
         }
         newConditions.setType(getType());
         newConditions.setUserFunctionName(getUserFunctionName());
+        newConditions.setForCondition(getForCondition());
         return newConditions;
     }
 

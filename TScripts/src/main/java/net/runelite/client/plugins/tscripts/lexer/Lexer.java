@@ -4,6 +4,7 @@ import lombok.Data;
 import net.runelite.client.plugins.tscripts.api.MethodManager;
 import net.runelite.client.plugins.tscripts.lexer.Scope.Scope;
 import net.runelite.client.plugins.tscripts.lexer.Scope.condition.*;
+import net.runelite.client.plugins.tscripts.lexer.Scope.condition.Comparator;
 import net.runelite.client.plugins.tscripts.lexer.models.Element;
 import net.runelite.client.plugins.tscripts.lexer.models.ElementType;
 import net.runelite.client.plugins.tscripts.lexer.models.Token;
@@ -12,10 +13,7 @@ import net.runelite.client.plugins.tscripts.lexer.variable.AssignmentType;
 import net.runelite.client.plugins.tscripts.lexer.variable.VariableAssignment;
 import org.apache.commons.lang3.NotImplementedException;
 import java.rmi.UnexpectedException;
-import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
+import java.util.*;
 
 /**
  * The Lexer class is responsible for parsing the tokens into an AST.
@@ -181,6 +179,7 @@ public class Lexer
                         }
                         continue;
                     case USER_DEFINED_FUNCTION:
+                    case CONDITION_FOR:
                     case CONDITION:
                         if (depthCounter == -1 && token.getType() == TokenType.OPEN_PAREN)
                         {
@@ -210,9 +209,9 @@ public class Lexer
 
                         if (depthCounter == 0)
                         {
-                            currentType = null;
                             depthCounter = -1;
-                            _conditions = flushConditions(segment);
+                            _conditions = (currentType == ElemType.CONDITION_FOR) ? flushForCondition(segment) : flushConditions(segment);
+                            currentType = null;
                             if((_conditions.getType() == ConditionType.USER_DEFINED_FUNCTION || _conditions.getType() == ConditionType.SUBSCRIBE) && userFunctionName != null)
                             {
                                 userFunctions.add(userFunctionName.toLowerCase());
@@ -237,6 +236,10 @@ public class Lexer
                 case KEYWORD_SUBSCRIBE:
                     segment.add(token);
                     currentType = ElemType.CONDITION;
+                    break;
+                case KEYWORD_FOR:
+                    segment.add(token);
+                    currentType = ElemType.CONDITION_FOR;
                     break;
                 case KEYWORD_USER_DEFINED_FUNCTION:
                     segment.add(token);
@@ -478,10 +481,74 @@ public class Lexer
         return methodCall;
     }
 
+    private Conditions flushForCondition(List<Token> tokens) throws Exception
+    {
+        Conditions conditions = new Conditions();
+        ForCondition forCondition = new ForCondition();
+        conditions.setType(ConditionType.FOR);
+        List<Token> segment = new ArrayList<>();
+        int part = 0;
+        int depthCounter = -1;
+        boolean inMethodCall = false;
+        for(int i = 2; i < tokens.size() - 1; i++)
+        {
+            Token token = tokens.get(i);
+            while(inMethodCall)
+            {
+                token = tokens.get(++i);
+                switch (token.getType())
+                {
+                    case OPEN_PAREN:
+                        depthCounter++;
+                        segment.add(token);
+                        break;
+                    case CLOSE_PAREN:
+                        depthCounter--;
+                        segment.add(token);
+                        break;
+                    default:
+                        segment.add(token);
+                }
+                if (depthCounter == 0)
+                {
+                    inMethodCall = false;
+                }
+            }
+
+            if (token.getType() == TokenType.SEMICOLON)
+            {
+                if (part == 0)
+                {
+                    forCondition.setVariableAssignment(flushVariableAssignment(segment));
+                }
+                else if (part == 1)
+                {
+                    segment.add(token);
+                    conditions = flushConditions(segment);
+                }
+                segment.clear();
+                part++;
+            }
+            else if(token.getType() == TokenType.IDENTIFIER && tokens.size() > i + 1 && tokens.get(i + 1).getType()  == TokenType.OPEN_PAREN)
+            {
+                inMethodCall = true;
+            }
+            else
+            {
+                segment.add(token);
+            }
+        }
+        forCondition.setOperation(flushVariableAssignment(segment));
+        segment.clear();
+        conditions.setForCondition(forCondition);
+        return conditions;
+    }
+
     private Conditions flushConditions(List<Token> tokens) throws Exception
     {
         Conditions conditions = new Conditions();
         ConditionType type;
+        int iStart = 2;
         switch (tokens.get(0).getType())
         {
             case KEYWORD_IF:
@@ -500,7 +567,9 @@ public class Lexer
                 type = ConditionType.USER_DEFINED_FUNCTION;
                 break;
             default:
-                throw new UnexpectedException("Lexer::flushCondition unexpected condition type  on line {" + tokens.get(0).getLine() + "}");
+                iStart = 0;
+                type = ConditionType.FOR;
+                //throw new UnexpectedException("Lexer::flushCondition unexpected condition type on line {" + tokens.get(0).getLine() + "}");
         }
 
         conditions.setType(type);
@@ -520,10 +589,9 @@ public class Lexer
         }
 
         List<Token> tokenList = new ArrayList<>();
-        for(int i = 2; i < tokens.size() - 1; i++)
+        for(int i = iStart; i < tokens.size() - 1; i++)
         {
             Token token = tokens.get(i);
-
             if(token.getType() == TokenType.CONDITION_AND || token.getType() == TokenType.CONDITION_OR)
             {
                 Glue glue = token.getType() == TokenType.CONDITION_AND ? Glue.AND : Glue.OR;
@@ -721,6 +789,6 @@ public class Lexer
         FUNCTION,
         SCOPE,
         USER_DEFINED_FUNCTION,
-        VARIABLE_ASSIGNMENT
+        CONDITION_FOR, VARIABLE_ASSIGNMENT
     }
 }

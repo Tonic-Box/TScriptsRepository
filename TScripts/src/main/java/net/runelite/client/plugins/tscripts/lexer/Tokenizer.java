@@ -177,6 +177,7 @@ public class Tokenizer
             case "if": return TokenType.KEYWORD_IF;
             case "else": return TokenType.KEYWORD_ELSE;
             case "while": return TokenType.KEYWORD_WHILE;
+            case "for": return TokenType.KEYWORD_FOR;
             case "subscribe": return TokenType.KEYWORD_SUBSCRIBE;
             case "function":
             case "func": return TokenType.KEYWORD_USER_DEFINED_FUNCTION;

@@ -120,7 +120,10 @@ public class Runtime
 
         variableMap.pushScope(scope.getHash());
         boolean isWhileScope = scope.getConditions() != null && scope.getConditions().getType() != null && scope.getConditions().getType().equals(ConditionType.WHILE);
+        boolean isForScope = scope.getConditions() != null && scope.getConditions().getType() != null && scope.getConditions().getType().equals(ConditionType.FOR);
         boolean isIf = scope.getConditions() != null && scope.getConditions().getType() != null && scope.getConditions().getType().equals(ConditionType.IF);
+        if(isForScope) processVariableAssignment(scope.getConditions().getForCondition().getVariableAssignment());
+
         boolean shouldProcess = (scope.getConditions() == null || scope.getConditions().getType() == null) || processConditions(scope.getConditions());
         boolean originalShouldProcess = shouldProcess;
         scope.setCurrent(false);
@@ -135,7 +138,8 @@ public class Runtime
 
             if (handleControlFlow(isWhileScope)) break;
 
-            shouldProcess = isWhileScope && processConditions(scope.getConditions());
+            if(isForScope) processVariableAssignment(scope.getConditions().getForCondition().getOperation());
+            shouldProcess = (isWhileScope || isForScope) && processConditions(scope.getConditions());
         }
 
         if(isIf && !originalShouldProcess && scope.getElseElements() != null)
