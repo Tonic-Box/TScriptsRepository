@@ -4,6 +4,7 @@ import net.runelite.client.plugins.tscripts.runtime.Variable;
 import net.runelite.client.plugins.tscripts.util.eventbus.TEventBus;
 import net.runelite.client.plugins.tscripts.util.eventbus._Subscribe;
 import net.runelite.client.plugins.tscripts.util.eventbus.events.VariableUpdated;
+import net.runelite.client.plugins.tscripts.util.eventbus.events.VariablesCleaned;
 import net.runelite.client.plugins.tscripts.util.eventbus.events.VariablesCleared;
 import net.runelite.client.plugins.tscripts.runtime.Runtime;
 
@@ -36,7 +37,7 @@ public class VariableInspector extends JPanel {
 
     private VariableInspector(Runtime runtime) {
         // Set up the table model
-        tableModel = new DefaultTableModel(new Object[]{"Variable", "Value", "Key"}, 0) {
+        tableModel = new DefaultTableModel(new Object[]{"Variable", "Value", "Hash"}, 0) {
             @Override
             public boolean isCellEditable(int row, int column) {
                 return false;
@@ -111,9 +112,11 @@ public class VariableInspector extends JPanel {
                 Vector<Object> row = new Vector<>();
                 if (runtime.getVariableMap().isFrozen(entry.getKey()))
                     frozenRows.add(tableModel.getRowCount());
+                if(entry.getValue().getScopeHash() == null || entry.getValue().getScopeHash().isBlank())
+                    continue;
                 row.add(entry.getValue().getName());
                 row.add(entry.getValue().getValue());
-                row.add(entry.getKey());
+                row.add(entry.getKey().split(" ")[1]);
                 tableModel.addRow(row);
             }
         });
@@ -128,6 +131,13 @@ public class VariableInspector extends JPanel {
 
     @_Subscribe
     public void onVariablesCleared(VariablesCleared event)
+    {
+        variableMap.clear();
+        updateVariables();
+    }
+
+    @_Subscribe
+    public void onVariablesCleaned(VariablesCleaned event)
     {
         variableMap.clear();
         updateVariables();

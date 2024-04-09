@@ -8,5 +8,8 @@ public enum ConditionType
     WHILE,
     IF,
     SUBSCRIBE,
-    ELSE, FOR, USER_DEFINED_FUNCTION
+    ELSE,
+    FOR,
+    USER_DEFINED_FUNCTION,
+    NONE
 }

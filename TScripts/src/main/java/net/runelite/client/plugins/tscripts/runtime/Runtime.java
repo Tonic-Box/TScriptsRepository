@@ -101,28 +101,34 @@ public class Runtime
         if(_die || _return) return;
         scope.setCurrent(true);
         postCurrentInstructionChanged();
-
-        boolean isRegisterScope = scope.getConditions() != null && scope.getConditions().getType() != null  && scope.getConditions().getType().equals(ConditionType.SUBSCRIBE);
-        if(isRegisterScope)
-        {
-            addAnonymousEventSubscriber(scope);
-            scope.setCurrent(false);
-            return;
-        }
-
-        boolean isUserDefinedFunction = scope.getConditions() != null && scope.getConditions().getType() != null  && scope.getConditions().getType().equals(ConditionType.USER_DEFINED_FUNCTION);
-        if(isUserDefinedFunction)
-        {
-            addUserDefinedFunction(scope);
-            scope.setCurrent(false);
-            return;
-        }
-
         variableMap.pushScope(scope.getHash());
-        boolean isWhileScope = scope.getConditions() != null && scope.getConditions().getType() != null && scope.getConditions().getType().equals(ConditionType.WHILE);
-        boolean isForScope = scope.getConditions() != null && scope.getConditions().getType() != null && scope.getConditions().getType().equals(ConditionType.FOR);
-        boolean isIf = scope.getConditions() != null && scope.getConditions().getType() != null && scope.getConditions().getType().equals(ConditionType.IF);
-        if(isForScope) processVariableAssignment(scope.getConditions().getForCondition().getVariableAssignment());
+
+        boolean isLoopScope = false;
+        boolean isIf = false;
+        ConditionType type = scope.getConditions() != null ? scope.getConditions().getType() : ConditionType.NONE;
+        switch (type)
+        {
+            case SUBSCRIBE:
+                addAnonymousEventSubscriber(scope);
+                scope.setCurrent(false);
+                variableMap.popScope();
+                return;
+            case USER_DEFINED_FUNCTION:
+                addUserDefinedFunction(scope);
+                scope.setCurrent(false);
+                variableMap.popScope();
+                return;
+            case WHILE:
+                isLoopScope = true;
+                break;
+            case FOR:
+                isLoopScope = true;
+                processVariableAssignment(scope.getConditions().getForCondition().getVariableAssignment());
+                break;
+            case IF:
+                isIf = true;
+                break;
+        }
 
         boolean shouldProcess = (scope.getConditions() == null || scope.getConditions().getType() == null) || processConditions(scope.getConditions());
         boolean originalShouldProcess = shouldProcess;
@@ -136,10 +142,10 @@ public class Runtime
                 if (_die || _break || _continue || _return) break;
             }
 
-            if (handleControlFlow(isWhileScope)) break;
+            if (handleControlFlow(isLoopScope)) break;
 
-            if(isForScope) processVariableAssignment(scope.getConditions().getForCondition().getOperation());
-            shouldProcess = (isWhileScope || isForScope) && processConditions(scope.getConditions());
+            if(type == ConditionType.FOR) processVariableAssignment(scope.getConditions().getForCondition().getOperation());
+            shouldProcess = isLoopScope && processConditions(scope.getConditions());
         }
 
         if(isIf && !originalShouldProcess && scope.getElseElements() != null)

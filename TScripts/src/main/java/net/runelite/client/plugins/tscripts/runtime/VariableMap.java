@@ -3,6 +3,7 @@ package net.runelite.client.plugins.tscripts.runtime;
 import lombok.Getter;
 import net.runelite.client.plugins.tscripts.util.eventbus.TEventBus;
 import net.runelite.client.plugins.tscripts.util.eventbus.events.VariableUpdated;
+import net.runelite.client.plugins.tscripts.util.eventbus.events.VariablesCleaned;
 import net.runelite.client.plugins.tscripts.util.eventbus.events.VariablesCleared;
 import java.util.*;
 
@@ -23,6 +24,7 @@ public class VariableMap
                 if(variable.getName().equals(key) && scopeStack.contains(variable.getScopeHash()))
                 {
                     variable.setValue(value);
+                    postChangedEvent(key, value);
                     return;
                 }
             }
@@ -93,17 +95,18 @@ public class VariableMap
     public void cleanScope(String scope)
     {
         List<String> keysToRemove = new ArrayList<>();
-        for (Variable variable : variableMap.values())
+        for (var variable : variableMap.entrySet())
         {
-            if (variable.getScopeHash().equals(scope))
+            if (variable.getValue().getScopeHash().equals(scope))
             {
-                keysToRemove.add(variable.getName() + " " + variable.getScopeHash());
+                keysToRemove.add(variable.getKey());
             }
         }
         for (String key : keysToRemove)
         {
             variableMap.remove(key);
         }
+        TEventBus.post(VariablesCleaned.get());
     }
 
     public void pushScope(String scope)
@@ -114,7 +117,7 @@ public class VariableMap
     public String popScope()
     {
         String scope = scopeStack.pop();
-        cleanScope(scope);
+        //cleanScope(scope);
         return scope;
     }
 
@@ -126,5 +129,16 @@ public class VariableMap
     public String peekScope()
     {
         return scopeStack.peek();
+    }
+
+    @Override
+    public String toString()
+    {
+        StringBuilder out = new StringBuilder();
+        for (Variable variable : variableMap.values())
+        {
+            out.append("\t").append(variable.getName()).append(" -> ").append(variable.getValue()).append(" (").append(variable.getScopeHash()).append(")");
+        }
+        return out.toString();
     }
 }

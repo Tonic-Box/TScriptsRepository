@@ -21,8 +21,6 @@ import java.util.*;
 @Data
 public class Lexer
 {
-    private boolean verify = true;
-    private boolean debug = false;
     private List<String> userFunctions = new ArrayList<>();
 
     /**
