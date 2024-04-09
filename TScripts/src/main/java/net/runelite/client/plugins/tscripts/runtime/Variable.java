@@ -13,7 +13,6 @@ public class Variable
 
     public Variable(String name, Object value, String scopeHash)
     {
-        System.out.println("Variable created: " + name + " " + value + " " + scopeHash);
         this.name = name;
         this.value = value;
         this.scopeHash = scopeHash;

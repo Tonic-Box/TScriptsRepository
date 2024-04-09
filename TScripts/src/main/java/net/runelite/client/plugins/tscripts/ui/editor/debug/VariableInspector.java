@@ -120,13 +120,15 @@ public class VariableInspector extends JPanel {
     }
 
     @_Subscribe
-    public void onVariableUpdate(VariableUpdated event) {
+    public void onVariableUpdate(VariableUpdated event)
+    {
         variableMap.put(event.getName(), new Variable(event.getName(), event.getValue(), ""));
         updateVariables();
     }
 
     @_Subscribe
-    public void onVariablesCleared(VariablesCleared event) {
+    public void onVariablesCleared(VariablesCleared event)
+    {
         variableMap.clear();
         updateVariables();
     }

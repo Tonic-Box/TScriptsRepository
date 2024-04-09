@@ -55,7 +55,7 @@ public class DocumentationPanel extends JPanel
         DefaultMutableTreeNode root = new DefaultMutableTreeNode("Categories");
 
         DefaultMutableTreeNode conditionalConstructs = new DefaultMutableTreeNode("Language Constructs");
-        conditionalConstructs.add(new DefaultMutableTreeNode("if"));
+        conditionalConstructs.add(new DefaultMutableTreeNode("if/else"));
         conditionalConstructs.add(new DefaultMutableTreeNode("while"));
         conditionalConstructs.add(new DefaultMutableTreeNode("continue"));
         conditionalConstructs.add(new DefaultMutableTreeNode("break"));
@@ -96,9 +96,9 @@ public class DocumentationPanel extends JPanel
                 StringBuilder usage;
                 switch (selectedNode.toString())
                 {
-                    case "if":
+                    case "if/else":
                         usage = new StringBuilder("/*\n * The condition can be any expression that evaluates to a boolean value\n *\n" +
-                                "* The code block will only execute if the condition is true\n */\n" +
+                                "* The code block will only execute if the condition is true.\n * you can optionally follow if statements with an else { ... } block\n */\n" +
                                 "if(condition) {\n\t//code\n}\n\n//Examples\nif(true) {\n\t//code\n}\n\n$var = 7;\nif($var <= 10) {\n\t//code\n}\n\n" +
                                 "// Conditional Operators:\n" +
                                 "// ==, !=, <, >, <=, >=, &&, ||, !");

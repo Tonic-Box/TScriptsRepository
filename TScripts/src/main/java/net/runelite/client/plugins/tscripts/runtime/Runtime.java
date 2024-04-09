@@ -120,7 +120,9 @@ public class Runtime
 
         variableMap.pushScope(scope.getHash());
         boolean isWhileScope = scope.getConditions() != null && scope.getConditions().getType() != null && scope.getConditions().getType().equals(ConditionType.WHILE);
+        boolean isIf = scope.getConditions() != null && scope.getConditions().getType() != null && scope.getConditions().getType().equals(ConditionType.IF);
         boolean shouldProcess = (scope.getConditions() == null || scope.getConditions().getType() == null) || processConditions(scope.getConditions());
+        boolean originalShouldProcess = shouldProcess;
         scope.setCurrent(false);
 
         while (shouldProcess)
@@ -135,6 +137,16 @@ public class Runtime
 
             shouldProcess = isWhileScope && processConditions(scope.getConditions());
         }
+
+        if(isIf && !originalShouldProcess && scope.getElseElements() != null)
+        {
+            for (Element element : scope.getElseElements().values()) {
+                processElement(element);
+                postFlags();
+                if (_die || _break || _continue || _return) break;
+            }
+        }
+
         variableMap.popScope();
     }
 

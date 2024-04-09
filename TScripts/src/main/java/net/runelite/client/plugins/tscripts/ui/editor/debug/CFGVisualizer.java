@@ -299,7 +299,8 @@ public class CFGVisualizer extends JPanel {
                 }
                 else
                 {
-                    left = colorize(condition.getLeft().toString(), current ? Colors.CURRENT : Colors.VALUES);
+                    String value = isStringArg(condition.getLeft()) ? "\"" + condition.getLeft() + "\"" : condition.getLeft().toString();
+                    left = colorize(value, current ? Colors.CURRENT : Colors.VALUES);
                 }
                 String right;
                 if(condition.getRight() == null)
@@ -312,7 +313,7 @@ public class CFGVisualizer extends JPanel {
                 }
                 else
                 {
-                    String value = condition.getRight() instanceof String ? "\"" + condition.getRight() + "\"" : condition.getRight().toString();
+                    String value = isStringArg(condition.getLeft()) ? "\"" + condition.getRight() + "\"" : condition.getRight().toString();
                     right = colorize(value, current ? Colors.CURRENT : Colors.VALUES);
                 }
 
@@ -349,7 +350,26 @@ public class CFGVisualizer extends JPanel {
             }
             label.append("\n").append(tab).append(createLabelFromNode(element));
         }
-        return cleanLabel(label + close + counter);
+
+        label.append(close);
+
+        if(scope.getElseElements() != null)
+        {
+            label.append(colorize("\nelse", Colors.KEYWORDS)).append(colorize(" {", Colors.OPERATORS));
+            for(Element element : scope.getElseElements().values())
+            {
+                if(element.getType().equals(ElementType.SCOPE))
+                {
+                    String newScopeLabel = alphabetIterator.getNextLetter();
+                    label.append("\n").append(tab).append(colorize("[scope] ", Colors.FUNCTIONS)).append(colorize("//flows to edge " + newScopeLabel, Colors.NOTATION));
+                    edgeLabels.put(HashUtil.getSha256Hash(((Scope)element).toJson()), "<html>" + colorize(newScopeLabel, Colors.EDGE_LABEL_COLOR) + "</html>");
+                    continue;
+                }
+                label.append("\n").append(tab).append(createLabelFromNode(element));
+            }
+            label.append(close);
+        }
+        return cleanLabel(label + counter);
     }
 
     /**
@@ -380,7 +400,7 @@ public class CFGVisualizer extends JPanel {
                 }
                 else
                 {
-                    String value = element instanceof String ? "\"" + element + "\"" : element.toString();
+                    String value = isStringArg(element) ? "\"" + element + "\"" : element.toString();
                     valuesStr = colorize(value, current ? Colors.CURRENT : Colors.VALUES);
                 }
             }
@@ -426,12 +446,13 @@ public class CFGVisualizer extends JPanel {
                     }
                     else
                     {
-                        valuesStr.append(colorize(arg.toString(), current ? Colors.CURRENT : Colors.VALUES))
+                        String value = isStringArg(arg) ? "\"" + arg + "\"" : arg.toString();
+                        valuesStr.append(colorize(value, current ? Colors.CURRENT : Colors.VALUES))
                                 .append(colorize(", ", current ? Colors.CURRENT : Colors.OPERATORS));
                     }
-                    if (valuesStr.length() > 0) {
-                        valuesStr.setLength(valuesStr.length() - colorize(", ", current ? Colors.CURRENT : Colors.OPERATORS).length()); // Remove the last comma and space
-                    }
+                }
+                if (valuesStr.length() > 0) {
+                    valuesStr.setLength(valuesStr.length() - colorize(", ", current ? Colors.CURRENT : Colors.OPERATORS).length()); // Remove the last comma and space
                 }
                 label += name + colorize("(", current ? Colors.CURRENT : Colors.OPERATORS) + valuesStr + colorize(")", current ? Colors.CURRENT : Colors.OPERATORS);
 
@@ -512,5 +533,18 @@ public class CFGVisualizer extends JPanel {
         graph.getView().setScale(scale);
         revalidate();
         repaint();
+    }
+
+    private boolean isStringArg(Object arg) {
+        if(arg instanceof String)
+        {
+            String str = (String) arg;
+            if(str.startsWith("$"))
+            {
+                return str.matches(".*\\s+.*");
+            }
+            return true;
+        }
+        return false;
     }
 }

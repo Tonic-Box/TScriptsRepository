@@ -175,6 +175,7 @@ public class Tokenizer
     private TokenType getTokenType(String tokenValue) {
         switch (tokenValue) {
             case "if": return TokenType.KEYWORD_IF;
+            case "else": return TokenType.KEYWORD_ELSE;
             case "while": return TokenType.KEYWORD_WHILE;
             case "subscribe": return TokenType.KEYWORD_SUBSCRIBE;
             case "function":
