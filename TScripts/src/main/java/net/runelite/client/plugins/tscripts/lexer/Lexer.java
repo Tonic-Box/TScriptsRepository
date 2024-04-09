@@ -30,7 +30,8 @@ public class Lexer
      * @return the scope
      * @throws Exception if an error occurs
      */
-    public static Scope lex(List<Token> tokens) throws Exception {
+    public static Scope lex(List<Token> tokens) throws Exception
+    {
         lexer.getUserFunctions().clear();
         return lexer.parse(tokens);
     }
@@ -55,7 +56,7 @@ public class Lexer
      */
     private Scope flushScope(List<Token> tokens, Conditions conditions) throws Exception
     {
-        // Stores the elements in the scope
+        //Stores the elements in the scope
         Map<Integer, Element> elements = new HashMap<>();
 
         //current list of tokens being processed

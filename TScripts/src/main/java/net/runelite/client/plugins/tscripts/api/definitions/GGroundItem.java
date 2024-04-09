@@ -3,7 +3,6 @@ package net.runelite.client.plugins.tscripts.api.definitions;
 import com.google.common.collect.ImmutableMap;
 import net.runelite.api.TileItem;
 import net.runelite.api.coords.WorldPoint;
-import net.runelite.client.plugins.tscripts.api.Api;
 import net.runelite.client.plugins.tscripts.api.MethodManager;
 import net.runelite.client.plugins.tscripts.api.library.TGroundItem;
 import net.runelite.client.plugins.tscripts.types.GroupDefinition;

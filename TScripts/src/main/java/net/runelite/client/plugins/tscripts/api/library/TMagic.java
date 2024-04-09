@@ -1,6 +1,5 @@
 package net.runelite.client.plugins.tscripts.api.library;
 
-import net.runelite.client.plugins.tscripts.api.Api;
 import net.unethicalite.api.magic.Spell;
 import net.unethicalite.api.magic.SpellBook;
 

@@ -86,7 +86,8 @@ public class TInventory
 
     public static int count(String itemName)
     {
-        return TGame.invoke(() -> {
+        return TGame.invoke(() ->
+        {
             ItemContainer inventory = Static.getClient().getItemContainer(InventoryID.INVENTORY);
             if(inventory == null)
                 return 0;

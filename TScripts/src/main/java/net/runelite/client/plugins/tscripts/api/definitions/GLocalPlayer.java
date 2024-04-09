@@ -1,7 +1,6 @@
 package net.runelite.client.plugins.tscripts.api.definitions;
 
 import com.google.common.collect.ImmutableMap;
-import net.runelite.client.plugins.tscripts.api.Api;
 import net.runelite.client.plugins.tscripts.api.MethodManager;
 import net.runelite.client.plugins.tscripts.api.library.TActor;
 import net.runelite.client.plugins.tscripts.api.library.TWorldPoint;
