@@ -158,8 +158,11 @@ public class Tokenizer
             TokenType tokenType = getTokenType(currentToken.toString());
             if(tokenType == TokenType.STRING && !currentToken.toString().equals("null"))
             {
-                currentToken.deleteCharAt(0);
                 currentToken.deleteCharAt(currentToken.length() - 1);
+            }
+            else if(tokenType == TokenType.STRING)
+            {
+                currentToken.insert(0, "\"");
             }
             tokens.add(new Token(tokenType, currentToken.toString(), line));
             currentToken.setLength(0);

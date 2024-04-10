@@ -136,7 +136,7 @@ public class Runtime
 
         while (shouldProcess)
         {
-            processElements(type, scope.getElements());
+            processElements(scope.getElements());
             if (handleControlFlow(isLoopScope)) break;
             if(type == ConditionType.FOR) processVariableAssignment(scope.getConditions().getForCondition().getOperation());
             shouldProcess = isLoopScope && processConditions(scope.getConditions());
@@ -144,13 +144,13 @@ public class Runtime
 
         if(isIf && !originalShouldProcess && scope.getElseElements() != null)
         {
-            processElements(type, scope.getElseElements());
+            processElements(scope.getElseElements());
         }
 
         variableMap.popScope();
     }
 
-    private void processElements(ConditionType type, Map<Integer, Element> elements)
+    private void processElements(Map<Integer, Element> elements)
     {
         for (Element element : elements.values()) {
             processElement(element);
@@ -453,7 +453,7 @@ public class Runtime
             }
             else
             {
-                return string.startsWith("\"") ? string.substring(1, string.length() - 1) : string;
+                return string.startsWith("\"") ? string.substring(1) : string;
             }
         }
         else if (object instanceof MethodCall)

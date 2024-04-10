@@ -5,8 +5,7 @@ import net.runelite.client.plugins.tscripts.types.GroupDefinition;
 import net.runelite.client.plugins.tscripts.types.MethodDefinition;
 import net.runelite.client.plugins.tscripts.types.Type;
 import net.runelite.client.plugins.tscripts.ui.editor.ExRSyntaxTextArea;
-import org.fife.ui.rsyntaxtextarea.RSyntaxTextArea;
-
+import net.runelite.client.plugins.tscripts.util.TextUtil;
 import javax.swing.*;
 import javax.swing.tree.DefaultMutableTreeNode;
 import java.awt.*;
@@ -57,6 +56,7 @@ public class DocumentationPanel extends JPanel
         DefaultMutableTreeNode conditionalConstructs = new DefaultMutableTreeNode("Language Constructs");
         conditionalConstructs.add(new DefaultMutableTreeNode("if/else"));
         conditionalConstructs.add(new DefaultMutableTreeNode("while"));
+        conditionalConstructs.add(new DefaultMutableTreeNode("for"));
         conditionalConstructs.add(new DefaultMutableTreeNode("continue"));
         conditionalConstructs.add(new DefaultMutableTreeNode("break"));
         conditionalConstructs.add(new DefaultMutableTreeNode("die"));
@@ -97,73 +97,49 @@ public class DocumentationPanel extends JPanel
                 switch (selectedNode.toString())
                 {
                     case "if/else":
-                        usage = new StringBuilder("/*\n * The condition can be any expression that evaluates to a boolean value\n *\n" +
-                                "* The code block will only execute if the condition is true.\n * you can optionally follow if statements with an else { ... } block\n */\n" +
-                                "if(condition) {\n\t//code\n}\n\n//Examples\nif(true) {\n\t//code\n}\n\n$var = 7;\nif($var <= 10) {\n\t//code\n}\n\n" +
-                                "// Conditional Operators:\n" +
-                                "// ==, !=, <, >, <=, >=, &&, ||, !");
-                        codeTextPane.setText(usage.toString());
+                        usage = new StringBuilder("LyoKICogVGhlIGNvbmRpdGlvbiBjYW4gYmUgYW55IGV4cHJlc3Npb24gdGhhdCBldmFsdWF0ZXMgdG8gYSBib29sZWFuIHZhbHVlCiAqCiogVGhlIGNvZGUgYmxvY2sgd2lsbCBvbmx5IGV4ZWN1dGUgaWYgdGhlIGNvbmRpdGlvbiBpcyB0cnVlLgogKiB5b3UgY2FuIG9wdGlvbmFsbHkgZm9sbG93IGlmIHN0YXRlbWVudHMgd2l0aCBhbiBlbHNlIHsgLi4uIH0gYmxvY2sKICogd2hpY2ggd2lsbCBleGVjdXRlIGlmIHRoZSBpZiBibG9jayBkb2VzbnQgcGFzcy4KICogCiAqIENvbmRpdGlvbmFsIE9wZXJhdG9yczoKICogPT0sICE9LCA8LCA+LCA8PSwgPj0sICYmLCB8fCwgIQogKi8KCmlmKGNvbmRpdGlvbikgCnsKCS8vY29kZQp9CmVsc2UKewoJLy9jb2RlCn0=");
+                        codeTextPane.setText(TextUtil.decodeBase64(usage.toString()));
                         codeTextPane.setCaretPosition(0);
                         break;
                     case "while":
-                        usage = new StringBuilder("/*\n * The condition can be any expression that evaluates to a boolean value\n *\n" +
-                                "* The code block will execute until the condition is false\n */\n" +
-                                "while(condition) {\n\tcode\n}\n\n//Examples\nwhile(true) {\n\tcode\n}\n\n$var = 7;\nwhile($var <= 10) {\n\t//code\n}\n\n" +
-                                "// Conditional Operators:\n" +
-                                "// ==, !=, <, >, <=, >=, &&, ||, !");
-                        codeTextPane.setText(usage.toString());
+                        usage = new StringBuilder("LyoKICogVGhlIGNvbmRpdGlvbiBjYW4gYmUgYW55IGV4cHJlc3Npb24gdGhhdCBldmFsdWF0ZXMgdG8gYSBib29sZWFuIHZhbHVlCiAqCiogVGhlIGNvZGUgYmxvY2sgd2lsbCBleGVjdXRlIHVudGlsIHRoZSBjb25kaXRpb24gaXMgZmFsc2UKKiAKKiBDb25kaXRpb25hbCBPcGVyYXRvcnM6CiogPT0sICE9LCA8LCA+LCA8PSwgPj0sICYmLCB8fCwgIQogKi8KIAp3aGlsZShjb25kaXRpb24pIAp7CgkvL2NvZGUKfQ==");
+                        codeTextPane.setText(TextUtil.decodeBase64(usage.toString()));
+                        codeTextPane.setCaretPosition(0);
+                        break;
+                    case "for":
+                        usage = new StringBuilder("LyoKICogRm9yIGxvb3BzIGNvbnRhaW4gYSBkZWNsYXJhdGlvbiwgYSBjb25kaXRpb24sIGFuZCBhbiBvcHBvcmF0aW9uLgogKi8KCmZvcihkZWNsYXJhdGlvbjsgY29uZGl0aW9uOyBvcHBvcmF0aW9uKQp7CgkvL2NvZGUgdG8gZG8gdGhpbmdzCn0KCi8vZXhhbXBsZQpmb3IoJGkgPSAwOyAkaSA8PSAxMDsgJGkrKykKewoJZGVidWcoJGkpOwp9Cg==");
+                        codeTextPane.setText(TextUtil.decodeBase64(usage.toString()));
                         codeTextPane.setCaretPosition(0);
                         break;
                     case "continue":
-                        usage = new StringBuilder("/*\n * The continue statement is used to skip the rest of the code block and continue to the next iteration of the loop\n */" +
-                                "\n$i = 0;\nwhile(true) {\n\tif($i == 5) {\n\t\tcontinue();\n\t}\n\t$i++;\n\t//code\n}\n\n" +
-                                "// The above code will skip the code block when $i is 5");
-                        codeTextPane.setText(usage.toString());
+                        usage = new StringBuilder("LyoKICogVGhlIGNvbnRpbnVlIHN0YXRlbWVudCBpcyB1c2VkIHRvIHNraXAgdGhlIHJlc3Qgb2YgdGhlIAogKiBjb2RlIGJsb2NrIGFuZCBjb250aW51ZSB0byB0aGUgbmV4dCBpdGVyYXRpb24gb2YgdGhlIGxvb3AuCiAqLwokaSA9IDA7CndoaWxlKCRpIDw9IDEwKSAKewoJJGkrKzsKCWlmKCRpID09IDUpIAoJewoJCWRlYnVnKCJTa2lwcGluZyIpOwoJCS8vIHNraXAgdGhlIGNvZGUgYmxvY2sgd2hlbiAkaSBpcyA1CgkJY29udGludWUoKTsKCX0KCWRlYnVnKCJDb3VudDogIiwgJGkpOwp9Cg==");
+                        codeTextPane.setText(TextUtil.decodeBase64(usage.toString()));
                         codeTextPane.setCaretPosition(0);
                         break;
                     case "break":
-                        usage = new StringBuilder("/*\n * The break statement is used to exit the loop\n */" +
-                                "\n$i = 0;\nwhile(true) {\n\tif($i == 5) {\n\t\tbreak();\n\t}\n\t$i++;\n\t//code\n}\n\n" +
-                                "// The above code will exit the loop when $i is 5");
-                        codeTextPane.setText(usage.toString());
+                        usage = new StringBuilder("LyoKICogVGhlIGJyZWFrIHN0YXRlbWVudCBpcyB1c2VkIHRvIGV4aXQgdGhlIGxvb3BzIHNjb3BlCiAqLwokaSA9IDA7CndoaWxlKHRydWUpIAp7CglpZigkaSA9PSA1KSAKCXsKCQkvL2JyZWFrIG91dCBvZiB0aGUgbG9vcAoJCWJyZWFrKCk7Cgl9CgkkaSsrOwoJLy9jb2RlCn0=");
+                        codeTextPane.setText(TextUtil.decodeBase64(usage.toString()));
                         codeTextPane.setCaretPosition(0);
                         break;
                     case "die":
-                        usage = new StringBuilder("/*\n * The die statement is used to stop the script\n */" +
-                                "\ndie();\n\n" +
-                                "// The above code will stop the script");
-                        codeTextPane.setText(usage.toString());
+                        usage = new StringBuilder("LyoKICogVGhlIGRpZSBzdGF0ZW1lbnQgaXMgdXNlZCB0byBzdG9wIHRoZSBzY3JpcHQKICovCgpkaWUoKTs=");
+                        codeTextPane.setText(TextUtil.decodeBase64(usage.toString()));
                         codeTextPane.setCaretPosition(0);
                         break;
                     case "function":
-                        usage = new StringBuilder("/*\n * The function statement is used to define a function\n *\n" +
-                                "* The function can be called by its name\n" +
-                                "* The function can have parameters\n" +
-                                "* The function can return a value\n */" +
-                                "\nfunction name() {\n\t//code\n}\n\n//Examples\nfunction test() {\n\t//code\n}\n\nfunction test2($a) {\n\treturn($a);\n}\n\n" +
-                                "// Calling a function\nname();\n\n// Calling a function with parameters\n$num = test2(5);" +
-                                "\n\n// you can use return(); to return a function at any point with no return value, or\n" +
-                                "// return($value); to return a value");
-                        codeTextPane.setText(usage.toString());
+                        usage = new StringBuilder("LyoKICogVGhlIGZ1bmN0aW9uIHN0YXRlbWVudCBpcyB1c2VkIHRvIGRlZmluZSBhIGZ1bmN0aW9uCiAqCiogVGhlIGZ1bmN0aW9uIGNhbiBiZSBjYWxsZWQgYnkgaXRzIG5hbWUKKiBUaGUgZnVuY3Rpb24gY2FuIGhhdmUgcGFyYW1ldGVycwoqIFRoZSBmdW5jdGlvbiBjYW4gcmV0dXJuIGEgdmFsdWUKICovCmZ1bmN0aW9uIG5hbWUoKSAKewoJLy9jb2RlCn0KCi8vRXhhbXBsZXMKZnVuY3Rpb24gdGVzdCgpIAp7CgkvL2NvZGUKfQoKZnVuY3Rpb24gdGVzdDIoJGEpIAp7CglyZXR1cm4oJGEpOwp9CgovLyBDYWxsaW5nIGEgZnVuY3Rpb24KbmFtZSgpOwoKLy8gQ2FsbGluZyBhIGZ1bmN0aW9uIHdpdGggcGFyYW1ldGVycwokbnVtID0gdGVzdDIoNSk7CgovLyB5b3UgY2FuIHVzZSByZXR1cm4oKTsgdG8gcmV0dXJuIGEgZnVuY3Rpb24gYXQgYW55IHBvaW50IHdpdGggbm8gcmV0dXJuIHZhbHVlLCBvcgovLyByZXR1cm4oJHZhbHVlKTsgdG8gcmV0dXJuIGEgdmFsdWU=");
+                        codeTextPane.setText(TextUtil.decodeBase64(usage.toString()));
                         codeTextPane.setCaretPosition(0);
                         break;
                     case "variables":
-                        usage = new StringBuilder("/*\n * Variables are used to store data\n *\n" +
-                                "* Variables can be of any type\n" +
-                                "* Variables can be assigned a value\n" +
-                                "* Variables can be used in expressions\n */" +
-                                "\n$var = 5;\n\n// The above code assigns the value 5 to the variable $var\n\n");
-                        codeTextPane.setText(usage.toString());
+                        usage = new StringBuilder("LyoKICogVmFyaWFibGVzIGFyZSB1c2VkIHRvIHN0b3JlIGRhdGEKICoKKiBWYXJpYWJsZXMgY2FuIGJlIG9mIGFueSB0eXBlCiogVmFyaWFibGVzIGNhbiBiZSBhc3NpZ25lZCBhIHZhbHVlCiogVmFyaWFibGVzIGNhbiBiZSB1c2VkIGluIGV4cHJlc3Npb25zCiAqLwoKIC8vQXNzaWducyB0aGUgdmFsdWUgNSB0byB0aGUgdmFyaWFibGUgJHZhcgokdmFyID0gNTs=");
+                        codeTextPane.setText(TextUtil.decodeBase64(usage.toString()));
                         codeTextPane.setCaretPosition(0);
                         break;
                     case "subscribe":
-                        usage = new StringBuilder("/*\n * The subscribe statement is used to subscribe to an event\n *\n" +
-                                "* The event can be any event defined in the client\n" +
-                                "* The event can be handled by a function\n */\n" +
-                                "subscribe(\"MenuOptionClicked\") {\n\t//code to do things\n}\n" +
-                                "// The above code will run the code when the MenuOptionClicked event is triggered" +
-                                "\n\n/* Available Events:\n");
+                        usage = new StringBuilder(TextUtil.decodeBase64("LyoKICogVGhlIHN1YnNjcmliZSBzdGF0ZW1lbnQgaXMgdXNlZCB0byBzdWJzY3JpYmUgdG8gYW4gZXZlbnQKICoKKiBUaGUgZXZlbnQgY2FuIGJlIGFueSBldmVudCBkZWZpbmVkIGluIHRoZSBjbGllbnQKKiBUaGUgZXZlbnQgY2FuIGJlIGhhbmRsZWQgYnkgYSBmdW5jdGlvbgogKi8KCi8vcnVucyB0aGUgY29kZSB3aGVuIHRoZSBjbGllbnQgcG9zdHMgdGhlIGBNZW51T3B0aW9uQ2xpY2tlZGAgZXZlbnQuCnN1YnNjcmliZSgiTWVudU9wdGlvbkNsaWNrZWQiKQp7CgkvL2NvZGUgdG8gZG8gdGhpbmdzCn0="));
                         List<Class<?>> eventClasses = MethodManager.getInstance().getEventClasses();
+                        usage.append("\n\n/* Available events:\n");
                         for (Class<?> event : eventClasses)
                         {
                             usage.append(" * ").append(event.getSimpleName()).append("\n");

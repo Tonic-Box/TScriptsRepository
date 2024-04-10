@@ -1,5 +1,7 @@
 package net.runelite.client.plugins.tscripts.util;
 
+import java.util.Base64;
+
 /**
  * Utility class for encoding and decoding text.
  */
@@ -266,5 +268,15 @@ public class TextUtil {
         }
         String cleaned = text.replace('\u00A0', ' ').replace('_', ' ');
         return (cleaned.contains("<img") ? cleaned.substring(text.lastIndexOf('>') + 1) : cleaned).trim().replaceAll("<[^>]+>", "");
+    }
+
+    /**
+     * Decodes a base64 encoded string.
+     * @param encodedString the string to decode
+     * @return the decoded string
+     */
+    public static String decodeBase64(String encodedString) {
+        byte[] decodedBytes = Base64.getDecoder().decode(encodedString);
+        return new String(decodedBytes);
     }
 }
