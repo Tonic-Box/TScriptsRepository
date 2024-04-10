@@ -156,7 +156,7 @@ public class Tokenizer
     private void flushToken(StringBuilder currentToken, List<Token> tokens, int line) {
         if (currentToken.length() != 0) {
             TokenType tokenType = getTokenType(currentToken.toString());
-            if(tokenType == TokenType.STRING)
+            if(tokenType == TokenType.STRING && !currentToken.toString().equals("null"))
             {
                 currentToken.deleteCharAt(0);
                 currentToken.deleteCharAt(currentToken.length() - 1);
@@ -173,7 +173,7 @@ public class Tokenizer
      * @return the token type
      */
     private TokenType getTokenType(String tokenValue) {
-        switch (tokenValue) {
+        switch (tokenValue.toLowerCase()) {
             case "if": return TokenType.KEYWORD_IF;
             case "else": return TokenType.KEYWORD_ELSE;
             case "while": return TokenType.KEYWORD_WHILE;
@@ -201,6 +201,7 @@ public class Tokenizer
             case ")": return TokenType.CLOSE_PAREN;
             case ",": return TokenType.COMMA;
             case ";": return TokenType.SEMICOLON;
+            case "null": return TokenType.STRING;
             default:
                 if (tokenValue.startsWith("$")) return TokenType.VARIABLE;
                 if (tokenValue.startsWith("//")) return TokenType.COMMENT;

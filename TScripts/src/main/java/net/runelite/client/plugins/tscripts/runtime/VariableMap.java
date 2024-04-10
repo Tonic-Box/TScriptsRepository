@@ -6,11 +6,12 @@ import net.runelite.client.plugins.tscripts.util.eventbus.events.VariableUpdated
 import net.runelite.client.plugins.tscripts.util.eventbus.events.VariablesCleaned;
 import net.runelite.client.plugins.tscripts.util.eventbus.events.VariablesCleared;
 import java.util.*;
+import java.util.concurrent.ConcurrentHashMap;
 
 public class VariableMap
 {
     @Getter
-    private final Map<String, Variable> variableMap = new HashMap<>();
+    private final Map<String, Variable> variableMap = new ConcurrentHashMap<>();
     private final Stack<String> scopeStack = new Stack<>();
 
     private final List<String> frozenVariables = new ArrayList<>();
@@ -106,7 +107,7 @@ public class VariableMap
         {
             variableMap.remove(key);
         }
-        TEventBus.post(VariablesCleaned.get());
+        TEventBus.post(new VariablesCleaned(scope));
     }
 
     public void pushScope(String scope)
@@ -117,7 +118,7 @@ public class VariableMap
     public String popScope()
     {
         String scope = scopeStack.pop();
-        //cleanScope(scope);
+        cleanScope(scope);
         return scope;
     }
 

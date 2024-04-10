@@ -139,7 +139,19 @@ public class VariableInspector extends JPanel {
     @_Subscribe
     public void onVariablesCleaned(VariablesCleaned event)
     {
-        variableMap.clear();
+        List<String> keysToRemove = new ArrayList<>();
+        String scope = event.getScopeHash();
+        for (var variable : variableMap.entrySet())
+        {
+            if (variable.getValue().getScopeHash().equals(scope))
+            {
+                keysToRemove.add(variable.getKey());
+            }
+        }
+        for (String key : keysToRemove)
+        {
+            variableMap.remove(key);
+        }
         updateVariables();
     }
 }
