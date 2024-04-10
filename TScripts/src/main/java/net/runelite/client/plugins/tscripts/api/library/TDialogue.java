@@ -1,12 +1,66 @@
 package net.runelite.client.plugins.tscripts.api.library;
 
+import net.runelite.api.Client;
 import net.runelite.api.widgets.Widget;
 import net.runelite.api.widgets.WidgetID;
 import net.runelite.api.widgets.WidgetInfo;
 import net.unethicalite.api.widgets.Widgets;
+import net.unethicalite.client.Static;
 
 public class TDialogue
 {
+    public static void interact(Object option)
+    {
+        if(option instanceof Integer)
+            interact((int)option);
+        else if(option instanceof String)
+            interact((String)option);
+    }
+    public static void interact(int option)
+    {
+        TGame.invoke(() -> {
+            TPackets.sendClickPacket();
+            TPackets.sendResumePauseWidget(WidgetInfo.DIALOG_OPTION_OPTION1.getId(), option);
+            return null;
+        });
+    }
+
+    public static void makeX(int quantity)
+    {
+        TGame.invoke(() -> {
+            TPackets.sendClickPacket();
+            TPackets.sendResumePauseWidget(17694734, quantity);
+        });
+    }
+
+    /**
+     * Interact with a dialogue option
+     * @param option the option to interact with
+     * @return true if the option was interacted with
+     */
+    public static boolean interact(String option) {
+        return TGame.invoke(() -> {
+            Client client = Static.getClient();
+            Widget widget = client.getWidget(WidgetInfo.DIALOG_OPTION_OPTION1);
+            if(widget == null)
+                return false;
+            Widget[] dialogOption1kids = widget.getChildren();
+            if(dialogOption1kids == null)
+                return false;
+            if(dialogOption1kids.length < 2)
+                return false;
+            int i = 0;
+            for(Widget w : dialogOption1kids) {
+                if(w.getText().toLowerCase().contains(option.toLowerCase())) {
+                    interact(i);
+                    return true;
+                }
+                i++;
+            }
+            return false;
+        });
+    }
+
     /**
      * Generic continue any pause dialogue
      * @return true if there was a dialogue to continue

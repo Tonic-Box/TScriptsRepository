@@ -2,7 +2,6 @@ package net.runelite.client.plugins.tscripts.api.library;
 
 import net.runelite.client.eventbus.EventBus;
 import net.unethicalite.client.Static;
-
 import java.util.List;
 import java.util.concurrent.CompletableFuture;
 import java.util.function.Consumer;
@@ -25,7 +24,13 @@ public class TGame
         }
     }
 
+    public static void invoke(Runnable runnable)
+    {
+        Static.getClientThread().invoke(runnable);
+    }
+
     public static <T> EventBus.Subscriber register(Class<T> event, Consumer<T> callback)
+
     {
         return Static.getEventBus().register(event, callback, 0);
     }
