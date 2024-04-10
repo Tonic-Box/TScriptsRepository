@@ -18,19 +18,17 @@ public class VariableMap
 
     public void put(String key, Object value)
     {
-        if (!isFrozen(key))
+        for(Variable variable : variableMap.values())
         {
-            for(Variable variable : variableMap.values())
+            if(variable.getName().equals(key) && scopeStack.contains(variable.getScopeHash()))
             {
-                if(variable.getName().equals(key) && scopeStack.contains(variable.getScopeHash()))
-                {
+                if(!variable.isFrozen())
                     variable.setValue(value);
-                    postChangedEvent(key, value);
-                    return;
-                }
+                postChangedEvent(key, value);
+                return;
             }
-            variableMap.put(key + " " + scopeStack.peek(), new Variable(key, value, scopeStack.peek()));
         }
+        variableMap.put(key + " " + scopeStack.peek(), new Variable(key, value, scopeStack.peek()));
         postChangedEvent(key, value);
     }
 
@@ -70,27 +68,48 @@ public class VariableMap
         TEventBus.post(new VariableUpdated(key, value));
     }
 
-    public boolean isFrozen(String key)
+    public boolean isFrozen(String name, String hash)
     {
-        return frozenVariables.contains(key);
+        for(Variable variable : variableMap.values())
+        {
+            if(variable.getName().equals(name) && variable.getScopeHash().equals(hash))
+            {
+                return variable.isFrozen();
+            }
+        }
+        return false;
     }
 
-    public void toggleFreeze(String key)
+    public void toggleFreeze(String name, String hash)
     {
-        if (isFrozen(key))
-            unfreeze(key);
+        if (isFrozen(name, hash))
+            unfreeze(name, hash);
         else
-            freeze(key);
+            freeze(name, hash);
     }
 
-    private void freeze(String key)
+    private void freeze(String name, String hash)
     {
-        frozenVariables.add(key);
+        for(Variable variable : variableMap.values())
+        {
+            if(variable.getName().equals(name) && variable.getScopeHash().equals(hash))
+            {
+                variable.setFrozen(true);
+                return;
+            }
+        }
     }
 
-    private void unfreeze(String key)
+    private void unfreeze(String name, String hash)
     {
-        frozenVariables.remove(key);
+        for(Variable variable : variableMap.values())
+        {
+            if(variable.getName().equals(name) && variable.getScopeHash().equals(hash))
+            {
+                variable.setFrozen(false);
+                return;
+            }
+        }
     }
 
     public void cleanScope(String scope)

@@ -24,7 +24,6 @@ public class VariableInspector extends JPanel {
     private static VariableInspector instance;
     private final JTable variableTable;
     private final DefaultTableModel tableModel;
-    private final Runtime runtime;
     private int selectedRow = -1;
     private final List<Integer> frozenRows = new ArrayList<>();
     private final Map<String, Variable> variableMap;
@@ -75,9 +74,9 @@ public class VariableInspector extends JPanel {
         JPopupMenu popupMenu = new JPopupMenu();
         JMenuItem freezeItem = new JMenuItem("Toggle Freeze");
         freezeItem.addActionListener(e -> {
-            String variableName = (String) tableModel.getValueAt(selectedRow, 2);
-            System.out.println(variableName);
-            runtime.getVariableMap().toggleFreeze(variableName);
+            String variableName = (String) tableModel.getValueAt(selectedRow, 0);
+            String hash = (String) tableModel.getValueAt(selectedRow, 2);
+            runtime.getVariableMap().toggleFreeze(variableName, hash);
         });
         popupMenu.add(freezeItem);
         variableTable.setComponentPopupMenu(popupMenu);
@@ -95,7 +94,6 @@ public class VariableInspector extends JPanel {
             }
         });
 
-        this.runtime = runtime;
         this.variableMap = runtime.getVariableMap().getVariableMap();
         updateVariables();
         TEventBus.register(this);
@@ -110,13 +108,13 @@ public class VariableInspector extends JPanel {
             // Add new rows for each variable
             for (Map.Entry<String, Variable> entry : variableMap.entrySet()) {
                 Vector<Object> row = new Vector<>();
-                if (runtime.getVariableMap().isFrozen(entry.getKey()))
+                if (entry.getValue().isFrozen())
                     frozenRows.add(tableModel.getRowCount());
                 if(entry.getValue().getScopeHash() == null || entry.getValue().getScopeHash().isBlank())
                     continue;
                 row.add(entry.getValue().getName());
                 row.add(entry.getValue().getValue());
-                row.add(entry.getKey().split(" ")[1]);
+                row.add(entry.getValue().getScopeHash());
                 tableModel.addRow(row);
             }
         });

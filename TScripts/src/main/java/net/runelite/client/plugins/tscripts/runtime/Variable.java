@@ -10,6 +10,8 @@ public class Variable
     @Setter
     private Object value;
     private final String scopeHash;
+    @Setter
+    private boolean frozen;
 
     public Variable(String name, Object value, String scopeHash)
     {
