@@ -20,6 +20,9 @@ import java.util.List;
 import java.util.Map;
 import java.util.Vector;
 
+/**
+ * A panel that displays a table of variables and their values.
+ */
 public class VariableInspector extends JPanel {
     private static VariableInspector instance;
     private final JTable variableTable;
