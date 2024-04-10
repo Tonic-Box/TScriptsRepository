@@ -18,7 +18,7 @@ This is the script editor. Here you can edit scripts from the currently selected
 
 ![image](https://github.com/Tonic-Box/TScriptsRepository/assets/73169574/4ff03d0f-93cf-471b-827d-18f03609f94a)
 
-### Dev Tools
+### Developer Tools
 * **Control-Flow**: This tab shows a control flow graph of the surrent script and can be refreshed by simply clicking the tab again. Also when a script is running this will update with highlights showing in real time where you are in the control flow during runtime.
 * **Variables**: This tab shows a live map of user variables during runtime
 * **Runtime**: This tab shows a live map of internal flags of the runtime engine and its current states and so on.
