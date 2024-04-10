@@ -136,28 +136,27 @@ public class Runtime
 
         while (shouldProcess)
         {
-            for (Element element : scope.getElements().values()) {
-                processElement(element);
-                postFlags();
-                if (_die || _break || _continue || _return) break;
-            }
-
+            processElements(type, scope.getElements());
             if (handleControlFlow(isLoopScope)) break;
-
             if(type == ConditionType.FOR) processVariableAssignment(scope.getConditions().getForCondition().getOperation());
             shouldProcess = isLoopScope && processConditions(scope.getConditions());
         }
 
         if(isIf && !originalShouldProcess && scope.getElseElements() != null)
         {
-            for (Element element : scope.getElseElements().values()) {
-                processElement(element);
-                postFlags();
-                if (_die || _break || _continue || _return) break;
-            }
+            processElements(type, scope.getElseElements());
         }
 
         variableMap.popScope();
+    }
+
+    private void processElements(ConditionType type, Map<Integer, Element> elements)
+    {
+        for (Element element : elements.values()) {
+            processElement(element);
+            postFlags();
+            if (_die || _break || _continue || _return) break;
+        }
     }
 
     /**
