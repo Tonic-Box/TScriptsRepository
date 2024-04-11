@@ -67,7 +67,11 @@ public class GMisc implements GroupDefinition
                 function -> (int) (Math.random() * Integer.MAX_VALUE),
                 "Clicks the mouse"
         );
-
+        addMethod(methods, "getTickCount", Type.INT,
+                ImmutableMap.of(),
+                function -> Static.getClient().getTickCount(),
+                "Clicks the mouse"
+        );
         addMethod(methods, "array", Type.OBJECT,
                 ImmutableMap.of(
                         0, Pair.of("values", Type.VARARGS)

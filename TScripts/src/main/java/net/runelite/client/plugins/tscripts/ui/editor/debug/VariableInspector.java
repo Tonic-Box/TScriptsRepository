@@ -7,18 +7,13 @@ import net.runelite.client.plugins.tscripts.util.eventbus.events.VariableUpdated
 import net.runelite.client.plugins.tscripts.util.eventbus.events.VariablesCleaned;
 import net.runelite.client.plugins.tscripts.util.eventbus.events.VariablesCleared;
 import net.runelite.client.plugins.tscripts.runtime.Runtime;
-
 import javax.swing.*;
-import javax.swing.table.DefaultTableCellRenderer;
-import javax.swing.table.DefaultTableModel;
-import javax.swing.table.TableColumnModel;
+import javax.swing.table.*;
 import java.awt.*;
 import java.awt.event.MouseAdapter;
 import java.awt.event.MouseEvent;
-import java.util.ArrayList;
+import java.util.*;
 import java.util.List;
-import java.util.Map;
-import java.util.Vector;
 
 /**
  * A panel that displays a table of variables and their values.
