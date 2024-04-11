@@ -1,16 +1,22 @@
 package net.runelite.client.plugins.tscripts.util;
 
+import com.google.common.reflect.ClassPath;
+import net.runelite.api.Skill;
 import net.runelite.client.plugins.tscripts.api.MethodManager;
 import net.runelite.client.plugins.tscripts.types.GroupDefinition;
 import net.runelite.client.plugins.tscripts.types.MethodDefinition;
 import net.runelite.client.plugins.tscripts.types.Type;
-import net.runelite.client.plugins.tscripts.types.NpcFilterType;
+import net.runelite.client.plugins.tscripts.api.enums.NpcFilter;
 import org.fife.ui.autocomplete.BasicCompletion;
 import org.fife.ui.autocomplete.Completion;
 import org.fife.ui.autocomplete.CompletionProvider;
 import org.fife.ui.autocomplete.DefaultCompletionProvider;
+
+import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Objects;
+import java.util.stream.Collectors;
 
 public class CompletionSupplier
 {
@@ -57,12 +63,6 @@ public class CompletionSupplier
             completions.add(new BasicCompletion(provider, name, returnType + params));
         }
 
-        //NpcFilters
-        for(NpcFilterType filter : NpcFilterType.values())
-        {
-            completions.add(new BasicCompletion(provider, filter.name().toUpperCase(), filter.getDescription()));
-        }
-
         completions.add(new BasicCompletion(provider, "while(", "CONDITION) { ... }"));
         completions.add(new BasicCompletion(provider, "if(", "CONDITION) { ... }"));
         completions.add(new BasicCompletion(provider, "continue();", ""));
@@ -70,6 +70,27 @@ public class CompletionSupplier
         completions.add(new BasicCompletion(provider, "die();", ""));
         completions.add(new BasicCompletion(provider, "subscribe(", "String event) { ... }"));
         completions.add(new BasicCompletion(provider, "function", " FUNCTION_NAME() { ... }"));
+
+
+        List<Class<?>> eventClasses = Objects.requireNonNull(getClassPath()).getTopLevelClassesRecursive("net.runelite.client.plugins.tscripts.api.enums")
+                .stream()
+                .map(ClassPath.ClassInfo::load)
+                .filter(Objects::nonNull)
+                .filter(Class::isEnum)
+                .collect(Collectors.toList());
+
+        //language constants
+        for (Class<?> enumClass : eventClasses) {
+            for (Object enumConstant : enumClass.getEnumConstants()) {
+                Enum<?> entry = (Enum<?>) enumConstant;
+                completions.add(new BasicCompletion(provider, entry.name(), " [" + enumClass.getSimpleName() + "]"));
+            }
+        }
+
+        for(var entry : Skill.values())
+        {
+            completions.add(new BasicCompletion(provider, entry.name(), " [skill]"));
+        }
 
         for(Class<?> event : MethodManager.getInstance().getEventClasses())
         {
@@ -118,7 +139,7 @@ public class CompletionSupplier
 
         //NpcFilters
         docs.append("\n# ").append("NPC Filters").append("\n");
-        for(NpcFilterType filter : NpcFilterType.values())
+        for(NpcFilter filter : NpcFilter.values())
         {
             docs.append("// " + filter.getDescription() + "\n" + filter.getName() + "\n");
         }
@@ -140,5 +161,17 @@ public class CompletionSupplier
             docs.append("* ").append(event.getSimpleName()).append("\n");
         }
         return docs.toString();
+    }
+
+    private static ClassPath getClassPath()
+    {
+        ClassPath classPath;
+        try
+        {
+            return ClassPath.from(CompletionSupplier.class.getClassLoader());
+        } catch (IOException e)
+        {
+            return null;
+        }
     }
 }

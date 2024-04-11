@@ -1,4 +1,4 @@
-package net.runelite.client.plugins.tscripts.types;
+package net.runelite.client.plugins.tscripts.api.enums;
 
 import lombok.AllArgsConstructor;
 import lombok.Getter;
@@ -14,7 +14,7 @@ import java.util.function.Predicate;
 
 @AllArgsConstructor
 @Getter
-public enum NpcFilterType
+public enum NpcFilter
 {
     NPC_FREE("NPC_FREE", "The npc is not interacting with anything",
             npc -> !npc.isInteracting() || !(npc.getIdlePoseAnimation() == npc.getPoseAnimation() && npc.getAnimation() == -1)
@@ -30,7 +30,7 @@ public enum NpcFilterType
     private final static BiPredicate<Object, NPC> byName = (name, npc) -> npc.getName().equals(name);
     private final static BiPredicate<Object, NPC> byId = (id, npc) -> npc.getId() == (int)id;
 
-    public static NPC filter(Object identifier, NpcFilterType... filter)
+    public static NPC filter(Object identifier, NpcFilter... filter)
     {
         BiPredicate<Object, NPC> by = identifier instanceof String ? byName : (identifier instanceof Integer ? byId : null);
         return new NPCQuery()
@@ -39,7 +39,7 @@ public enum NpcFilterType
                     {
                         return false;
                     }
-                    for (NpcFilterType f : filter)
+                    for (NpcFilter f : filter)
                     {
                         if (f != null && !f.getCondition().test(n))
                         {
@@ -54,9 +54,9 @@ public enum NpcFilterType
 
     public static NPC filter(Object identifier, String... filter)
     {
-        NpcFilterType[] filters = new NpcFilterType[filter.length];
+        NpcFilter[] filters = new NpcFilter[filter.length];
         int i = 0;
-        for (NpcFilterType f : NpcFilterType.values())
+        for (NpcFilter f : NpcFilter.values())
         {
             if(ArrayUtils.contains(filter, f.getName()))
             {

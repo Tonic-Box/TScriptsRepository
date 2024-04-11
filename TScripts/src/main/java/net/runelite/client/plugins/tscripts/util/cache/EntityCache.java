@@ -1,5 +1,7 @@
 package net.runelite.client.plugins.tscripts.util.cache;
 
+import lombok.Getter;
+import net.runelite.api.Actor;
 import net.runelite.api.TileObject;
 import net.runelite.api.events.*;
 import net.runelite.client.eventbus.Subscribe;
@@ -20,6 +22,39 @@ public class EntityCache
     }
     private static EntityCache instance;
     private final List<TileObject> objectCache = Collections.synchronizedList(new ArrayList<>());
+    private Actor lastInteracting = null;
+
+    private EntityCache()
+    {
+        Static.getEventBus().register(this);
+    }
+
+    // ############## Actors ##############
+
+    public Actor getInteracting()
+    {
+        Actor interacting = Static.getClient().getLocalPlayer().getInteracting();
+        if(interacting == null)
+            interacting = lastInteracting;
+        return interacting;
+    }
+
+    @Subscribe
+    public void onInteractingChanged(InteractingChanged event)
+    {
+        if(event.getSource() == Static.getClient().getLocalPlayer() && event.getTarget() != null)
+        {
+            System.out.println("[1] Source: " + event.getSource().getName() + " Target: " + event.getTarget().getName());
+            lastInteracting = event.getTarget();
+        }
+        else if(event.getTarget() == Static.getClient().getLocalPlayer() && event.getSource() != null)
+        {
+            System.out.println("[2] Source: " + event.getSource().getName() + " Target: " + event.getTarget().getName());
+            lastInteracting = event.getSource();
+        }
+    }
+
+    // ############## TileObjects ##############
 
     public Stream<TileObject> objectStream()
     {
@@ -27,11 +62,6 @@ public class EntityCache
         {
             return new ArrayList<>(objectCache).stream();
         }
-    }
-
-    private EntityCache()
-    {
-        Static.getEventBus().register(this);
     }
 
     @Subscribe

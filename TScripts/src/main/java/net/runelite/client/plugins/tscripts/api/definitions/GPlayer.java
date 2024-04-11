@@ -60,6 +60,47 @@ public class GPlayer implements GroupDefinition
                     String username = function.getArg(0, manager);
                     return new PlayerQuery().filter(p -> p.getName().equals(username)).result(Static.getClient()).first();
                 }, "get a player");
+        addMethod(methods, "getPlayerOverhead",
+                Type.STRING,
+                ImmutableMap.of(
+                        0, Pair.of("player", Type.ANY)
+                ),
+                function ->
+                {
+                    Player player = null;
+                    Object identifier = function.getArg(0, manager);
+                    if(identifier instanceof String)
+                    {
+                        player = new PlayerQuery().filter(p -> p.getName().equals(identifier)).result(Static.getClient()).first();
+                    }
+                    else if(identifier instanceof Integer)
+                    {
+                        player = new PlayerQuery().filter(p -> p.getIndex() == (int) identifier).result(Static.getClient()).first();
+                    }
+                    else if(identifier instanceof Player)
+                    {
+                        player = (Player) identifier;
+                    }
+                    if(player == null)
+                        return "null";
+
+                    if(player.getOverheadIcon() == null)
+                        return "null";
+
+                    switch (player.getOverheadIcon())
+                    {
+                        case MELEE:
+                            return "PROTECTION_FROM_MELEE";
+                        case RANGED:
+                            return "PROTECTION_FROM_RANGED";
+                        case MAGIC:
+                            return "PROTECTION_FROM_MAGIC";
+                        default:
+                            return "null";
+                    }
+                },
+                "gets the overhead protection of a player"
+        );
         return methods;
     }
 }
