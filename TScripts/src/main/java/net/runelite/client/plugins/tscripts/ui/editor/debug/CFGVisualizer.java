@@ -8,6 +8,7 @@ import com.mxgraph.util.mxConstants;
 import com.mxgraph.view.mxCellState;
 import com.mxgraph.view.mxGraph;
 import com.mxgraph.view.mxStylesheet;
+import net.runelite.client.plugins.tscripts.lexer.variable.ArrayAccess;
 import net.runelite.client.plugins.tscripts.util.HashUtil;
 import net.runelite.client.plugins.tscripts.util.eventbus.TEventBus;
 import net.runelite.client.plugins.tscripts.util.eventbus._Subscribe;
@@ -297,6 +298,10 @@ public class CFGVisualizer extends JPanel {
                 {
                     left = createLabelFromNode((Element) condition.getLeft());
                 }
+                else if(condition.getLeft() instanceof ArrayAccess)
+                {
+                    left = processArrayAccess((ArrayAccess) condition.getLeft());
+                }
                 else
                 {
                     String value = isStringArg(condition.getLeft()) ? "\"" + condition.getLeft() + "\"" : condition.getLeft().toString();
@@ -310,6 +315,10 @@ public class CFGVisualizer extends JPanel {
                 else if(condition.getRight() instanceof MethodCall)
                 {
                     right = createLabelFromNode((Element) condition.getRight());
+                }
+                else if(condition.getRight() instanceof ArrayAccess)
+                {
+                    right = processArrayAccess((ArrayAccess) condition.getRight());
                 }
                 else
                 {
@@ -385,7 +394,13 @@ public class CFGVisualizer extends JPanel {
 
         if (nodeType.equals(ElementType.VARIABLE_ASSIGNMENT)) {
             VariableAssignment variableAssignment = (VariableAssignment) node;
-            String varName = variableAssignment.getVar();
+            String varName;
+            Object var = variableAssignment.getVar();
+            if(var instanceof ArrayAccess) {
+                varName = processArrayAccess((ArrayAccess) var);
+            } else {
+                varName = colorize(var.toString(), current ? Colors.CURRENT : Colors.VARIABLES);
+            }
             Object element = null;
             if (!variableAssignment.getValues().isEmpty()) {
                 element = variableAssignment.getValues().get(0);
@@ -424,7 +439,7 @@ public class CFGVisualizer extends JPanel {
                     valuesStr = colorize(" = ", current ? Colors.CURRENT : Colors.OPERATORS) + valuesStr;
                     break;
             }
-            label += colorize(varName, current ? Colors.CURRENT : Colors.VARIABLES) + valuesStr;
+            label += varName + valuesStr;
         }
         else if (nodeType.equals(ElementType.FUNCTION_CALL))
         {
@@ -442,6 +457,11 @@ public class CFGVisualizer extends JPanel {
                     if(arg instanceof MethodCall)
                     {
                         valuesStr.append(createLabelFromNode((Element) arg))
+                                .append(colorize(", ", current ? Colors.CURRENT : Colors.OPERATORS));
+                    }
+                    if(arg instanceof ArrayAccess)
+                    {
+                        valuesStr.append(processArrayAccess((ArrayAccess) arg))
                                 .append(colorize(", ", current ? Colors.CURRENT : Colors.OPERATORS));
                     }
                     else
@@ -469,6 +489,13 @@ public class CFGVisualizer extends JPanel {
         }
 
         return label + flowTo;
+    }
+
+    private String processArrayAccess(ArrayAccess arrayAccess)
+    {
+        String varName = arrayAccess.getVariable();
+        String index = arrayAccess.getIndex();
+        return colorize(varName, Colors.VARIABLES) + colorize("[", Colors.OPERATORS) + colorize(index, Colors.VALUES) + colorize("]", Colors.OPERATORS);
     }
 
     /**

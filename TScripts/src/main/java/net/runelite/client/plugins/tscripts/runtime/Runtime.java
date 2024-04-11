@@ -12,12 +12,15 @@ import net.runelite.client.plugins.tscripts.lexer.Scope.condition.ConditionType;
 import net.runelite.client.plugins.tscripts.lexer.Scope.condition.Conditions;
 import net.runelite.client.plugins.tscripts.lexer.Scope.condition.Glue;
 import net.runelite.client.plugins.tscripts.lexer.models.Element;
+import net.runelite.client.plugins.tscripts.lexer.variable.ArrayAccess;
 import net.runelite.client.plugins.tscripts.lexer.variable.VariableAssignment;
 import net.runelite.client.plugins.tscripts.util.Logging;
 import net.runelite.client.plugins.tscripts.util.eventbus.TEventBus;
 import net.runelite.client.plugins.tscripts.util.eventbus._Subscribe;
 import net.runelite.client.plugins.tscripts.util.eventbus.events.*;
+import org.apache.commons.lang3.math.NumberUtils;
 
+import java.rmi.UnexpectedException;
 import java.util.*;
 
 /**
@@ -241,7 +244,21 @@ public class Runtime
      * @param variableAssignment The variable assignment.
      */
     private void processVariableAssignment(VariableAssignment variableAssignment) {
-        String name = variableAssignment.getVar();
+        Object var = variableAssignment.getVar();
+        String name;
+
+        if(var instanceof ArrayAccess)
+        {
+            ArrayAccess arrayAccess = (ArrayAccess) var;
+            name = arrayAccess.getVariable();
+            Object index = getValue(arrayAccess.getIndex());
+            Integer idx = index == null || !NumberUtils.isCreatable(index.toString()) ? null : Integer.parseInt(index.toString());
+            processArrayIndexAssignment(name, idx, variableAssignment);
+            return;
+        }
+
+        name = (String) var;
+
         switch (variableAssignment.getAssignmentType())
         {
             case ADD_ONE:
@@ -267,13 +284,74 @@ public class Runtime
         }
     }
 
+    private void processArrayIndexAssignment(String name, Integer index, VariableAssignment variableAssignment)
+    {
+        if(index == null)
+        {
+            Object value = getValue(variableAssignment.getValues().get(0));
+
+            if(value == null)
+                return;
+
+            if (value.getClass().isArray())
+            {
+                Object[] integers = (Object[]) value;
+                for (int i = 0; i < integers.length; i++)
+                {
+                    variableMap.put(name, i, integers[i]);
+                }
+            }
+            else if (value instanceof List)
+            {
+                List<?> integers = (List<?>) value;
+                for (int i = 0; i < integers.size(); i++)
+                {
+                    variableMap.put(name, i, integers.get(i));
+                }
+            }
+            else if (value instanceof String)
+            {
+                char[] chars = ((String) value).toCharArray();
+                for (int i = 0; i < chars.length; i++) {
+                    variableMap.put(name, i, chars[i] + "");
+                }
+            }
+            return;
+        }
+
+        switch (variableAssignment.getAssignmentType())
+        {
+            case ADD_ONE:
+                incrementVariable(name, index, 1);
+                return;
+            case REMOVE_ONE:
+                decrementVariable(name, index, 1);
+                return;
+        }
+
+        Object value = getValue(variableAssignment.getValues().get(0));
+        switch (variableAssignment.getAssignmentType())
+        {
+            case ASSIGNMENT:
+                variableMap.put(name, index, value);
+                return;
+            case INCREMENT:
+                incrementVariable(name, index, value);
+                return;
+            case DECREMENT:
+                decrementVariable(name, index, value);
+                break;
+        }
+    }
+
     /**
      * Processes the arguments in a method call.
      *
      * @param methodCall The method call.
      * @return The processed method call.
      */
-    private MethodCall processMethodCallArguments(MethodCall methodCall) {
+    private MethodCall processMethodCallArguments(MethodCall methodCall)
+    {
         Object[] objects = Arrays.stream(methodCall.getArgs())
                 .map(this::getValue)
                 .toArray();
@@ -412,6 +490,18 @@ public class Runtime
         }
     }
 
+    private void incrementVariable(String name, int index, Object value) {
+        if (value instanceof Integer) {
+            int integer = (int) value;
+            int prev = variableMap.containsKey(name, index) ? (int) variableMap.get(name, index) : 0;
+            variableMap.put(name, index, prev + integer);
+        } else if (value instanceof String) {
+            String string = (String) value;
+            String prev = variableMap.containsKey(name) ? (String) variableMap.get(name, index) : "";
+            variableMap.put(name, index, prev + string);
+        }
+    }
+
     /**
      * Decrements a variable.
      *
@@ -423,6 +513,14 @@ public class Runtime
             int integer = (int) value;
             int prev = variableMap.containsKey(name) ? (int) variableMap.get(name) : 0;
             variableMap.put(name, prev - integer);
+        }
+    }
+
+    private void decrementVariable(String name, int index, Object value) {
+        if (value instanceof Integer) {
+            int integer = (int) value;
+            int prev = variableMap.containsKey(name, index) ? (int) variableMap.get(name, index) : 0;
+            variableMap.put(name, index, prev - integer);
         }
     }
 
@@ -441,7 +539,7 @@ public class Runtime
             {
                 if(!variableMap.containsKey(string))
                 {
-                    return "null";
+                    return null;
                 }
                 return variableMap.get(string);
             }
@@ -455,6 +553,22 @@ public class Runtime
             {
                 return string.startsWith("\"") ? string.substring(1) : string;
             }
+        }
+        if(object instanceof ArrayAccess)
+        {
+            ArrayAccess arrayAccess = (ArrayAccess) object;
+            Object index = getValue(arrayAccess.getIndex());
+            System.out.println("Getting value of array access: " + arrayAccess.getVariable() + " at index: " + index + " (" + arrayAccess.getIndex() + ")");
+            if(index == null || !NumberUtils.isCreatable(index.toString()))
+            {
+                return null;
+            }
+            String name = arrayAccess.getVariable();
+            int idx = Integer.parseInt(index.toString());
+            Object value = variableMap.get(name, idx);
+            if(arrayAccess.isNegated())
+                return (value instanceof Boolean) ? !((Boolean) value) : value;
+            return value;
         }
         else if (object instanceof MethodCall)
         {

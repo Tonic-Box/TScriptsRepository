@@ -22,7 +22,7 @@ public class VariableAssignment extends Element
      * @param values The values to assign
      * @param type The type of assignment
      */
-    public VariableAssignment(String var, List<Object> values, AssignmentType type)
+    public VariableAssignment(Object var, List<Object> values, AssignmentType type)
     {
         this.var = var;
         this.values = values;
@@ -30,7 +30,12 @@ public class VariableAssignment extends Element
         setType(ElementType.VARIABLE_ASSIGNMENT);
     }
 
-    private String var;
+    private Object var;
     private List<Object> values;
     private AssignmentType assignmentType;
+
+    public boolean isArray()
+    {
+        return var instanceof ArrayAccess;
+    }
 }

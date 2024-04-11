@@ -68,6 +68,23 @@ public class GMisc implements GroupDefinition
                 "Clicks the mouse"
         );
 
+        addMethod(methods, "array", Type.OBJECT,
+                ImmutableMap.of(
+                        0, Pair.of("values", Type.VARARGS)
+                ),
+                function ->
+                {
+                    Object[] values = new Object[function.getArgs().length];
+                    for (int i = 0; i < function.getArgs().length; i++)
+                    {
+                        values[i] = function.getArg(i, manager);
+                    }
+                    return values;
+
+                },
+                "Creates a new array with the given values"
+        );
+
         return methods;
     }
 }

@@ -35,6 +35,7 @@ public class Tokenizer
         boolean inString = false;
         boolean inComment = false;
         boolean inMultiLineComment = false;
+        boolean inArrayAccess = false;
 
         char[] chars = script.toCharArray();
         int line = 1;
@@ -49,6 +50,21 @@ public class Tokenizer
             if (i - 1 > 0) previous = chars[i - 1];
             else previous = ' ';
             if (c == '\n') line++;
+
+            // Add check for array access start (e.g., $variable[)
+            if (c == '[' && currentToken.length() > 0 && currentToken.charAt(0) == '$') {
+                inArrayAccess = true;
+                currentToken.append(c);
+                continue; // Skip further checks and continue to the next character
+            }
+
+            // Add check for array access end (e.g., ])
+            if (c == ']' && inArrayAccess) {
+                inArrayAccess = false;
+                currentToken.append(c);
+                flushToken(currentToken, tokens, line, TokenType.ARRAY_ACCESS);
+                continue;
+            }
 
             if (inString && (c != '"' || previous == '\\'))
             {
@@ -156,6 +172,20 @@ public class Tokenizer
     private void flushToken(StringBuilder currentToken, List<Token> tokens, int line) {
         if (currentToken.length() != 0) {
             TokenType tokenType = getTokenType(currentToken.toString());
+            flushToken(currentToken, tokens, line, tokenType);
+        }
+    }
+
+    /**
+     * Flush the current token
+     *
+     * @param currentToken the current token
+     * @param tokens       the list of tokens
+     * @param line         the line number
+     * @param tokenType    the token type
+     */
+    private void flushToken(StringBuilder currentToken, List<Token> tokens, int line, TokenType tokenType) {
+        if (currentToken.length() != 0) {
             if(tokenType == TokenType.STRING && !currentToken.toString().equals("null"))
             {
                 currentToken.deleteCharAt(currentToken.length() - 1);
@@ -175,8 +205,10 @@ public class Tokenizer
      * @param tokenValue the token value
      * @return the token type
      */
-    private TokenType getTokenType(String tokenValue) {
-        switch (tokenValue.toLowerCase()) {
+    private TokenType getTokenType(String tokenValue)
+    {
+        switch (tokenValue.toLowerCase())
+        {
             case "if": return TokenType.KEYWORD_IF;
             case "else": return TokenType.KEYWORD_ELSE;
             case "while": return TokenType.KEYWORD_WHILE;

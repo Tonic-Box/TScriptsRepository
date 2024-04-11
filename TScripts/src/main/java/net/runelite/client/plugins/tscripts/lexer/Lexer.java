@@ -9,9 +9,12 @@ import net.runelite.client.plugins.tscripts.lexer.models.Element;
 import net.runelite.client.plugins.tscripts.lexer.models.ElementType;
 import net.runelite.client.plugins.tscripts.lexer.models.Token;
 import net.runelite.client.plugins.tscripts.lexer.models.TokenType;
+import net.runelite.client.plugins.tscripts.lexer.variable.ArrayAccess;
 import net.runelite.client.plugins.tscripts.lexer.variable.AssignmentType;
 import net.runelite.client.plugins.tscripts.lexer.variable.VariableAssignment;
 import org.apache.commons.lang3.NotImplementedException;
+import org.apache.commons.lang3.math.NumberUtils;
+
 import java.rmi.UnexpectedException;
 import java.util.*;
 
@@ -260,6 +263,7 @@ public class Lexer
                     segment.add(token);
                     currentType = ElemType.FUNCTION;
                     break;
+                case ARRAY_ACCESS:
                 case VARIABLE:
                     TokenType btt = tokens.get(pointer + 1).getType();
                     if (btt != TokenType.VARIABLE_ASSIGNMENT && btt != TokenType.VARIABLE_INCREMENT && btt != TokenType.VARIABLE_DECREMENT && btt != TokenType.VARIABLE_ADD_ONE && btt != TokenType.VARIABLE_REMOVE_ONE)
@@ -287,7 +291,7 @@ public class Lexer
      */
     private VariableAssignment flushVariableAssignment(List<Token> tokens) throws Exception
     {
-        String _variable = null;
+        Object _variable = null;
         List<Object> _values = new ArrayList<>();
         AssignmentType _type = null;
         boolean inMethodCall = false;
@@ -354,6 +358,12 @@ public class Lexer
                         _variable = token.getValue();
                     else
                         _values.add(token.getValue());
+                    break;
+                case ARRAY_ACCESS:
+                    if(_variable == null)
+                        _variable = flushArrayAccess(token, negated);
+                    else
+                        _values.add(flushArrayAccess(token, negated));
                     break;
                 case STATIC_VALUE:
                     throw new NotImplementedException("Lexer::flushFunction static values are not implemented");
@@ -461,6 +471,9 @@ public class Lexer
                 case IDENTIFIER:
                 case STRING:
                     _values.add(token.getValue());
+                    break;
+                case ARRAY_ACCESS:
+                    _values.add(flushArrayAccess(token, negated));
                     break;
                 case STATIC_VALUE:
                     throw new NotImplementedException("Lexer::flushFunction static values are not implemented");
@@ -775,10 +788,64 @@ public class Lexer
                     }
                     else throw new UnexpectedException("Lexer::flushCondition[" + tok.getType() + "] unexpected value in condition on line {" + tok.getLine() + "}");
                     break;
+                case ARRAY_ACCESS:
+                    if(!segment.isEmpty() && segment.get(0).getType() == TokenType.NEGATE)
+                    {
+                        negated = true;
+                        segment.clear();
+                    }
+                    if(left == null)
+                    {
+                        left = flushArrayAccess(tok, negated);
+                    }
+                    else if(right == null)
+                    {
+                        right = flushArrayAccess(tok, negated);
+                    }
+                    else throw new UnexpectedException("Lexer::flushCondition[" + tok.getType() + "] unexpected value in condition on line {" + tok.getLine() + "}");
+                    break;
             }
         }
 
         return new Condition(left, right, comparator);
+    }
+
+    private ArrayAccess flushArrayAccess(Token token, boolean negated) throws Exception
+    {
+        StringBuilder name = new StringBuilder();
+        StringBuilder index = new StringBuilder();
+        boolean inIndex = false;
+        for(char c : token.getValue().toCharArray())
+        {
+            if(c == '[')
+            {
+                inIndex = true;
+                continue;
+            }
+            if(c == ']')
+            {
+                break;
+            }
+            if(inIndex)
+            {
+                index.append(c);
+            }
+            else
+            {
+                name.append(c);
+            }
+        }
+        Object idx = null;
+        if(NumberUtils.isCreatable(index.toString()))
+        {
+            idx = Integer.parseInt(index.toString());
+        }
+        else
+        {
+            idx = index.toString();
+        }
+
+        return new ArrayAccess(name.toString(), idx, negated);
     }
 
     /**

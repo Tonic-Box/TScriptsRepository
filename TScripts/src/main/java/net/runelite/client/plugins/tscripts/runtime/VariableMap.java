@@ -12,9 +12,38 @@ public class VariableMap
 {
     @Getter
     private final Map<String, Variable> variableMap = new ConcurrentHashMap<>();
+    private final Map<String, ArrayVariable> varrayMap = new ConcurrentHashMap<>();
     private final Stack<String> scopeStack = new Stack<>();
 
-    private final List<String> frozenVariables = new ArrayList<>();
+    public void put(String key, int index, Object value)
+    {
+        System.out.println("Putting " + key + ":" + index + " -> " + value);
+        for(ArrayVariable arrayVariable : varrayMap.values())
+        {
+            if(arrayVariable.getName().equals(key) && scopeStack.contains(arrayVariable.getScopeHash()))
+            {
+                arrayVariable.getValues().put(index, value);
+                postChangedEvent(key, value);
+                return;
+            }
+        }
+        ArrayVariable arrayVariable = new ArrayVariable(key, scopeStack.peek());
+        arrayVariable.getValues().put(index, value);
+        varrayMap.put(key + " " + scopeStack.peek(), arrayVariable);
+    }
+
+    public Object get(String key, int index)
+    {
+        System.out.println("Getting " + key + ":" + index);
+        for(ArrayVariable arrayVariable : varrayMap.values())
+        {
+            if(arrayVariable.getName().equals(key) && scopeStack.contains(arrayVariable.getScopeHash()))
+            {
+                return arrayVariable.getValues().getOrDefault(index, "null");
+            }
+        }
+        return varrayMap.getOrDefault(key + " " + scopeStack.peek(), new ArrayVariable(key, scopeStack.peek())).getValues().getOrDefault(index, "null");
+    }
 
     public void put(String key, Object value)
     {
@@ -56,10 +85,21 @@ public class VariableMap
         return false;
     }
 
+    public boolean containsKey(String key, int index)
+    {
+        for (ArrayVariable arrayVariable : varrayMap.values())
+        {
+            if (arrayVariable.getName().equals(key) && scopeStack.contains(arrayVariable.getScopeHash()))
+            {
+                return arrayVariable.getValues().containsKey(index);
+            }
+        }
+        return false;
+    }
+
     public void clear()
     {
         variableMap.clear();
-        frozenVariables.clear();
         TEventBus.post(VariablesCleared.get());
     }
 
