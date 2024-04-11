@@ -835,10 +835,14 @@ public class Lexer
                 name.append(c);
             }
         }
-        Object idx = null;
+        Object idx;
         if(NumberUtils.isCreatable(index.toString()))
         {
             idx = Integer.parseInt(index.toString());
+        }
+        else if(index.toString().isBlank())
+        {
+            idx = null;
         }
         else
         {
