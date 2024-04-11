@@ -17,7 +17,6 @@ public class VariableMap
 
     public void put(String key, int index, Object value)
     {
-        System.out.println("Putting " + key + ":" + index + " -> " + value);
         for(ArrayVariable arrayVariable : varrayMap.values())
         {
             if(arrayVariable.getName().equals(key) && scopeStack.contains(arrayVariable.getScopeHash()))
@@ -34,7 +33,6 @@ public class VariableMap
 
     public Object get(String key, int index)
     {
-        System.out.println("Getting " + key + ":" + index);
         for(ArrayVariable arrayVariable : varrayMap.values())
         {
             if(arrayVariable.getName().equals(key) && scopeStack.contains(arrayVariable.getScopeHash()))

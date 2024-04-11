@@ -558,7 +558,6 @@ public class Runtime
         {
             ArrayAccess arrayAccess = (ArrayAccess) object;
             Object index = getValue(arrayAccess.getIndex());
-            System.out.println("Getting value of array access: " + arrayAccess.getVariable() + " at index: " + index + " (" + arrayAccess.getIndex() + ")");
             if(index == null || !NumberUtils.isCreatable(index.toString()))
             {
                 return null;
