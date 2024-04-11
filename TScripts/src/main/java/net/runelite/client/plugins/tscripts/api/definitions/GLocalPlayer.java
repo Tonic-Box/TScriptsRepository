@@ -69,7 +69,10 @@ public class GLocalPlayer implements GroupDefinition
                 {
                     Actor actor = EntityCache.get().getInteracting();
 
-                    if(actor == null || actor.getInteracting() == null || !actor.getInteracting().equals(Static.getClient().getLocalPlayer()) || actor.isDead())
+                    if(actor == null || actor.isDead())
+                        return "null";
+
+                    if(actor.getInteracting() != null && !actor.getInteracting().equals(Static.getClient().getLocalPlayer()))
                         return "null";
 
                     return actor;
