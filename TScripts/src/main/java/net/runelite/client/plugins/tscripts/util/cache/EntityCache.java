@@ -44,12 +44,10 @@ public class EntityCache
     {
         if(event.getSource() == Static.getClient().getLocalPlayer() && event.getTarget() != null)
         {
-            System.out.println("[1] Source: " + event.getSource().getName() + " Target: " + event.getTarget().getName());
             lastInteracting = event.getTarget();
         }
         else if(event.getTarget() == Static.getClient().getLocalPlayer() && event.getSource() != null)
         {
-            System.out.println("[2] Source: " + event.getSource().getName() + " Target: " + event.getTarget().getName());
             lastInteracting = event.getSource();
         }
     }

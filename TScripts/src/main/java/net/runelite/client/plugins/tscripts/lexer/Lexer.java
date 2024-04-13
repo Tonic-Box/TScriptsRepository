@@ -453,7 +453,6 @@ public class Lexer
                     inArrayAccess = false;
                     segment.add(token);
                     _values.add(flushArrayAccess(new ArrayList<>(segment), negated));
-                    System.out.println("flushFunction: we here");
                     segment.clear();
                     continue;
                 }

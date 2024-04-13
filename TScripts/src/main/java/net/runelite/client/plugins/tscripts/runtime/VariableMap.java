@@ -37,14 +37,23 @@ public class VariableMap
         {
             if(arrayVariable.getName().equals(key) && scopeStack.contains(arrayVariable.getScopeHash()))
             {
-                return arrayVariable.getValues().getOrDefault(index, "null");
+                for(Object entry : arrayVariable.getValues().keySet())
+                {
+                    if((entry + "").equals(index + ""))
+                    {
+                        return arrayVariable.getValues().get(entry);
+                    }
+                }
             }
         }
-        return arrayMap.getOrDefault(key + " " + scopeStack.peek(), new ArrayVariable(key, scopeStack.peek())).getValues().getOrDefault(index, "null");
+        return "null";
     }
 
     public void put(String key, Object value)
     {
+        if(key == null || key.isBlank())
+            return;
+
         for(Variable variable : variableMap.values())
         {
             if(variable.getName().equals(key) && scopeStack.contains(variable.getScopeHash()))
@@ -164,6 +173,20 @@ public class VariableMap
         {
             variableMap.remove(key);
         }
+
+        keysToRemove.clear();
+        for(var arrayVariable : arrayMap.entrySet())
+        {
+            if(arrayVariable.getValue().getScopeHash().equals(scope))
+            {
+                keysToRemove.add(arrayVariable.getKey());
+            }
+        }
+        for(String key : keysToRemove)
+        {
+            arrayMap.remove(key);
+        }
+
         TEventBus.post(new VariablesCleaned(scope));
     }
 
