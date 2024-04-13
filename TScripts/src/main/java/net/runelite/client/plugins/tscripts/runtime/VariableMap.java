@@ -12,12 +12,12 @@ public class VariableMap
 {
     @Getter
     private final Map<String, Variable> variableMap = new ConcurrentHashMap<>();
-    private final Map<String, ArrayVariable> varrayMap = new ConcurrentHashMap<>();
+    private final Map<String, ArrayVariable> arrayMap = new ConcurrentHashMap<>();
     private final Stack<String> scopeStack = new Stack<>();
 
-    public void put(String key, int index, Object value)
+    public void put(String key, Object index, Object value)
     {
-        for(ArrayVariable arrayVariable : varrayMap.values())
+        for(ArrayVariable arrayVariable : arrayMap.values())
         {
             if(arrayVariable.getName().equals(key) && scopeStack.contains(arrayVariable.getScopeHash()))
             {
@@ -28,19 +28,19 @@ public class VariableMap
         }
         ArrayVariable arrayVariable = new ArrayVariable(key, scopeStack.peek());
         arrayVariable.getValues().put(index, value);
-        varrayMap.put(key + " " + scopeStack.peek(), arrayVariable);
+        arrayMap.put(key + " " + scopeStack.peek(), arrayVariable);
     }
 
-    public Object get(String key, int index)
+    public Object get(String key, Object index)
     {
-        for(ArrayVariable arrayVariable : varrayMap.values())
+        for(ArrayVariable arrayVariable : arrayMap.values())
         {
             if(arrayVariable.getName().equals(key) && scopeStack.contains(arrayVariable.getScopeHash()))
             {
                 return arrayVariable.getValues().getOrDefault(index, "null");
             }
         }
-        return varrayMap.getOrDefault(key + " " + scopeStack.peek(), new ArrayVariable(key, scopeStack.peek())).getValues().getOrDefault(index, "null");
+        return arrayMap.getOrDefault(key + " " + scopeStack.peek(), new ArrayVariable(key, scopeStack.peek())).getValues().getOrDefault(index, "null");
     }
 
     public void put(String key, Object value)
@@ -83,9 +83,9 @@ public class VariableMap
         return false;
     }
 
-    public boolean containsKey(String key, int index)
+    public boolean containsKey(String key, Object index)
     {
-        for (ArrayVariable arrayVariable : varrayMap.values())
+        for (ArrayVariable arrayVariable : arrayMap.values())
         {
             if (arrayVariable.getName().equals(key) && scopeStack.contains(arrayVariable.getScopeHash()))
             {

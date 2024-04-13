@@ -399,7 +399,8 @@ public class CFGVisualizer extends JPanel {
             if(var instanceof ArrayAccess) {
                 varName = processArrayAccess((ArrayAccess) var);
             } else {
-                varName = colorize(var.toString(), current ? Colors.CURRENT : Colors.VARIABLES);
+                String name = var == null ? "NULL_HERE_IDK" : var.toString();
+                varName = colorize(name, current ? Colors.CURRENT : Colors.VARIABLES);
             }
             Object element = null;
             if (!variableAssignment.getValues().isEmpty()) {

@@ -263,7 +263,10 @@ public class Lexer
                     segment.add(token);
                     currentType = ElemType.FUNCTION;
                     break;
-                case ARRAY_ACCESS:
+                case ARRAY_ACCESS_START:
+                    segment.add(token);
+                    currentType = ElemType.VARIABLE_ASSIGNMENT;
+                    break;
                 case VARIABLE:
                     TokenType btt = tokens.get(pointer + 1).getType();
                     if (btt != TokenType.VARIABLE_ASSIGNMENT && btt != TokenType.VARIABLE_INCREMENT && btt != TokenType.VARIABLE_DECREMENT && btt != TokenType.VARIABLE_ADD_ONE && btt != TokenType.VARIABLE_REMOVE_ONE)
@@ -295,11 +298,28 @@ public class Lexer
         List<Object> _values = new ArrayList<>();
         AssignmentType _type = null;
         boolean inMethodCall = false;
+        boolean inArray = false;
         int depthCounter = -1;
         List<Token> segment = new ArrayList<>();
 
         for(Token token : tokens)
         {
+            if(inArray)
+            {
+                if(token.getType() == TokenType.ARRAY_ACCESS_END)
+                {
+                    inArray = false;
+                    segment.add(token);
+                    if(_variable == null)
+                        _variable = flushArrayAccess(new ArrayList<>(segment), false);
+                    else
+                        _values.add(flushArrayAccess(new ArrayList<>(segment), false));
+                    segment.clear();
+                    continue;
+                }
+                segment.add(token);
+                continue;
+            }
             if(token.getType() == TokenType.IDENTIFIER)
             {
                 inMethodCall = true;
@@ -359,11 +379,9 @@ public class Lexer
                     else
                         _values.add(token.getValue());
                     break;
-                case ARRAY_ACCESS:
-                    if(_variable == null)
-                        _variable = flushArrayAccess(token, negated);
-                    else
-                        _values.add(flushArrayAccess(token, negated));
+                case ARRAY_ACCESS_START:
+                    segment.add(token);
+                    inArray = true;
                     break;
                 case STATIC_VALUE:
                     throw new NotImplementedException("Lexer::flushFunction static values are not implemented");
@@ -419,6 +437,7 @@ public class Lexer
         List<Object> _values = new ArrayList<>();
         List<Token> segment = new ArrayList<>();
         boolean inMethodCall = false;
+        boolean inArrayAccess = false;
         int depthCounter = -1;
 
         pointer += 2;
@@ -426,6 +445,22 @@ public class Lexer
         for(int i = pointer; i <= tokens.size() - 1; i++)
         {
             Token token = tokens.get(i);
+
+            if(inArrayAccess)
+            {
+                if(token.getType() == TokenType.ARRAY_ACCESS_END)
+                {
+                    inArrayAccess = false;
+                    segment.add(token);
+                    _values.add(flushArrayAccess(new ArrayList<>(segment), negated));
+                    System.out.println("flushFunction: we here");
+                    segment.clear();
+                    continue;
+                }
+                segment.add(token);
+                continue;
+            }
+
             if(token.getType() == TokenType.IDENTIFIER && tokens.get(i + 1).getType() == TokenType.OPEN_PAREN)
             {
                 inMethodCall = true;
@@ -472,8 +507,9 @@ public class Lexer
                 case STRING:
                     _values.add(token.getValue());
                     break;
-                case ARRAY_ACCESS:
-                    _values.add(flushArrayAccess(token, negated));
+                case ARRAY_ACCESS_START:
+                    segment.add(token);
+                    inArrayAccess = true;
                     break;
                 case STATIC_VALUE:
                     throw new NotImplementedException("Lexer::flushFunction static values are not implemented");
@@ -636,10 +672,33 @@ public class Lexer
         Token tok;
         List<Token> segment = new ArrayList<>();
         boolean inMethodCall = false;
+        boolean inArray = false;
         int depthCounter = -1;
         for(int i = 0; i < tokens.size(); i++)
         {
             tok = tokens.get(i);
+
+            if(inArray)
+            {
+                if(tok.getType() == TokenType.ARRAY_ACCESS_END)
+                {
+                    inArray = false;
+                    segment.add(tok);
+                    if(left == null)
+                    {
+                        left = flushArrayAccess(new ArrayList<>(segment), false);
+                    }
+                    else if(right == null)
+                    {
+                        right = flushArrayAccess(new ArrayList<>(segment), false);
+                    }
+                    else throw new UnexpectedException("Lexer::flushCondition[" + tok.getType() + "] unexpected value in condition on line {" + tok.getLine() + "}");
+                    segment.clear();
+                    continue;
+                }
+                segment.add(tok);
+                continue;
+            }
 
             if(tok.getType() == TokenType.IDENTIFIER && tokens.size() > i + 1 && tokens.get(i + 1).getType()  == TokenType.OPEN_PAREN)
             {
@@ -788,21 +847,9 @@ public class Lexer
                     }
                     else throw new UnexpectedException("Lexer::flushCondition[" + tok.getType() + "] unexpected value in condition on line {" + tok.getLine() + "}");
                     break;
-                case ARRAY_ACCESS:
-                    if(!segment.isEmpty() && segment.get(0).getType() == TokenType.NEGATE)
-                    {
-                        negated = true;
-                        segment.clear();
-                    }
-                    if(left == null)
-                    {
-                        left = flushArrayAccess(tok, negated);
-                    }
-                    else if(right == null)
-                    {
-                        right = flushArrayAccess(tok, negated);
-                    }
-                    else throw new UnexpectedException("Lexer::flushCondition[" + tok.getType() + "] unexpected value in condition on line {" + tok.getLine() + "}");
+                case ARRAY_ACCESS_START:
+                    segment.add(tok);
+                    inArray = true;
                     break;
             }
         }
@@ -810,46 +857,102 @@ public class Lexer
         return new Condition(left, right, comparator);
     }
 
-    private ArrayAccess flushArrayAccess(Token token, boolean negated) throws Exception
-    {
-        StringBuilder name = new StringBuilder();
-        StringBuilder index = new StringBuilder();
-        boolean inIndex = false;
-        for(char c : token.getValue().toCharArray())
+    private ArrayAccess flushArrayAccess(List<Token> tokens, boolean negated) throws Exception {
+        int pointer = 0;
+        if(tokens.get(pointer).getType() == TokenType.NEGATE)
         {
-            if(c == '[')
+            negated = true;
+            pointer++;
+        }
+        String name = tokens.get(pointer++).getValue().split("\\[")[0];
+        List<Token> segment = new ArrayList<>();
+        boolean inMethodCall = false;
+        boolean inArrayAccess = false;
+        int depthCounter = -1;
+        Object idx = null;
+
+        for(int i = pointer; i <= tokens.size() - 1; i++)
+        {
+            Token token = tokens.get(i);
+
+            if(inArrayAccess)
             {
-                inIndex = true;
+                if(token.getType() == TokenType.ARRAY_ACCESS_END)
+                {
+                    segment.add(token);
+                    idx = flushArrayAccess(new ArrayList<>(segment), negated);
+                    segment.clear();
+                    break;
+                }
+                segment.add(token);
                 continue;
             }
-            if(c == ']')
+
+            if(token.getType() == TokenType.IDENTIFIER && tokens.get(i + 1).getType() == TokenType.OPEN_PAREN)
+            {
+                inMethodCall = true;
+            }
+
+            if(inMethodCall)
+            {
+                if(depthCounter == -1 && token.getType() == TokenType.OPEN_PAREN)
+                {
+                    depthCounter = 1;
+                    segment.add(token);
+                    continue;
+                }
+
+                switch (token.getType())
+                {
+                    case OPEN_PAREN:
+                        depthCounter++;
+                        segment.add(token);
+                        break;
+                    case CLOSE_PAREN:
+                        depthCounter--;
+                        segment.add(token);
+                        break;
+                    default:
+                        segment.add(token);
+                        break;
+                }
+
+                if(depthCounter == 0)
+                {
+                    idx = flushFunction(new ArrayList<>(segment));
+                    segment.clear();
+                    break;
+                }
+                continue;
+            }
+
+            switch (token.getType())
+            {
+                case VARIABLE:
+                case IDENTIFIER:
+                case STRING:
+                    idx = token.getValue();
+                    break;
+                case ARRAY_ACCESS_START:
+                    segment.add(token);
+                    inArrayAccess = true;
+                    break;
+                case STATIC_VALUE:
+                    throw new NotImplementedException("Lexer::flushFunction static values are not implemented");
+                case BOOLEAN:
+                    idx = token.getValue().equalsIgnoreCase("true");
+                    break;
+                case INTEGER:
+                    idx = Integer.parseInt(token.getValue());
+                    break;
+            }
+
+            if(idx != null)
             {
                 break;
             }
-            if(inIndex)
-            {
-                index.append(c);
-            }
-            else
-            {
-                name.append(c);
-            }
         }
-        Object idx;
-        if(NumberUtils.isCreatable(index.toString()))
-        {
-            idx = Integer.parseInt(index.toString());
-        }
-        else if(index.toString().isBlank())
-        {
-            idx = null;
-        }
-        else
-        {
-            idx = index.toString();
-        }
-
-        return new ArrayAccess(name.toString(), idx, negated);
+        return new ArrayAccess(name, idx, negated);
     }
 
     /**

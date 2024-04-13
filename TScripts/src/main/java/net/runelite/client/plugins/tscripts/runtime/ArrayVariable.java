@@ -12,5 +12,5 @@ public class ArrayVariable
 {
     private final String name;
     private final String scopeHash;
-    private final Map<Integer,Object> values = new HashMap<>();
+    private final Map<Object,Object> values = new HashMap<>();
 }

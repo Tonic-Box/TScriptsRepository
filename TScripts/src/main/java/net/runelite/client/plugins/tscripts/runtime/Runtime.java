@@ -20,7 +20,6 @@ import net.runelite.client.plugins.tscripts.util.eventbus._Subscribe;
 import net.runelite.client.plugins.tscripts.util.eventbus.events.*;
 import org.apache.commons.lang3.math.NumberUtils;
 
-import java.rmi.UnexpectedException;
 import java.util.*;
 
 /**
@@ -29,7 +28,7 @@ import java.util.*;
 public class Runtime
 {
     @Getter
-    private final VariableMap variableMap = new VariableMap();
+    private final VariableMap variableMap;
     private final List<EventBus.Subscriber> subscribers = new ArrayList<>();
     private final Map<String, UserDefinedFunction> userDefinedFunctions = new HashMap<>();
     @Getter
@@ -48,12 +47,20 @@ public class Runtime
     public Runtime()
     {
         this.methodManager = MethodManager.getInstance();
+        this.variableMap = new VariableMap();
+        TEventBus.register(this);
+    }
+
+    public Runtime(VariableMap variableMap)
+    {
+        this.methodManager = MethodManager.getInstance();
+        this.variableMap = variableMap;
         TEventBus.register(this);
     }
 
     public Runtime getRuntimeChild()
     {
-        Runtime runtime = new Runtime();
+        Runtime runtime = new Runtime(variableMap);
         runtime.child = true;
         return runtime;
     }
@@ -252,8 +259,7 @@ public class Runtime
             ArrayAccess arrayAccess = (ArrayAccess) var;
             name = arrayAccess.getVariable();
             Object index = getValue(arrayAccess.getIndex());
-            Integer idx = index == null || !NumberUtils.isCreatable(index.toString()) ? null : Integer.parseInt(index.toString());
-            processArrayIndexAssignment(name, idx, variableAssignment);
+            processArrayIndexAssignment(name, index, variableAssignment);
             return;
         }
 
@@ -284,7 +290,7 @@ public class Runtime
         }
     }
 
-    private void processArrayIndexAssignment(String name, Integer index, VariableAssignment variableAssignment)
+    private void processArrayIndexAssignment(String name, Object index, VariableAssignment variableAssignment)
     {
         if(index == null)
         {
@@ -490,7 +496,7 @@ public class Runtime
         }
     }
 
-    private void incrementVariable(String name, int index, Object value) {
+    private void incrementVariable(String name, Object index, Object value) {
         if (value instanceof Integer) {
             int integer = (int) value;
             int prev = variableMap.containsKey(name, index) ? (int) variableMap.get(name, index) : 0;
@@ -516,7 +522,7 @@ public class Runtime
         }
     }
 
-    private void decrementVariable(String name, int index, Object value) {
+    private void decrementVariable(String name, Object index, Object value) {
         if (value instanceof Integer) {
             int integer = (int) value;
             int prev = variableMap.containsKey(name, index) ? (int) variableMap.get(name, index) : 0;
@@ -558,13 +564,12 @@ public class Runtime
         {
             ArrayAccess arrayAccess = (ArrayAccess) object;
             Object index = getValue(arrayAccess.getIndex());
-            if(index == null || !NumberUtils.isCreatable(index.toString()))
+            if(index == null)
             {
                 return null;
             }
             String name = arrayAccess.getVariable();
-            int idx = Integer.parseInt(index.toString());
-            Object value = variableMap.get(name, idx);
+            Object value = variableMap.get(name, index);
             if(arrayAccess.isNegated())
                 return (value instanceof Boolean) ? !((Boolean) value) : value;
             return value;
@@ -622,6 +627,13 @@ public class Runtime
             });
             subscribers.add(subscriber);
         }
+    }
+
+    private Object[] processEventFields(Class<?> event)
+    {
+        Object[] object = new Object[0];
+
+        return object;
     }
 
     /**

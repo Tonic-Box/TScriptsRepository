@@ -55,14 +55,20 @@ public class Tokenizer
             if (c == '[' && currentToken.length() > 0 && currentToken.charAt(0) == '$') {
                 inArrayAccess = true;
                 currentToken.append(c);
+                flushToken(currentToken, tokens, line, TokenType.ARRAY_ACCESS_START);
                 continue; // Skip further checks and continue to the next character
             }
 
             // Add check for array access end (e.g., ])
-            if (c == ']' && inArrayAccess) {
+            if (c == ']' && !inString && inArrayAccess) {
                 inArrayAccess = false;
+                List<Token> newTokens = tokenize(currentToken.toString());
+                if (!newTokens.isEmpty()) {
+                    tokens.addAll(newTokens.subList(0, newTokens.size() - 1));
+                }
+                currentToken.setLength(0);
                 currentToken.append(c);
-                flushToken(currentToken, tokens, line, TokenType.ARRAY_ACCESS);
+                flushToken(currentToken, tokens, line, TokenType.ARRAY_ACCESS_END);
                 continue;
             }
 
