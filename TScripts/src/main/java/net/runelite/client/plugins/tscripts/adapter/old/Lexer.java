@@ -1,20 +1,21 @@
 package net.runelite.client.plugins.tscripts.adapter.old;
 
 import lombok.Data;
-import net.runelite.client.plugins.tscripts.adapter.method.MethodCall;
-import net.runelite.client.plugins.tscripts.adapter.Scope.condition.Comparator;
-import net.runelite.client.plugins.tscripts.adapter.Scope.condition.Condition;
-import net.runelite.client.plugins.tscripts.adapter.Scope.condition.Conditions;
-import net.runelite.client.plugins.tscripts.adapter.Scope.condition.ForCondition;
-import net.runelite.client.plugins.tscripts.adapter.Scope.condition.Glue;
+import net.runelite.client.plugins.tscripts.adapter.models.condition.ConditionType;
+import net.runelite.client.plugins.tscripts.adapter.models.method.MethodCall;
+import net.runelite.client.plugins.tscripts.adapter.models.condition.Comparator;
+import net.runelite.client.plugins.tscripts.adapter.models.condition.Condition;
+import net.runelite.client.plugins.tscripts.adapter.models.condition.Conditions;
+import net.runelite.client.plugins.tscripts.adapter.models.condition.ForCondition;
+import net.runelite.client.plugins.tscripts.adapter.models.condition.Glue;
 import net.runelite.client.plugins.tscripts.adapter.models.ElementType;
 import net.runelite.client.plugins.tscripts.adapter.models.Token;
 import net.runelite.client.plugins.tscripts.adapter.models.TokenType;
-import net.runelite.client.plugins.tscripts.adapter.variable.ArrayAccess;
-import net.runelite.client.plugins.tscripts.adapter.variable.AssignmentType;
-import net.runelite.client.plugins.tscripts.adapter.variable.VariableAssignment;
+import net.runelite.client.plugins.tscripts.adapter.models.variable.ArrayAccess;
+import net.runelite.client.plugins.tscripts.adapter.models.variable.AssignmentType;
+import net.runelite.client.plugins.tscripts.adapter.models.variable.VariableAssignment;
 import net.runelite.client.plugins.tscripts.api.MethodManager;
-import net.runelite.client.plugins.tscripts.adapter.Scope.Scope;
+import net.runelite.client.plugins.tscripts.adapter.models.Scope.Scope;
 import net.runelite.client.plugins.tscripts.adapter.models.Element;
 import org.apache.commons.lang3.NotImplementedException;
 
@@ -140,7 +141,7 @@ public class Lexer
                             currentType = null;
                             depthCounter = -1;
                             Element element = elementsPointer - 1 >= 0 ? elements.get(elementsPointer - 1) : null;
-                            if(_conditions != null && element != null && _conditions.getType() == net.runelite.client.plugins.tscripts.adapter.Scope.condition.ConditionType.ELSE && element.getType() == ElementType.SCOPE)
+                            if(_conditions != null && element != null && _conditions.getType() == ConditionType.ELSE && element.getType() == ElementType.SCOPE)
                             {
                                 Scope scope = (Scope) element;
                                 Scope elseScope = flushScope(new ArrayList<>(segment), null);
@@ -219,7 +220,7 @@ public class Lexer
                             depthCounter = -1;
                             _conditions = (currentType == ElemType.CONDITION_FOR) ? flushForCondition(segment) : flushConditions(segment);
                             currentType = null;
-                            if((_conditions.getType() == net.runelite.client.plugins.tscripts.adapter.Scope.condition.ConditionType.USER_DEFINED_FUNCTION || _conditions.getType() == net.runelite.client.plugins.tscripts.adapter.Scope.condition.ConditionType.SUBSCRIBE) && userFunctionName != null)
+                            if((_conditions.getType() == ConditionType.USER_DEFINED_FUNCTION || _conditions.getType() == ConditionType.SUBSCRIBE) && userFunctionName != null)
                             {
                                 userFunctions.add(userFunctionName.toLowerCase());
                                 _conditions.setUserFunctionName(userFunctionName);
@@ -256,7 +257,7 @@ public class Lexer
                     segment.add(token);
                     depthCounter = -1;
                     _conditions = new Conditions();
-                    _conditions.setType(net.runelite.client.plugins.tscripts.adapter.Scope.condition.ConditionType.ELSE);
+                    _conditions.setType(ConditionType.ELSE);
                     segment.clear();
                     break;
                 case OPEN_BRACE:
@@ -295,11 +296,11 @@ public class Lexer
      * @return the variable assignment
      * @throws Exception if an error occurs
      */
-    private net.runelite.client.plugins.tscripts.adapter.variable.VariableAssignment flushVariableAssignment(List<net.runelite.client.plugins.tscripts.adapter.models.Token> tokens) throws Exception
+    private VariableAssignment flushVariableAssignment(List<net.runelite.client.plugins.tscripts.adapter.models.Token> tokens) throws Exception
     {
         Object _variable = null;
         List<Object> _values = new ArrayList<>();
-        net.runelite.client.plugins.tscripts.adapter.variable.AssignmentType _type = null;
+        AssignmentType _type = null;
         boolean inMethodCall = false;
         boolean inArray = false;
         int depthCounter = -1;
@@ -401,16 +402,16 @@ public class Lexer
                     _values.add(token.getValue());
                     break;
                 case VARIABLE_ASSIGNMENT:
-                    _type = net.runelite.client.plugins.tscripts.adapter.variable.AssignmentType.ASSIGNMENT;
+                    _type = AssignmentType.ASSIGNMENT;
                     break;
                 case VARIABLE_INCREMENT:
-                    _type = net.runelite.client.plugins.tscripts.adapter.variable.AssignmentType.INCREMENT;
+                    _type = AssignmentType.INCREMENT;
                     break;
                 case VARIABLE_DECREMENT:
-                    _type = net.runelite.client.plugins.tscripts.adapter.variable.AssignmentType.DECREMENT;
+                    _type = AssignmentType.DECREMENT;
                     break;
                 case VARIABLE_ADD_ONE:
-                    _type = net.runelite.client.plugins.tscripts.adapter.variable.AssignmentType.ADD_ONE;
+                    _type = AssignmentType.ADD_ONE;
                     break;
                 case VARIABLE_REMOVE_ONE:
                     _type = AssignmentType.REMOVE_ONE;
@@ -537,7 +538,7 @@ public class Lexer
     {
         Conditions conditions = new Conditions();
         ForCondition forCondition = new ForCondition();
-        conditions.setType(net.runelite.client.plugins.tscripts.adapter.Scope.condition.ConditionType.FOR);
+        conditions.setType(ConditionType.FOR);
         List<net.runelite.client.plugins.tscripts.adapter.models.Token> segment = new ArrayList<>();
         int part = 0;
         int depthCounter = -1;
@@ -599,41 +600,41 @@ public class Lexer
     private Conditions flushConditions(List<net.runelite.client.plugins.tscripts.adapter.models.Token> tokens) throws Exception
     {
         Conditions conditions = new Conditions();
-        net.runelite.client.plugins.tscripts.adapter.Scope.condition.ConditionType type;
+        ConditionType type;
         int iStart = 2;
         switch (tokens.get(0).getType())
         {
             case KEYWORD_IF:
-                type = net.runelite.client.plugins.tscripts.adapter.Scope.condition.ConditionType.IF;
+                type = ConditionType.IF;
                 break;
             case KEYWORD_ELSE:
-                type = net.runelite.client.plugins.tscripts.adapter.Scope.condition.ConditionType.ELSE;
+                type = ConditionType.ELSE;
                 break;
             case KEYWORD_WHILE:
-                type = net.runelite.client.plugins.tscripts.adapter.Scope.condition.ConditionType.WHILE;
+                type = ConditionType.WHILE;
                 break;
             case KEYWORD_SUBSCRIBE:
-                type = net.runelite.client.plugins.tscripts.adapter.Scope.condition.ConditionType.SUBSCRIBE;
+                type = ConditionType.SUBSCRIBE;
                 break;
             case KEYWORD_USER_DEFINED_FUNCTION:
-                type = net.runelite.client.plugins.tscripts.adapter.Scope.condition.ConditionType.USER_DEFINED_FUNCTION;
+                type = ConditionType.USER_DEFINED_FUNCTION;
                 break;
             default:
                 iStart = 0;
-                type = net.runelite.client.plugins.tscripts.adapter.Scope.condition.ConditionType.FOR;
+                type = ConditionType.FOR;
                 //throw new UnexpectedException("Lexer::flushCondition unexpected condition type on line {" + tokens.get(0).getLine() + "}");
         }
 
         conditions.setType(type);
 
-        if(type == net.runelite.client.plugins.tscripts.adapter.Scope.condition.ConditionType.USER_DEFINED_FUNCTION || type == net.runelite.client.plugins.tscripts.adapter.Scope.condition.ConditionType.SUBSCRIBE)
+        if(type == ConditionType.USER_DEFINED_FUNCTION || type == ConditionType.SUBSCRIBE)
         {
             for (int i = 2; i < tokens.size() - 1; i++)
             {
                 net.runelite.client.plugins.tscripts.adapter.models.Token token = tokens.get(i);
                 if (token.getType() == net.runelite.client.plugins.tscripts.adapter.models.TokenType.VARIABLE)
                 {
-                    net.runelite.client.plugins.tscripts.adapter.Scope.condition.Condition condition = new net.runelite.client.plugins.tscripts.adapter.Scope.condition.Condition(token.getValue(), null, null);
+                    Condition condition = new Condition(token.getValue(), null, null);
                     conditions.getConditions().put(conditions.getConditions().size(), condition);
                 }
             }
@@ -666,11 +667,11 @@ public class Lexer
      * @return the condition
      * @throws Exception if an error occurs
      */
-    private net.runelite.client.plugins.tscripts.adapter.Scope.condition.Condition flushCondition(List<net.runelite.client.plugins.tscripts.adapter.models.Token> tokens) throws Exception
+    private Condition flushCondition(List<net.runelite.client.plugins.tscripts.adapter.models.Token> tokens) throws Exception
     {
         Object left = null;
         Object right = null;
-        net.runelite.client.plugins.tscripts.adapter.Scope.condition.Comparator comparator = null;
+        Comparator comparator = null;
         net.runelite.client.plugins.tscripts.adapter.models.Token tok;
         List<net.runelite.client.plugins.tscripts.adapter.models.Token> segment = new ArrayList<>();
         boolean inMethodCall = false;

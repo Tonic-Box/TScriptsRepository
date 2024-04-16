@@ -94,9 +94,14 @@ expression
     | unaryOperator? array
     | unaryOperator? NUMBER
     | unaryOperator? BOOLEAN
+    | ternaryExpression
     | STRING
     | CONSTANT
     | 'null'
+    ;
+
+ternaryExpression
+    : '(' condition (glue condition)* '?' expression ':' expression ')'
     ;
 
 functionCall

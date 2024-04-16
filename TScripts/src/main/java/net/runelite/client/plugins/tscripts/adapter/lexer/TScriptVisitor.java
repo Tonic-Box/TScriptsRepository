@@ -127,6 +127,12 @@ public interface TScriptVisitor<T> extends ParseTreeVisitor<T> {
 	 */
 	T visitExpression(TScriptParser.ExpressionContext ctx);
 	/**
+	 * Visit a parse tree produced by {@link TScriptParser#ternaryExpression}.
+	 * @param ctx the parse tree
+	 * @return the visitor result
+	 */
+	T visitTernaryExpression(TScriptParser.TernaryExpressionContext ctx);
+	/**
 	 * Visit a parse tree produced by {@link TScriptParser#functionCall}.
 	 * @param ctx the parse tree
 	 * @return the visitor result

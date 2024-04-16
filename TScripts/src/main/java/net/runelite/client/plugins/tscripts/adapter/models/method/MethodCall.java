@@ -1,4 +1,4 @@
-package net.runelite.client.plugins.tscripts.adapter.method;
+package net.runelite.client.plugins.tscripts.adapter.models.method;
 
 import lombok.Getter;
 import net.runelite.client.plugins.tscripts.adapter.models.ElementType;

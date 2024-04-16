@@ -57,6 +57,7 @@ public class DocumentationPanel extends JPanel
         conditionalConstructs.add(new DefaultMutableTreeNode("if/else"));
         conditionalConstructs.add(new DefaultMutableTreeNode("while"));
         conditionalConstructs.add(new DefaultMutableTreeNode("for"));
+        conditionalConstructs.add(new DefaultMutableTreeNode("ternary"));
         conditionalConstructs.add(new DefaultMutableTreeNode("continue"));
         conditionalConstructs.add(new DefaultMutableTreeNode("break"));
         conditionalConstructs.add(new DefaultMutableTreeNode("die"));
@@ -108,6 +109,11 @@ public class DocumentationPanel extends JPanel
                         break;
                     case "for":
                         usage = new StringBuilder("LyoKICogRm9yIGxvb3BzIGNvbnRhaW4gYSBkZWNsYXJhdGlvbiwgYSBjb25kaXRpb24sIGFuZCBhbiBvcHBvcmF0aW9uLgogKi8KCmZvcihkZWNsYXJhdGlvbjsgY29uZGl0aW9uOyBvcHBvcmF0aW9uKQp7CgkvL2NvZGUgdG8gZG8gdGhpbmdzCn0KCi8vZXhhbXBsZQpmb3IoJGkgPSAwOyAkaSA8PSAxMDsgJGkrKykKewoJZGVidWcoJGkpOwp9Cg==");
+                        codeTextPane.setText(TextUtil.decodeBase64(usage.toString()));
+                        codeTextPane.setCaretPosition(0);
+                        break;
+                    case "ternary":
+                        usage = new StringBuilder("LyoqCiAqIFRlcm5hcnkgT3Bwb3JhdG9ycwogKiAKICogTXVzdCBiZSBlbmNhcHN1bGF0ZWQgaW4gKCkKICogCiAqIChDT05ESVRJT04gPyBUUlVFX1ZBTFVFIDogRkFMU0VfVkFMVUUpCiAqLwoKICR2YXIgPSAoZ2V0R2FtZVN0YXRlKCkgPT0gMTAgPyAKIAkiTG9naW4gU2NyZWVuIiA6IAogCSJTb21lIG90aGVyIHN0YXRlIgogKTs=");
                         codeTextPane.setText(TextUtil.decodeBase64(usage.toString()));
                         codeTextPane.setCaretPosition(0);
                         break;

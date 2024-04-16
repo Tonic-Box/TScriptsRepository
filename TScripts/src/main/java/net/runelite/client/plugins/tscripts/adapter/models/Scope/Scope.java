@@ -1,10 +1,10 @@
-package net.runelite.client.plugins.tscripts.adapter.Scope;
+package net.runelite.client.plugins.tscripts.adapter.models.Scope;
 
 import com.google.gson.Gson;
 import lombok.Getter;
 import lombok.Setter;
-import net.runelite.client.plugins.tscripts.adapter.Scope.condition.Condition;
-import net.runelite.client.plugins.tscripts.adapter.Scope.condition.Conditions;
+import net.runelite.client.plugins.tscripts.adapter.models.condition.Condition;
+import net.runelite.client.plugins.tscripts.adapter.models.condition.Conditions;
 import net.runelite.client.plugins.tscripts.adapter.models.ElementType;
 import net.runelite.client.plugins.tscripts.adapter.models.Element;
 

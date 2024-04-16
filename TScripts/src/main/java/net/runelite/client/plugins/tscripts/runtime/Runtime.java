@@ -2,18 +2,19 @@ package net.runelite.client.plugins.tscripts.runtime;
 
 import lombok.Getter;
 import net.runelite.client.eventbus.EventBus;
+import net.runelite.client.plugins.tscripts.adapter.models.ternary.TernaryExpression;
 import net.runelite.client.plugins.tscripts.api.MethodManager;
 import net.runelite.client.plugins.tscripts.api.library.TDelay;
 import net.runelite.client.plugins.tscripts.api.library.TGame;
-import net.runelite.client.plugins.tscripts.adapter.method.MethodCall;
-import net.runelite.client.plugins.tscripts.adapter.Scope.Scope;
-import net.runelite.client.plugins.tscripts.adapter.Scope.condition.Condition;
-import net.runelite.client.plugins.tscripts.adapter.Scope.condition.ConditionType;
-import net.runelite.client.plugins.tscripts.adapter.Scope.condition.Conditions;
-import net.runelite.client.plugins.tscripts.adapter.Scope.condition.Glue;
+import net.runelite.client.plugins.tscripts.adapter.models.method.MethodCall;
+import net.runelite.client.plugins.tscripts.adapter.models.Scope.Scope;
+import net.runelite.client.plugins.tscripts.adapter.models.condition.Condition;
+import net.runelite.client.plugins.tscripts.adapter.models.condition.ConditionType;
+import net.runelite.client.plugins.tscripts.adapter.models.condition.Conditions;
+import net.runelite.client.plugins.tscripts.adapter.models.condition.Glue;
 import net.runelite.client.plugins.tscripts.adapter.models.Element;
-import net.runelite.client.plugins.tscripts.adapter.variable.ArrayAccess;
-import net.runelite.client.plugins.tscripts.adapter.variable.VariableAssignment;
+import net.runelite.client.plugins.tscripts.adapter.models.variable.ArrayAccess;
+import net.runelite.client.plugins.tscripts.adapter.models.variable.VariableAssignment;
 import net.runelite.client.plugins.tscripts.util.Logging;
 import net.runelite.client.plugins.tscripts.util.eventbus.TEventBus;
 import net.runelite.client.plugins.tscripts.util.eventbus._Subscribe;
@@ -582,6 +583,10 @@ public class Runtime
             }
             return methodManager.call(processMethodCallArguments((MethodCall) object));
         }
+        else if(object instanceof TernaryExpression)
+        {
+            return processTernary((TernaryExpression) object);
+        }
         else if (typeOfAny(object, Integer.class, Boolean.class))
         {
             return object;
@@ -633,6 +638,13 @@ public class Runtime
         Object[] object = new Object[0];
 
         return object;
+    }
+
+    private Object processTernary(TernaryExpression expression)
+    {
+        Object left = getValue(expression.getTrueValue());
+        Object right = getValue(expression.getFalseValue());
+        return processConditions(expression.getConditions()) ? getValue(left) : getValue(right);
     }
 
     /**

@@ -8,7 +8,7 @@ import net.runelite.client.plugins.tscripts.util.eventbus._Subscribe;
 import net.runelite.client.plugins.tscripts.util.eventbus.events.BreakpointTripped;
 import net.runelite.client.plugins.tscripts.util.eventbus.events.BreakpointUnTripped;
 import net.runelite.client.plugins.tscripts.util.eventbus.events.ScriptStateChanged;
-import net.runelite.client.plugins.tscripts.adapter.Scope.Scope;
+import net.runelite.client.plugins.tscripts.adapter.models.Scope.Scope;
 import net.runelite.client.plugins.tscripts.types.BreakPoint;
 import net.runelite.client.plugins.tscripts.ui.editor.debug.DebugToolPanel;
 import net.runelite.client.plugins.tscripts.util.Logging;

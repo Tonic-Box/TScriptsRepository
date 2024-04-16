@@ -1,4 +1,4 @@
-package net.runelite.client.plugins.tscripts.adapter.Scope.condition;
+package net.runelite.client.plugins.tscripts.adapter.models.condition;
 
 /**
  * Represents the type of condition
@@ -11,5 +11,5 @@ public enum ConditionType
     ELSE,
     FOR,
     USER_DEFINED_FUNCTION,
-    NONE
+    TERNARY, NONE
 }

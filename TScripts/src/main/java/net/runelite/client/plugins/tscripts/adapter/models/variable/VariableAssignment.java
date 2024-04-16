@@ -1,4 +1,4 @@
-package net.runelite.client.plugins.tscripts.adapter.variable;
+package net.runelite.client.plugins.tscripts.adapter.models.variable;
 
 import lombok.Data;
 import lombok.EqualsAndHashCode;

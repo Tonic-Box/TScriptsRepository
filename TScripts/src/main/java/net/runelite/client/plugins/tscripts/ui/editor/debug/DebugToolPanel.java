@@ -1,6 +1,6 @@
 package net.runelite.client.plugins.tscripts.ui.editor.debug;
 
-import net.runelite.client.plugins.tscripts.adapter.Scope.Scope;
+import net.runelite.client.plugins.tscripts.adapter.models.Scope.Scope;
 import net.runelite.client.plugins.tscripts.adapter.Adapter;
 import net.runelite.client.plugins.tscripts.runtime.Runtime;
 import net.runelite.client.plugins.tscripts.util.Logging;

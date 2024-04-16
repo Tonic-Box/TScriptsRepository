@@ -8,21 +8,21 @@ import com.mxgraph.util.mxConstants;
 import com.mxgraph.view.mxCellState;
 import com.mxgraph.view.mxGraph;
 import com.mxgraph.view.mxStylesheet;
-import net.runelite.client.plugins.tscripts.adapter.variable.ArrayAccess;
+import net.runelite.client.plugins.tscripts.adapter.models.variable.ArrayAccess;
 import net.runelite.client.plugins.tscripts.util.HashUtil;
 import net.runelite.client.plugins.tscripts.util.eventbus.TEventBus;
 import net.runelite.client.plugins.tscripts.util.eventbus._Subscribe;
 import net.runelite.client.plugins.tscripts.util.eventbus.events.CurrentInstructionChanged;
 import net.runelite.client.plugins.tscripts.util.eventbus.events.ScriptStateChanged;
-import net.runelite.client.plugins.tscripts.adapter.method.MethodCall;
-import net.runelite.client.plugins.tscripts.adapter.Scope.Scope;
-import net.runelite.client.plugins.tscripts.adapter.Scope.condition.Condition;
-import net.runelite.client.plugins.tscripts.adapter.Scope.condition.ConditionType;
-import net.runelite.client.plugins.tscripts.adapter.Scope.condition.Conditions;
+import net.runelite.client.plugins.tscripts.adapter.models.method.MethodCall;
+import net.runelite.client.plugins.tscripts.adapter.models.Scope.Scope;
+import net.runelite.client.plugins.tscripts.adapter.models.condition.Condition;
+import net.runelite.client.plugins.tscripts.adapter.models.condition.ConditionType;
+import net.runelite.client.plugins.tscripts.adapter.models.condition.Conditions;
 import net.runelite.client.plugins.tscripts.adapter.models.Element;
 import net.runelite.client.plugins.tscripts.adapter.models.ElementType;
-import net.runelite.client.plugins.tscripts.adapter.variable.AssignmentType;
-import net.runelite.client.plugins.tscripts.adapter.variable.VariableAssignment;
+import net.runelite.client.plugins.tscripts.adapter.models.variable.AssignmentType;
+import net.runelite.client.plugins.tscripts.adapter.models.variable.VariableAssignment;
 import net.runelite.client.plugins.tscripts.runtime.Runtime;
 import net.runelite.client.plugins.tscripts.util.TextUtil;
 import net.runelite.client.plugins.tscripts.util.controlflow.*;
@@ -304,7 +304,7 @@ public class CFGVisualizer extends JPanel {
                 }
                 else
                 {
-                    String value = isStringArg(condition.getLeft()) ? "\"" + condition.getLeft() + "\"" : condition.getLeft().toString();
+                    String value = isStringArg(condition.getLeft()) ? condition.getLeft() + "\"" : condition.getLeft().toString();
                     left = colorize(value, current ? Colors.CURRENT : Colors.VALUES);
                 }
                 String right;
@@ -322,7 +322,7 @@ public class CFGVisualizer extends JPanel {
                 }
                 else
                 {
-                    String value = isStringArg(condition.getLeft()) ? "\"" + condition.getRight() + "\"" : condition.getRight().toString();
+                    String value = isStringArg(condition.getLeft()) ? condition.getRight() + "\"" : condition.getRight().toString();
                     right = colorize(value, current ? Colors.CURRENT : Colors.VALUES);
                 }
 
@@ -416,7 +416,7 @@ public class CFGVisualizer extends JPanel {
                 }
                 else
                 {
-                    String value = isStringArg(element) ? "\"" + element + "\"" : element.toString();
+                    String value = isStringArg(element) ? element + "\"" : element.toString();
                     valuesStr = colorize(value, current ? Colors.CURRENT : Colors.VALUES);
                 }
             }
@@ -467,7 +467,7 @@ public class CFGVisualizer extends JPanel {
                     }
                     else
                     {
-                        String value = isStringArg(arg) ? "\"" + arg + "\"" : arg.toString();
+                        String value = isStringArg(arg) ? arg + "\"" : arg.toString();
                         valuesStr.append(colorize(value, current ? Colors.CURRENT : Colors.VALUES))
                                 .append(colorize(", ", current ? Colors.CURRENT : Colors.OPERATORS));
                     }
@@ -567,11 +567,10 @@ public class CFGVisualizer extends JPanel {
         if(arg instanceof String)
         {
             String str = (String) arg;
-            if(str.startsWith("$"))
+            if(str.startsWith("\""))
             {
-                return str.matches(".*\\s+.*");
+                return true;
             }
-            return true;
         }
         return false;
     }

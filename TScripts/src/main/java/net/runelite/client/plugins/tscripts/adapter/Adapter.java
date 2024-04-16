@@ -1,17 +1,20 @@
 package net.runelite.client.plugins.tscripts.adapter;
 
-import net.runelite.client.plugins.tscripts.adapter.Scope.Scope;
-import net.runelite.client.plugins.tscripts.adapter.Scope.condition.Condition;
-import net.runelite.client.plugins.tscripts.adapter.Scope.condition.Conditions;
-import net.runelite.client.plugins.tscripts.adapter.Scope.condition.ForCondition;
-import net.runelite.client.plugins.tscripts.adapter.Scope.condition.Glue;
+import net.runelite.client.plugins.tscripts.adapter.models.Scope.Scope;
+import net.runelite.client.plugins.tscripts.adapter.models.condition.Comparator;
+import net.runelite.client.plugins.tscripts.adapter.models.condition.Condition;
+import net.runelite.client.plugins.tscripts.adapter.models.condition.ConditionType;
+import net.runelite.client.plugins.tscripts.adapter.models.condition.Conditions;
+import net.runelite.client.plugins.tscripts.adapter.models.condition.ForCondition;
+import net.runelite.client.plugins.tscripts.adapter.models.condition.Glue;
 import net.runelite.client.plugins.tscripts.adapter.lexer.TScriptLexer;
 import net.runelite.client.plugins.tscripts.adapter.lexer.TScriptParser;
-import net.runelite.client.plugins.tscripts.adapter.method.MethodCall;
+import net.runelite.client.plugins.tscripts.adapter.models.method.MethodCall;
 import net.runelite.client.plugins.tscripts.adapter.models.Element;
-import net.runelite.client.plugins.tscripts.adapter.variable.ArrayAccess;
-import net.runelite.client.plugins.tscripts.adapter.variable.AssignmentType;
-import net.runelite.client.plugins.tscripts.adapter.variable.VariableAssignment;
+import net.runelite.client.plugins.tscripts.adapter.models.ternary.TernaryExpression;
+import net.runelite.client.plugins.tscripts.adapter.models.variable.ArrayAccess;
+import net.runelite.client.plugins.tscripts.adapter.models.variable.AssignmentType;
+import net.runelite.client.plugins.tscripts.adapter.models.variable.VariableAssignment;
 import net.runelite.client.plugins.tscripts.util.Logging;
 import org.antlr.v4.runtime.ANTLRInputStream;
 import org.antlr.v4.runtime.CharStream;
@@ -24,14 +27,14 @@ import java.util.Map;
 
 public class Adapter
 {
-    public static net.runelite.client.plugins.tscripts.adapter.Scope.Scope parse(String script)
+    public static Scope parse(String script)
     {
         CharStream input = new ANTLRInputStream(script);
         TScriptLexer lexer = new TScriptLexer(input);
         CommonTokenStream tokens = new CommonTokenStream(lexer);
         TScriptParser parser = new TScriptParser(tokens);
         TScriptParser.ScriptContext tree = parser.script();
-        return new net.runelite.client.plugins.tscripts.adapter.Scope.Scope(flushBlock(tree.children), null);
+        return new Scope(flushBlock(tree.children), null);
     }
 
     private static Map<Integer, net.runelite.client.plugins.tscripts.adapter.models.Element> flushBlock(List<ParseTree> ctx)
@@ -76,7 +79,7 @@ public class Adapter
             else if(tree instanceof TScriptParser.BlockContext)
             {
                 TScriptParser.BlockContext block = (TScriptParser.BlockContext) tree;
-                element = new net.runelite.client.plugins.tscripts.adapter.Scope.Scope(flushBlock(block.children), null);
+                element = new Scope(flushBlock(block.children), null);
             }
 
             if(element != null)
@@ -90,11 +93,11 @@ public class Adapter
         return elements;
     }
 
-    private static net.runelite.client.plugins.tscripts.adapter.variable.VariableAssignment flushArrayDeclaration(TScriptParser.ArrayDeclarationContext ctx)
+    private static VariableAssignment flushArrayDeclaration(TScriptParser.ArrayDeclarationContext ctx)
     {
         String name = "$" + ctx.array().ID().getText();
         Object idx = null;
-        net.runelite.client.plugins.tscripts.adapter.variable.AssignmentType type = net.runelite.client.plugins.tscripts.adapter.variable.AssignmentType.of(ctx.assignmentOperator().getText());
+        AssignmentType type = AssignmentType.of(ctx.assignmentOperator().getText());
         if(ctx.array().expression() != null)
         {
             idx = flushExpression(ctx.array().expression());
@@ -104,43 +107,43 @@ public class Adapter
         List<Object> values = new ArrayList<>();
         values.add(flushExpression(ctx.expression()));
 
-        return new net.runelite.client.plugins.tscripts.adapter.variable.VariableAssignment(arrayAccess, values, type);
+        return new VariableAssignment(arrayAccess, values, type);
     }
 
     private static net.runelite.client.plugins.tscripts.adapter.models.Element flushSubscriberDefinition(TScriptParser.SubscriberDefinitionContext ctx)
     {
         Conditions conditions = new Conditions();
-        conditions.setType(net.runelite.client.plugins.tscripts.adapter.Scope.condition.ConditionType.SUBSCRIBE);
+        conditions.setType(ConditionType.SUBSCRIBE);
         conditions.setUserFunctionName(ctx.ID().getText());
 
-        net.runelite.client.plugins.tscripts.adapter.Scope.condition.Condition condition = new net.runelite.client.plugins.tscripts.adapter.Scope.condition.Condition(ctx.array().ID().getText(), null, null);
+        Condition condition = new Condition(ctx.array().ID().getText(), null, null);
         conditions.getConditions().put(conditions.getConditions().size(), condition);
 
         Map<Integer, net.runelite.client.plugins.tscripts.adapter.models.Element> elements = flushBlock(ctx.block().children);
-        return new net.runelite.client.plugins.tscripts.adapter.Scope.Scope(elements, conditions);
+        return new Scope(elements, conditions);
     }
 
-    private static net.runelite.client.plugins.tscripts.adapter.Scope.Scope flushFunctionDefinition(TScriptParser.FunctionDefinitionContext ctx)
+    private static Scope flushFunctionDefinition(TScriptParser.FunctionDefinitionContext ctx)
     {
         Conditions conditions = new Conditions();
-        conditions.setType(net.runelite.client.plugins.tscripts.adapter.Scope.condition.ConditionType.USER_DEFINED_FUNCTION);
+        conditions.setType(ConditionType.USER_DEFINED_FUNCTION);
         conditions.setUserFunctionName(ctx.ID().getText());
         if(ctx.params() != null)
         {
             for(var arg : ctx.params().variable())
             {
-                net.runelite.client.plugins.tscripts.adapter.Scope.condition.Condition condition = new net.runelite.client.plugins.tscripts.adapter.Scope.condition.Condition("$" + arg.ID().getText(), null, null);
+                Condition condition = new Condition("$" + arg.ID().getText(), null, null);
                 conditions.getConditions().put(conditions.getConditions().size(), condition);
             }
         }
         Map<Integer, net.runelite.client.plugins.tscripts.adapter.models.Element> elements = flushBlock(ctx.block().children);
-        return new net.runelite.client.plugins.tscripts.adapter.Scope.Scope(elements, conditions);
+        return new Scope(elements, conditions);
     }
 
-    private static net.runelite.client.plugins.tscripts.adapter.variable.VariableAssignment flushVariableDeclaration(TScriptParser.VariableDeclarationContext ctx)
+    private static VariableAssignment flushVariableDeclaration(TScriptParser.VariableDeclarationContext ctx)
     {
         String name = "$" + ctx.variable().ID().getText();
-        net.runelite.client.plugins.tscripts.adapter.variable.AssignmentType type = AssignmentType.of(ctx.assignmentOperator().getText());
+        AssignmentType type = AssignmentType.of(ctx.assignmentOperator().getText());
         List<Object> values = new ArrayList<>();
         if(ctx.expression() != null)
         {
@@ -150,7 +153,7 @@ public class Adapter
         return new VariableAssignment(name, values, type);
     }
 
-    private static net.runelite.client.plugins.tscripts.adapter.Scope.Scope flushScope(TScriptParser.ScopeStatementContext ctx)
+    private static Scope flushScope(TScriptParser.ScopeStatementContext ctx)
     {
         ParseTree context = ctx.getChild(0);
         if(context instanceof TScriptParser.IfStatementContext)
@@ -170,10 +173,10 @@ public class Adapter
         return null;
     }
 
-    private static net.runelite.client.plugins.tscripts.adapter.Scope.Scope flushForStatement(TScriptParser.ForStatementContext ctx)
+    private static Scope flushForStatement(TScriptParser.ForStatementContext ctx)
     {
         Conditions conditions = new Conditions();
-        conditions.setType(net.runelite.client.plugins.tscripts.adapter.Scope.condition.ConditionType.FOR);
+        conditions.setType(ConditionType.FOR);
         conditions.getConditions().put(0, flushCondition(ctx.condition()));
 
         ForCondition forCondition = new ForCondition();
@@ -182,21 +185,21 @@ public class Adapter
         conditions.setForCondition(forCondition);
 
         Map<Integer, net.runelite.client.plugins.tscripts.adapter.models.Element> elements = flushBlock(ctx.block().children);
-        return new net.runelite.client.plugins.tscripts.adapter.Scope.Scope(elements, conditions);
+        return new Scope(elements, conditions);
     }
 
-    private static net.runelite.client.plugins.tscripts.adapter.Scope.Scope flushWhileStatement(TScriptParser.WhileStatementContext ctx)
+    private static Scope flushWhileStatement(TScriptParser.WhileStatementContext ctx)
     {
-        Conditions conditions = flushConditions(ctx.condition(), ctx.glue(), net.runelite.client.plugins.tscripts.adapter.Scope.condition.ConditionType.WHILE);
+        Conditions conditions = flushConditions(ctx.condition(), ctx.glue(), ConditionType.WHILE);
         Map<Integer, net.runelite.client.plugins.tscripts.adapter.models.Element> elements = flushBlock(ctx.block().children);
-        return new net.runelite.client.plugins.tscripts.adapter.Scope.Scope(elements, conditions);
+        return new Scope(elements, conditions);
     }
 
-    private static net.runelite.client.plugins.tscripts.adapter.Scope.Scope flushIfStatement(TScriptParser.IfStatementContext ctx)
+    private static Scope flushIfStatement(TScriptParser.IfStatementContext ctx)
     {
-        Conditions conditions = flushConditions(ctx.condition(), ctx.glue(), net.runelite.client.plugins.tscripts.adapter.Scope.condition.ConditionType.IF);
+        Conditions conditions = flushConditions(ctx.condition(), ctx.glue(), ConditionType.IF);
         Map<Integer, Element> elements = flushBlock(ctx.block().get(0).children);
-        net.runelite.client.plugins.tscripts.adapter.Scope.Scope scope = new Scope(elements, conditions);
+        Scope scope = new Scope(elements, conditions);
         if(ctx.block().size() > 1)
         {
             scope.setElseElements(flushBlock(ctx.block().get(1).children));
@@ -204,7 +207,7 @@ public class Adapter
         return scope;
     }
 
-    private static Conditions flushConditions(List<TScriptParser.ConditionContext> conditionsCtx, List<TScriptParser.GlueContext> gluesCtx, net.runelite.client.plugins.tscripts.adapter.Scope.condition.ConditionType type)
+    private static Conditions flushConditions(List<TScriptParser.ConditionContext> conditionsCtx, List<TScriptParser.GlueContext> gluesCtx, ConditionType type)
     {
         Conditions conditions = new Conditions();
         conditions.setType(type);
@@ -219,12 +222,12 @@ public class Adapter
         return conditions;
     }
 
-    private static net.runelite.client.plugins.tscripts.adapter.Scope.condition.Condition flushCondition(TScriptParser.ConditionContext ctx)
+    private static Condition flushCondition(TScriptParser.ConditionContext ctx)
     {
-        net.runelite.client.plugins.tscripts.adapter.Scope.condition.Comparator comparator = null;
+        Comparator comparator = null;
         if(ctx.comparator() != null)
         {
-            comparator = net.runelite.client.plugins.tscripts.adapter.Scope.condition.Comparator.of(ctx.comparator().getText());
+            comparator = Comparator.of(ctx.comparator().getText());
         }
 
         Object left = null;
@@ -279,6 +282,10 @@ public class Adapter
             {
                 return flushFunctionCall((TScriptParser.FunctionCallContext) child, negated);
             }
+            else if(child instanceof TScriptParser.TernaryExpressionContext)
+            {
+                return flushTernaryExpression((TScriptParser.TernaryExpressionContext) child);
+            }
         }
 
         if(ctx.NUMBER() != null)
@@ -327,5 +334,13 @@ public class Adapter
         }
 
         return new ArrayAccess(name, null, negated);
+    }
+
+    private static TernaryExpression flushTernaryExpression(TScriptParser.TernaryExpressionContext ctx)
+    {
+        Conditions condition = flushConditions(ctx.condition(), ctx.glue(), ConditionType.TERNARY);
+        Object ifTrue = flushExpression(ctx.expression().get(0));
+        Object ifFalse = flushExpression(ctx.expression().get(1));
+        return new TernaryExpression(condition, ifTrue, ifFalse);
     }
 }

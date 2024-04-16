@@ -8,7 +8,7 @@ import net.runelite.client.plugins.tscripts.TScriptsPlugin;
 import net.runelite.client.plugins.tscripts.adapter.Adapter;
 import net.runelite.client.plugins.tscripts.ui.editor.ScriptEditor;
 import net.runelite.client.plugins.tscripts.util.eventbus.events.ScriptStateChanged;
-import net.runelite.client.plugins.tscripts.adapter.Scope.Scope;
+import net.runelite.client.plugins.tscripts.adapter.models.Scope.Scope;
 import net.runelite.client.plugins.tscripts.util.Logging;
 import net.runelite.client.ui.ColorScheme;
 import net.runelite.client.ui.FontManager;

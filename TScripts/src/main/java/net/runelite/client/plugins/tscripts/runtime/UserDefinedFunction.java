@@ -2,8 +2,8 @@ package net.runelite.client.plugins.tscripts.runtime;
 
 import lombok.Getter;
 import lombok.Setter;
-import net.runelite.client.plugins.tscripts.adapter.Scope.Scope;
-import net.runelite.client.plugins.tscripts.adapter.Scope.condition.Condition;
+import net.runelite.client.plugins.tscripts.adapter.models.Scope.Scope;
+import net.runelite.client.plugins.tscripts.adapter.models.condition.Condition;
 import java.util.HashMap;
 import java.util.Map;
 

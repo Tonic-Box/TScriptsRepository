@@ -1,4 +1,4 @@
-package net.runelite.client.plugins.tscripts.adapter.variable;
+package net.runelite.client.plugins.tscripts.adapter.models.variable;
 
 /**
  * Represents the type of assignment that is being performed.

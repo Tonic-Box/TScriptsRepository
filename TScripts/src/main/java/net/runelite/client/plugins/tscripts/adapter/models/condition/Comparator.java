@@ -1,4 +1,4 @@
-package net.runelite.client.plugins.tscripts.adapter.Scope.condition;
+package net.runelite.client.plugins.tscripts.adapter.models.condition;
 
 import lombok.AllArgsConstructor;
 import net.runelite.client.plugins.tscripts.adapter.models.TokenType;

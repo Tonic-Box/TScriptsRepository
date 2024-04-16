@@ -2,7 +2,7 @@ package net.runelite.client.plugins.tscripts.types;
 
 import com.google.common.collect.ImmutableMap;
 import lombok.Getter;
-import net.runelite.client.plugins.tscripts.adapter.method.MethodCall;
+import net.runelite.client.plugins.tscripts.adapter.models.method.MethodCall;
 
 import java.util.function.Consumer;
 import java.util.function.Function;
