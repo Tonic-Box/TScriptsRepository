@@ -56,11 +56,11 @@ subscriberDefinition
     ;
 
 variableDeclaration
-    : variable assignmentOperator expression?
+    : variable assignmentOperator (expression | shorthandExpression)?
     ;
 
 arrayDeclaration
-    : array assignmentOperator expression?
+    : array assignmentOperator (expression | shorthandExpression)?
     ;
 
 variable
@@ -68,7 +68,7 @@ variable
     ;
 
 array
-    : '$' ID '[' expression? ']'
+    : '$' ID '[' (expression | shorthandExpression)? ']'
     ;
 
 comparator
@@ -89,19 +89,37 @@ assignmentOperator
 
 expression
     : '(' expression ')'
+    | unaryOperator? '[' shorthandExpression ']'
     | unaryOperator? functionCall
     | unaryOperator? variable assignmentOperator?
     | unaryOperator? array
     | unaryOperator? NUMBER
     | unaryOperator? BOOLEAN
-    | ternaryExpression
     | STRING
     | CONSTANT
     | 'null'
     ;
 
+shorthandExpression
+    : '(' shorthandExpression ')'
+    | ternaryExpression
+    | nullCoalescingExpression
+    | nullCheck
+    | unaryOperator?  '(' ternaryExpression ')'
+    | unaryOperator? '(' nullCoalescingExpression ')'
+    | unaryOperator? '(' nullCheck ')'
+    ;
+
 ternaryExpression
-    : '(' condition (glue condition)* '?' expression ':' expression ')'
+    : condition (glue condition)* '?' expression ':' expression
+    ;
+
+nullCoalescingExpression
+    : expression '??' expression
+    ;
+
+nullCheck
+    : expression '?'
     ;
 
 functionCall

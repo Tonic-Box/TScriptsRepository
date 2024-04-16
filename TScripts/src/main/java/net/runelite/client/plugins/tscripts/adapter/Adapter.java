@@ -11,7 +11,9 @@ import net.runelite.client.plugins.tscripts.adapter.lexer.TScriptLexer;
 import net.runelite.client.plugins.tscripts.adapter.lexer.TScriptParser;
 import net.runelite.client.plugins.tscripts.adapter.models.method.MethodCall;
 import net.runelite.client.plugins.tscripts.adapter.models.Element;
-import net.runelite.client.plugins.tscripts.adapter.models.ternary.TernaryExpression;
+import net.runelite.client.plugins.tscripts.adapter.models.shorthand.NullCheckExpression;
+import net.runelite.client.plugins.tscripts.adapter.models.shorthand.NullCoalescingExpression;
+import net.runelite.client.plugins.tscripts.adapter.models.shorthand.TernaryExpression;
 import net.runelite.client.plugins.tscripts.adapter.models.variable.ArrayAccess;
 import net.runelite.client.plugins.tscripts.adapter.models.variable.AssignmentType;
 import net.runelite.client.plugins.tscripts.adapter.models.variable.VariableAssignment;
@@ -37,9 +39,9 @@ public class Adapter
         return new Scope(flushBlock(tree.children), null);
     }
 
-    private static Map<Integer, net.runelite.client.plugins.tscripts.adapter.models.Element> flushBlock(List<ParseTree> ctx)
+    private static Map<Integer, Element> flushBlock(List<ParseTree> ctx)
     {
-        Map<Integer, net.runelite.client.plugins.tscripts.adapter.models.Element> elements = new HashMap<>();
+        Map<Integer, Element> elements = new HashMap<>();
         int elementIndex = 0;
 
         for(ParseTree child : ctx)
@@ -50,7 +52,7 @@ public class Adapter
             }
 
             ParseTree tree = child.getChild(0);
-            net.runelite.client.plugins.tscripts.adapter.models.Element element = null;
+            Element element = null;
 
             if(tree instanceof TScriptParser.ScopeStatementContext)
             {
@@ -102,6 +104,10 @@ public class Adapter
         {
             idx = flushExpression(ctx.array().expression());
         }
+        else if(ctx.array().shorthandExpression() != null)
+        {
+            idx = flushExpression(ctx.array().shorthandExpression(), false);
+        }
         ArrayAccess arrayAccess = new ArrayAccess(name, idx, false);
 
         List<Object> values = new ArrayList<>();
@@ -110,7 +116,7 @@ public class Adapter
         return new VariableAssignment(arrayAccess, values, type);
     }
 
-    private static net.runelite.client.plugins.tscripts.adapter.models.Element flushSubscriberDefinition(TScriptParser.SubscriberDefinitionContext ctx)
+    private static Element flushSubscriberDefinition(TScriptParser.SubscriberDefinitionContext ctx)
     {
         Conditions conditions = new Conditions();
         conditions.setType(ConditionType.SUBSCRIBE);
@@ -119,7 +125,7 @@ public class Adapter
         Condition condition = new Condition(ctx.array().ID().getText(), null, null);
         conditions.getConditions().put(conditions.getConditions().size(), condition);
 
-        Map<Integer, net.runelite.client.plugins.tscripts.adapter.models.Element> elements = flushBlock(ctx.block().children);
+        Map<Integer, Element> elements = flushBlock(ctx.block().children);
         return new Scope(elements, conditions);
     }
 
@@ -136,7 +142,7 @@ public class Adapter
                 conditions.getConditions().put(conditions.getConditions().size(), condition);
             }
         }
-        Map<Integer, net.runelite.client.plugins.tscripts.adapter.models.Element> elements = flushBlock(ctx.block().children);
+        Map<Integer, Element> elements = flushBlock(ctx.block().children);
         return new Scope(elements, conditions);
     }
 
@@ -148,6 +154,10 @@ public class Adapter
         if(ctx.expression() != null)
         {
             values.add(flushExpression(ctx.expression()));
+        }
+        else if(ctx.shorthandExpression() != null)
+        {
+            values.add(flushExpression(ctx.shorthandExpression(), false));
         }
 
         return new VariableAssignment(name, values, type);
@@ -184,14 +194,14 @@ public class Adapter
         forCondition.setOperation(flushVariableDeclaration(ctx.variableDeclaration().get(1)));
         conditions.setForCondition(forCondition);
 
-        Map<Integer, net.runelite.client.plugins.tscripts.adapter.models.Element> elements = flushBlock(ctx.block().children);
+        Map<Integer, Element> elements = flushBlock(ctx.block().children);
         return new Scope(elements, conditions);
     }
 
     private static Scope flushWhileStatement(TScriptParser.WhileStatementContext ctx)
     {
         Conditions conditions = flushConditions(ctx.condition(), ctx.glue(), ConditionType.WHILE);
-        Map<Integer, net.runelite.client.plugins.tscripts.adapter.models.Element> elements = flushBlock(ctx.block().children);
+        Map<Integer, Element> elements = flushBlock(ctx.block().children);
         return new Scope(elements, conditions);
     }
 
@@ -246,10 +256,30 @@ public class Adapter
         return new Condition(left, right, comparator);
     }
 
+    private static Object flushExpression(TScriptParser.ShorthandExpressionContext shorthand, boolean negated)
+    {
+        String unary = shorthand.unaryOperator() != null ? shorthand.unaryOperator().getText() : "";
+        negated = negated || unary.equals("!");
+
+        if(shorthand.ternaryExpression() != null)
+        {
+            return flushTernaryExpression(shorthand.ternaryExpression(), negated);
+        }
+        else if(shorthand.nullCoalescingExpression() != null)
+        {
+            return flushNullCoalescingExpression(shorthand.nullCoalescingExpression(), negated);
+        }
+        else if(shorthand.nullCheck() != null)
+        {
+            return flushNullCheckExpression(shorthand.nullCheck(), negated);
+        }
+        return null;
+    }
+
     private static Object flushExpression(TScriptParser.ExpressionContext ctx)
     {
-        boolean negated = false;
-        boolean negative = false;
+        boolean negated = ctx.unaryOperator() != null && ctx.unaryOperator().getText().equals("!");
+        boolean negative = ctx.unaryOperator() != null && ctx.unaryOperator().getText().equals("-");
         String pre = "";
         for(ParseTree child : ctx.children)
         {
@@ -257,12 +287,10 @@ public class Adapter
             {
                 if(child.getText().equals("!"))
                 {
-                    negated = true;
                     pre = "!";
                 }
                 else if(child.getText().equals("-"))
                 {
-                    negative = true;
                     pre = "-";
                 }
             }
@@ -282,9 +310,11 @@ public class Adapter
             {
                 return flushFunctionCall((TScriptParser.FunctionCallContext) child, negated);
             }
-            else if(child instanceof TScriptParser.TernaryExpressionContext)
+            else if(child instanceof TScriptParser.ShorthandExpressionContext)
             {
-                return flushTernaryExpression((TScriptParser.TernaryExpressionContext) child);
+                TScriptParser.ShorthandExpressionContext shorthand = (TScriptParser.ShorthandExpressionContext) child;
+                negated = ctx.unaryOperator() != null && ctx.unaryOperator().getText().equals("!");
+                return flushExpression(shorthand, negated);
             }
         }
 
@@ -336,11 +366,24 @@ public class Adapter
         return new ArrayAccess(name, null, negated);
     }
 
-    private static TernaryExpression flushTernaryExpression(TScriptParser.TernaryExpressionContext ctx)
+    private static TernaryExpression flushTernaryExpression(TScriptParser.TernaryExpressionContext ctx, boolean negated)
     {
         Conditions condition = flushConditions(ctx.condition(), ctx.glue(), ConditionType.TERNARY);
         Object ifTrue = flushExpression(ctx.expression().get(0));
         Object ifFalse = flushExpression(ctx.expression().get(1));
-        return new TernaryExpression(condition, ifTrue, ifFalse);
+        return new TernaryExpression(condition, ifTrue, ifFalse, negated);
+    }
+
+    private static NullCoalescingExpression flushNullCoalescingExpression(TScriptParser.NullCoalescingExpressionContext ctx, boolean negated)
+    {
+        Object left = flushExpression(ctx.expression().get(0));
+        Object right = flushExpression(ctx.expression().get(1));
+        return new NullCoalescingExpression(left, right, negated);
+    }
+
+    private static NullCheckExpression flushNullCheckExpression(TScriptParser.NullCheckContext ctx, boolean negated)
+    {
+        Object value = flushExpression(ctx.expression());
+        return new NullCheckExpression(value, negated);
     }
 }

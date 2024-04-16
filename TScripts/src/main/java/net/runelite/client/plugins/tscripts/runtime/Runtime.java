@@ -2,7 +2,9 @@ package net.runelite.client.plugins.tscripts.runtime;
 
 import lombok.Getter;
 import net.runelite.client.eventbus.EventBus;
-import net.runelite.client.plugins.tscripts.adapter.models.ternary.TernaryExpression;
+import net.runelite.client.plugins.tscripts.adapter.models.shorthand.NullCheckExpression;
+import net.runelite.client.plugins.tscripts.adapter.models.shorthand.NullCoalescingExpression;
+import net.runelite.client.plugins.tscripts.adapter.models.shorthand.TernaryExpression;
 import net.runelite.client.plugins.tscripts.api.MethodManager;
 import net.runelite.client.plugins.tscripts.api.library.TDelay;
 import net.runelite.client.plugins.tscripts.api.library.TGame;
@@ -587,6 +589,14 @@ public class Runtime
         {
             return processTernary((TernaryExpression) object);
         }
+        else if(object instanceof NullCoalescingExpression)
+        {
+            return processNullCoalescing((NullCoalescingExpression) object);
+        }
+        else if(object instanceof NullCheckExpression)
+        {
+            return processNullCheck((NullCheckExpression) object);
+        }
         else if (typeOfAny(object, Integer.class, Boolean.class))
         {
             return object;
@@ -644,7 +654,30 @@ public class Runtime
     {
         Object left = getValue(expression.getTrueValue());
         Object right = getValue(expression.getFalseValue());
-        return processConditions(expression.getConditions()) ? getValue(left) : getValue(right);
+        Object ret = processConditions(expression.getConditions()) ? getValue(left) : getValue(right);
+        if(ret instanceof Boolean)
+        {
+            return expression.isNegated() != (Boolean) ret;
+        }
+        return ret;
+    }
+
+    private Object processNullCoalescing(NullCoalescingExpression expression)
+    {
+        Object left = getValue(expression.getLeft());
+        Object right = getValue(expression.getRight());
+        Object ret = left != null && !left.equals("null") ? left : right;
+        if(ret instanceof Boolean)
+        {
+            return expression.isNegated() != (Boolean) ret;
+        }
+        return ret;
+    }
+
+    private boolean processNullCheck(NullCheckExpression expression)
+    {
+        Object value = getValue(expression.getValue());
+        return expression.isNegated() != (value == null || value.equals("null"));
     }
 
     /**

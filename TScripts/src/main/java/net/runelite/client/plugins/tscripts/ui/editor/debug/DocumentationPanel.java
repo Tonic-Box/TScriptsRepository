@@ -57,7 +57,7 @@ public class DocumentationPanel extends JPanel
         conditionalConstructs.add(new DefaultMutableTreeNode("if/else"));
         conditionalConstructs.add(new DefaultMutableTreeNode("while"));
         conditionalConstructs.add(new DefaultMutableTreeNode("for"));
-        conditionalConstructs.add(new DefaultMutableTreeNode("ternary"));
+        conditionalConstructs.add(new DefaultMutableTreeNode("shorthand"));
         conditionalConstructs.add(new DefaultMutableTreeNode("continue"));
         conditionalConstructs.add(new DefaultMutableTreeNode("break"));
         conditionalConstructs.add(new DefaultMutableTreeNode("die"));
@@ -112,8 +112,8 @@ public class DocumentationPanel extends JPanel
                         codeTextPane.setText(TextUtil.decodeBase64(usage.toString()));
                         codeTextPane.setCaretPosition(0);
                         break;
-                    case "ternary":
-                        usage = new StringBuilder("LyoqCiAqIFRlcm5hcnkgT3Bwb3JhdG9ycwogKiAKICogTXVzdCBiZSBlbmNhcHN1bGF0ZWQgaW4gKCkKICogCiAqIChDT05ESVRJT04gPyBUUlVFX1ZBTFVFIDogRkFMU0VfVkFMVUUpCiAqLwoKICR2YXIgPSAoZ2V0R2FtZVN0YXRlKCkgPT0gMTAgPyAKIAkiTG9naW4gU2NyZWVuIiA6IAogCSJTb21lIG90aGVyIHN0YXRlIgogKTs=");
+                    case "shorthand":
+                        usage = new StringBuilder("LyoqCiAqIFNob3J0aGFuZCBFeHByZXNzaW9ucwogKiAKICogU2hvcnRoYW5kIGV4cHJlc3Npb25zIG9mZmVyIHN5bnRhY3RpY2FsIHN1Z2FyIGZvciBkb2luZyBtb3JlIHdpdGggbGVzcyBjb2RlLgogKiAKICogVGhlIG9uZSBxdWlyayBpcywgd2hlbiBhIHNob3J0aGFuZCBleHByZXNzaW9uIGlzIHVzZWQgYXMgYW4gCiAqIGFyZ3VtZW50LCBvciBpbiBhIGNvZGUgYmxvY2sgY29uZGl0aW9uLCBpdCBidXN0IGJlIGVuY2FzZWQgCiAqIGluIFsuLi5dCiAqLwoKIAoKLyoqCiAqIFRlcm5hcnkgRXhwcmVzc2lvbgogKiAKICogQ2hlY2tzIHRoZSBjb25kaXRpb25hIG5kIGlmIHRydWUsIHJldHVybnMgdGhlIGxlZnQgCiAqIHZhbHVlLCBvdGhlcndpc2UgaXQgcmV0dXJucyB0aGUgcmlnaHQgdmFsdWUuCiAqIAogKiAoQ09ORElUSU9OID8gVFJVRV9WQUxVRSA6IEZBTFNFX1ZBTFVFKQogKi8KCiR2YXIgPSAoZ2V0R2FtZVN0YXRlKCkgPT0gMTAgPyAKIAkiTG9naW4gU2NyZWVuIiA6IAogCSJTb21lIG90aGVyIHN0YXRlIgopOwoKLyoqCiAqIE51bGwgQ29hbGVzY2luZyBFeHByZXNzaW9uCiAqIAogKiBJZiB0aGUgbGVmdCB2YWx1ZSBpcyBub24tbnVsbCwgaXQgcmV0dXJucyB0aGUgbGVmdCB2YWx1ZS4gT3RoZXJ3aXNlIGl0IHJldHVybnMgdGhlIHJpZ2h0IHZhbHVlCiAqLwoKJHZhciA9IGdldEludGVyYWN0aW5nKCkgPz8gZ2V0TnBjKCJHb2JsaW4iKTsKCi8qKgogKiBOdWxsIENoZWNrCiAqIAogKiBSZXR1cm5zIHRydWUgaWYgdGhlIHZhbHVlIGlzIG51bGwsIGZhbHNlIGlmIHRoZSB2YWx1ZSBpcyBub24tbnVsbAogKi8KCmlmKFskdmFyP10pCnsKCWRlYnVnKCIkdmFyIGlzIG51bGwhIik7Cn0K");
                         codeTextPane.setText(TextUtil.decodeBase64(usage.toString()));
                         codeTextPane.setCaretPosition(0);
                         break;
