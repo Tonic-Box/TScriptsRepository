@@ -1,8 +1,7 @@
 package net.runelite.client.plugins.tscripts.ui.editor.debug;
 
-import net.runelite.client.plugins.tscripts.lexer.Lexer;
-import net.runelite.client.plugins.tscripts.lexer.Scope.Scope;
-import net.runelite.client.plugins.tscripts.lexer.Tokenizer;
+import net.runelite.client.plugins.tscripts.adapter.Scope.Scope;
+import net.runelite.client.plugins.tscripts.adapter.Adapter;
 import net.runelite.client.plugins.tscripts.runtime.Runtime;
 import net.runelite.client.plugins.tscripts.util.Logging;
 import javax.swing.*;
@@ -17,8 +16,7 @@ public class DebugToolPanel extends JPanel {
     private final CardLayout cardLayout;
     private Path scriptPath;
     private final CFGVisualizer controlFlowGraphVisualizer;
-    private final TokenDumper tokenDumper;
-    private final JList<String> toolingList = new JList<>(new String[]{"Control-Flow", "Variables", "Runtime", "Tokens", "Documentation"});
+    private final JList<String> toolingList = new JList<>(new String[]{"Control-Flow", "Variables", "Runtime", "Documentation"});
 
     public DebugToolPanel(Runtime runtime, Path scriptPath, String name) {
         setSize(800, 600);
@@ -55,12 +53,6 @@ public class DebugToolPanel extends JPanel {
         runtimeInspectorScrollPane.setHorizontalScrollBarPolicy(JScrollPane.HORIZONTAL_SCROLLBAR_AS_NEEDED);
         mainView.add(runtimeInspectorScrollPane, "RuntimeInspector");
 
-        tokenDumper = TokenDumper.getInstance();
-        JScrollPane tokenDumperScrollPane = new JScrollPane(tokenDumper);
-        tokenDumperScrollPane.setVerticalScrollBarPolicy(JScrollPane.VERTICAL_SCROLLBAR_AS_NEEDED);
-        tokenDumperScrollPane.setHorizontalScrollBarPolicy(JScrollPane.HORIZONTAL_SCROLLBAR_AS_NEEDED);
-        mainView.add(tokenDumperScrollPane, "TokenDumper");
-
         DocumentationPanel documentationPanel = DocumentationPanel.getInstance();
         JScrollPane documentationScrollPane = new JScrollPane(documentationPanel);
         documentationScrollPane.setVerticalScrollBarPolicy(JScrollPane.VERTICAL_SCROLLBAR_AS_NEEDED);
@@ -80,10 +72,6 @@ public class DebugToolPanel extends JPanel {
                 case "Runtime":
                     cardLayout.show(mainView, "RuntimeInspector");
                     break;
-                case "Tokens":
-                    tokenDumper.dump(scriptPath);
-                    cardLayout.show(mainView, "TokenDumper");
-                    break;
                 case "Documentation":
                     cardLayout.show(mainView, "DocumentationPanel");
                     break;
@@ -96,7 +84,6 @@ public class DebugToolPanel extends JPanel {
     public void update(Path scriptPath, String name)
     {
         this.scriptPath = scriptPath;
-        tokenDumper.dump(scriptPath);
         controlFlowGraphVisualizer.changeScript(name);
         controlFlowGraphVisualizer.updateGraph(getScope());
     }
@@ -105,8 +92,7 @@ public class DebugToolPanel extends JPanel {
     {
         try
         {
-            var tokens = Tokenizer.parse(Files.readString(scriptPath));
-            return Lexer.lex(tokens);
+            return Adapter.parse(Files.readString(scriptPath));
         }
         catch (Exception ex)
         {

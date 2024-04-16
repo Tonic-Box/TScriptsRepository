@@ -8,8 +8,6 @@ import net.runelite.client.plugins.tscripts.types.GroupDefinition;
 import net.runelite.client.plugins.tscripts.types.MethodDefinition;
 import net.runelite.client.plugins.tscripts.types.Pair;
 import net.runelite.client.plugins.tscripts.types.Type;
-import net.runelite.client.plugins.tscripts.ui.editor.debug.TokenDumper;
-
 import java.util.ArrayList;
 import java.util.List;
 

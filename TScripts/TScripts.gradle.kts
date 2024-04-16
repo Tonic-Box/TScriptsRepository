@@ -1,29 +1,10 @@
-/*
- * Copyright (c) 2019 Owain van Brakel <https://github.com/Owain94>
- * All rights reserved.
- *
- * Redistribution and use in source and binary forms, with or without
- * modification, are permitted provided that the following conditions are met:
- *
- * 1. Redistributions of source code must retain the above copyright notice, this
- *    list of conditions and the following disclaimer.
- * 2. Redistributions in binary form must reproduce the above copyright notice,
- *    this list of conditions and the following disclaimer in the documentation
- *    and/or other materials provided with the distribution.
- *
- * THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS "AS IS" AND
- * ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED TO, THE IMPLIED
- * WARRANTIES OF MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE ARE
- * DISCLAIMED. IN NO EVENT SHALL THE COPYRIGHT OWNER OR CONTRIBUTORS BE LIABLE FOR
- * ANY DIRECT, INDIRECT, INCIDENTAL, SPECIAL, EXEMPLARY, OR CONSEQUENTIAL DAMAGES
- * (INCLUDING, BUT NOT LIMITED TO, PROCUREMENT OF SUBSTITUTE GOODS OR SERVICES;
- * LOSS OF USE, DATA, OR PROFITS; OR BUSINESS INTERRUPTION) HOWEVER CAUSED AND
- * ON ANY THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT
- * (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF THIS
- * SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
- */
+import org.gradle.kotlin.dsl.dependencies
 
 version = "0.1.1-alpha"
+
+plugins {
+    id("java")
+}
 
 project.extra["PluginName"] = "TScripts"
 project.extra["PluginDescription"] = "Stuff and Things"
@@ -38,10 +19,12 @@ dependencies {
     implementation("io.netty:netty-all:5.0.0.Alpha2")
     implementation("com.github.vlsi.mxgraph:jgraphx:4.2.2")
     implementation("ch.obermuhlner:java-scriptengine:1.0.1")
-//    implementation(group = "net.runelite", name = "fernflower", version = "07082019")
+    implementation("org.antlr:antlr4:4.13.1")
     compileOnly(group = "com.fifesoft", name = "rsyntaxtextarea", version = "3.1.2")
     compileOnly(group = "com.fifesoft", name = "autocomplete", version = "3.1.1")
 }
+
+
 
 tasks {
     jar {
@@ -58,6 +41,16 @@ tasks {
                     "Plugin-Description" to project.extra["PluginDescription"],
                     "Plugin-License" to project.extra["PluginLicense"]
             ))
+        }
+    }
+    register("CompileTScriptsGrammar", Exec::class) {
+        setWorkingDir("src\\main\\antlr\\")
+        commandLine("cmd", "/c", "java -jar antlr.jar TScript.g4"
+                + " -o ..\\java\\net\\runelite\\client\\plugins\\tscripts\\lexer\\lexer"
+                + " -visitor -no-listener"
+        )
+        doLast {
+            println("Executed!")
         }
     }
 }

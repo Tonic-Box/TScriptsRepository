@@ -1,3 +1,5 @@
+import org.jetbrains.kotlin.resolve.calls.model.ResolvedCallArgument.DefaultArgument.arguments
+
 buildscript {
     repositories {
         gradlePluginPortal()
@@ -15,7 +17,7 @@ apply<BootstrapPlugin>()
 apply<VersionPlugin>()
 
 allprojects {
-    group = "com.owain"
+    group = "com.tonic"
     apply<MavenPublishPlugin>()
 }
 
@@ -29,10 +31,10 @@ allprojects {
 }
 
 subprojects {
-    group = "com.owain.externals"
+    group = "com.tonic.externals"
 
-    project.extra["PluginProvider"] = "Owain94"
-    project.extra["ProjectUrl"] = "https://discord.gg/chinplugins"
+    project.extra["PluginProvider"] = "TonicBox"
+    project.extra["ProjectUrl"] = "https://discord.gg/"
     project.extra["PluginLicense"] = "3-Clause BSD License"
 
     repositories {
@@ -73,18 +75,6 @@ subprojects {
         compileOnly(group = "org.pf4j", name = "pf4j", version = "3.6.0")
         compileOnly(group = "io.reactivex.rxjava3", name = "rxjava", version = "3.1.1")
     }
-
-//    if (this.name != "oshi") {
-//        apply(plugin = "com.github.andygoossens.gradle-modernizer-plugin")
-//        apply(plugin = "checkstyle")
-//
-//        checkstyle {
-//            maxWarnings = 0
-//            toolVersion = "9.1"
-//            isShowViolations = true
-//            isIgnoreFailures = false
-//        }
-//    }
 
     configure<PublishingExtension> {
         repositories {

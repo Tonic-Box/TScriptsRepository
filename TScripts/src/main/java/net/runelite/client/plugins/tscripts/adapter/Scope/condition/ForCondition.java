@@ -1,7 +1,7 @@
-package net.runelite.client.plugins.tscripts.lexer.Scope.condition;
+package net.runelite.client.plugins.tscripts.adapter.Scope.condition;
 
 import lombok.Data;
-import net.runelite.client.plugins.tscripts.lexer.variable.VariableAssignment;
+import net.runelite.client.plugins.tscripts.adapter.variable.VariableAssignment;
 
 @Data
 public class ForCondition

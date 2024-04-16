@@ -1,10 +1,9 @@
-package net.runelite.client.plugins.tscripts.lexer.variable;
+package net.runelite.client.plugins.tscripts.adapter.variable;
 
 import lombok.Data;
 import lombok.EqualsAndHashCode;
-import lombok.Setter;
-import net.runelite.client.plugins.tscripts.lexer.models.Element;
-import net.runelite.client.plugins.tscripts.lexer.models.ElementType;
+import net.runelite.client.plugins.tscripts.adapter.models.ElementType;
+import net.runelite.client.plugins.tscripts.adapter.models.Element;
 
 import java.util.List;
 

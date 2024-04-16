@@ -2,14 +2,13 @@ package net.runelite.client.plugins.tscripts.ui.editor;
 
 import lombok.SneakyThrows;
 import net.runelite.client.plugins.tscripts.TScriptsPlugin;
+import net.runelite.client.plugins.tscripts.adapter.Adapter;
 import net.runelite.client.plugins.tscripts.util.eventbus.TEventBus;
 import net.runelite.client.plugins.tscripts.util.eventbus._Subscribe;
 import net.runelite.client.plugins.tscripts.util.eventbus.events.BreakpointTripped;
 import net.runelite.client.plugins.tscripts.util.eventbus.events.BreakpointUnTripped;
 import net.runelite.client.plugins.tscripts.util.eventbus.events.ScriptStateChanged;
-import net.runelite.client.plugins.tscripts.lexer.Lexer;
-import net.runelite.client.plugins.tscripts.lexer.Scope.Scope;
-import net.runelite.client.plugins.tscripts.lexer.Tokenizer;
+import net.runelite.client.plugins.tscripts.adapter.Scope.Scope;
 import net.runelite.client.plugins.tscripts.types.BreakPoint;
 import net.runelite.client.plugins.tscripts.ui.editor.debug.DebugToolPanel;
 import net.runelite.client.plugins.tscripts.util.Logging;
@@ -228,8 +227,7 @@ public class ScriptEditor extends JFrame implements ActionListener {
                 offset += 13;
             }
 
-            var tokens = Tokenizer.parse(code);
-            Scope scope = Lexer.lex(tokens);
+            Scope scope = Adapter.parse(code);
             plugin.getRuntime().execute(scope, name, profile);
         } catch (Exception ex) {
             Logging.errorLog(ex);

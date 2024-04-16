@@ -1,4 +1,4 @@
-package net.runelite.client.plugins.tscripts.lexer.models;
+package net.runelite.client.plugins.tscripts.adapter.models;
 
 /**
  * Enum representing the different types of elements that can be found in a script.

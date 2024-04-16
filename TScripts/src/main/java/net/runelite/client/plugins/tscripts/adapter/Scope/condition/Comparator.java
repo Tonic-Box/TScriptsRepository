@@ -1,7 +1,7 @@
-package net.runelite.client.plugins.tscripts.lexer.Scope.condition;
+package net.runelite.client.plugins.tscripts.adapter.Scope.condition;
 
 import lombok.AllArgsConstructor;
-import net.runelite.client.plugins.tscripts.lexer.models.TokenType;
+import net.runelite.client.plugins.tscripts.adapter.models.TokenType;
 
 import java.util.Objects;
 
@@ -42,6 +42,24 @@ public enum Comparator
             default:
                 return null;
         }
+    }
+
+    public static Comparator of(String element)
+    {
+        switch (element)
+        {
+            case ">":
+                return GT;
+            case "<":
+                return LT;
+            case ">=":
+                return GTEQ;
+            case "<=":
+                return LTEQ;
+            case "!=":
+                return NEQ;
+        }
+        return EQ;
     }
 
     /**

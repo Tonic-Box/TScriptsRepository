@@ -51,9 +51,6 @@ public class VariableMap
 
     public void put(String key, Object value)
     {
-        if(key == null || key.isBlank())
-            return;
-
         for(Variable variable : variableMap.values())
         {
             if(variable.getName().equals(key) && scopeStack.contains(variable.getScopeHash()))

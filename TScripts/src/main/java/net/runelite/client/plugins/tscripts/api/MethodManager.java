@@ -8,9 +8,8 @@ import net.runelite.client.plugins.tscripts.types.GroupDefinition;
 import net.runelite.client.plugins.tscripts.types.MethodDefinition;
 import net.runelite.client.plugins.tscripts.types.Pair;
 import net.runelite.client.plugins.tscripts.types.Type;
-import net.runelite.client.plugins.tscripts.lexer.MethodCall;
+import net.runelite.client.plugins.tscripts.adapter.method.MethodCall;
 import net.runelite.client.plugins.tscripts.util.Logging;
-import org.apache.commons.lang3.ArrayUtils;
 import org.apache.commons.lang3.NotImplementedException;
 
 import java.io.IOException;

@@ -1,12 +1,12 @@
-package net.runelite.client.plugins.tscripts.lexer.Scope;
+package net.runelite.client.plugins.tscripts.adapter.Scope;
 
 import com.google.gson.Gson;
 import lombok.Getter;
 import lombok.Setter;
-import net.runelite.client.plugins.tscripts.lexer.Scope.condition.Condition;
-import net.runelite.client.plugins.tscripts.lexer.Scope.condition.Conditions;
-import net.runelite.client.plugins.tscripts.lexer.models.Element;
-import net.runelite.client.plugins.tscripts.lexer.models.ElementType;
+import net.runelite.client.plugins.tscripts.adapter.Scope.condition.Condition;
+import net.runelite.client.plugins.tscripts.adapter.Scope.condition.Conditions;
+import net.runelite.client.plugins.tscripts.adapter.models.ElementType;
+import net.runelite.client.plugins.tscripts.adapter.models.Element;
 
 import java.util.Map;
 import java.util.UUID;
@@ -24,7 +24,7 @@ public class Scope extends Element
     public Scope(Map<Integer, Element> elements)
     {
         this.elements = elements;
-        setType(ElementType.SCOPE);
+        setType(net.runelite.client.plugins.tscripts.adapter.models.ElementType.SCOPE);
     }
 
     /**

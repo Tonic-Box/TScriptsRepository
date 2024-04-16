@@ -1,7 +1,7 @@
-package net.runelite.client.plugins.tscripts.lexer;
+package net.runelite.client.plugins.tscripts.adapter.old;
 
-import net.runelite.client.plugins.tscripts.lexer.models.Token;
-import net.runelite.client.plugins.tscripts.lexer.models.TokenType;
+import net.runelite.client.plugins.tscripts.adapter.models.Token;
+import net.runelite.client.plugins.tscripts.adapter.models.TokenType;
 import net.runelite.client.plugins.tscripts.util.TextUtil;
 
 import java.util.ArrayList;
@@ -18,7 +18,7 @@ public class Tokenizer
      * @param code the code to parse
      * @return the list of tokens
      */
-    public static List<Token> parse(String code)
+    public static List<net.runelite.client.plugins.tscripts.adapter.models.Token> parse(String code)
     {
         return new Tokenizer().tokenize(code);
     }
@@ -29,8 +29,8 @@ public class Tokenizer
      * @param script the code to tokenize
      * @return the list of tokens
      */
-    private List<Token> tokenize(String script) {
-        List<Token> tokens = new ArrayList<>();
+    private List<net.runelite.client.plugins.tscripts.adapter.models.Token> tokenize(String script) {
+        List<net.runelite.client.plugins.tscripts.adapter.models.Token> tokens = new ArrayList<>();
         StringBuilder currentToken = new StringBuilder();
         boolean inString = false;
         boolean inComment = false;
@@ -55,20 +55,20 @@ public class Tokenizer
             if (c == '[' && currentToken.length() > 0 && currentToken.charAt(0) == '$') {
                 inArrayAccess = true;
                 currentToken.append(c);
-                flushToken(currentToken, tokens, line, TokenType.ARRAY_ACCESS_START);
+                flushToken(currentToken, tokens, line, net.runelite.client.plugins.tscripts.adapter.models.TokenType.ARRAY_ACCESS_START);
                 continue; // Skip further checks and continue to the next character
             }
 
             // Add check for array access end (e.g., ])
             if (c == ']' && !inString && inArrayAccess) {
                 inArrayAccess = false;
-                List<Token> newTokens = tokenize(currentToken.toString());
+                List<net.runelite.client.plugins.tscripts.adapter.models.Token> newTokens = tokenize(currentToken.toString());
                 if (!newTokens.isEmpty()) {
                     tokens.addAll(newTokens.subList(0, newTokens.size() - 1));
                 }
                 currentToken.setLength(0);
                 currentToken.append(c);
-                flushToken(currentToken, tokens, line, TokenType.ARRAY_ACCESS_END);
+                flushToken(currentToken, tokens, line, net.runelite.client.plugins.tscripts.adapter.models.TokenType.ARRAY_ACCESS_END);
                 continue;
             }
 
@@ -110,7 +110,7 @@ public class Tokenizer
             else if (c == '{' || c == '}' || c == '(' || c == ')' || c == ',' || c == ';')
             {
                 flushToken(currentToken, tokens, line);
-                tokens.add(new Token(getTokenType(String.valueOf(c)), String.valueOf(c), line));
+                tokens.add(new net.runelite.client.plugins.tscripts.adapter.models.Token(getTokenType(String.valueOf(c)), String.valueOf(c), line));
             }
             else if (isOperatorStart(c, next))
             {
@@ -139,7 +139,7 @@ public class Tokenizer
         }
 
         flushToken(currentToken, tokens, line);
-        tokens.add(new Token(TokenType.EOF, "", line));
+        tokens.add(new net.runelite.client.plugins.tscripts.adapter.models.Token(net.runelite.client.plugins.tscripts.adapter.models.TokenType.EOF, "", line));
 
         return tokens;
     }
@@ -175,9 +175,9 @@ public class Tokenizer
      * @param currentToken the current token
      * @param tokens       the list of tokens
      */
-    private void flushToken(StringBuilder currentToken, List<Token> tokens, int line) {
+    private void flushToken(StringBuilder currentToken, List<net.runelite.client.plugins.tscripts.adapter.models.Token> tokens, int line) {
         if (currentToken.length() != 0) {
-            TokenType tokenType = getTokenType(currentToken.toString());
+            net.runelite.client.plugins.tscripts.adapter.models.TokenType tokenType = getTokenType(currentToken.toString());
             flushToken(currentToken, tokens, line, tokenType);
         }
     }
@@ -190,13 +190,13 @@ public class Tokenizer
      * @param line         the line number
      * @param tokenType    the token type
      */
-    private void flushToken(StringBuilder currentToken, List<Token> tokens, int line, TokenType tokenType) {
+    private void flushToken(StringBuilder currentToken, List<net.runelite.client.plugins.tscripts.adapter.models.Token> tokens, int line, net.runelite.client.plugins.tscripts.adapter.models.TokenType tokenType) {
         if (currentToken.length() != 0) {
-            if(tokenType == TokenType.STRING && !currentToken.toString().equals("null"))
+            if(tokenType == net.runelite.client.plugins.tscripts.adapter.models.TokenType.STRING && !currentToken.toString().equals("null"))
             {
                 currentToken.deleteCharAt(currentToken.length() - 1);
             }
-            else if(tokenType == TokenType.STRING)
+            else if(tokenType == net.runelite.client.plugins.tscripts.adapter.models.TokenType.STRING)
             {
                 currentToken.insert(0, "\"");
             }
@@ -211,46 +211,46 @@ public class Tokenizer
      * @param tokenValue the token value
      * @return the token type
      */
-    private TokenType getTokenType(String tokenValue)
+    private net.runelite.client.plugins.tscripts.adapter.models.TokenType getTokenType(String tokenValue)
     {
         switch (tokenValue.toLowerCase())
         {
-            case "if": return TokenType.KEYWORD_IF;
-            case "else": return TokenType.KEYWORD_ELSE;
-            case "while": return TokenType.KEYWORD_WHILE;
-            case "for": return TokenType.KEYWORD_FOR;
-            case "subscribe": return TokenType.KEYWORD_SUBSCRIBE;
+            case "if": return net.runelite.client.plugins.tscripts.adapter.models.TokenType.KEYWORD_IF;
+            case "else": return net.runelite.client.plugins.tscripts.adapter.models.TokenType.KEYWORD_ELSE;
+            case "while": return net.runelite.client.plugins.tscripts.adapter.models.TokenType.KEYWORD_WHILE;
+            case "for": return net.runelite.client.plugins.tscripts.adapter.models.TokenType.KEYWORD_FOR;
+            case "subscribe": return net.runelite.client.plugins.tscripts.adapter.models.TokenType.KEYWORD_SUBSCRIBE;
             case "function":
-            case "func": return TokenType.KEYWORD_USER_DEFINED_FUNCTION;
-            case ">": return TokenType.CONDITION_GT;
-            case "<": return TokenType.CONDITION_LT;
-            case ">=": return TokenType.CONDITION_GTEQ;
-            case "<=": return TokenType.CONDITION_LTEQ;
-            case "==": return TokenType.CONDITION_EQ;
-            case "!=": return TokenType.CONDITION_NEQ;
-            case "&&": return TokenType.CONDITION_AND;
-            case "||": return TokenType.CONDITION_OR;
-            case "!": return TokenType.NEGATE;
-            case "=": return TokenType.VARIABLE_ASSIGNMENT;
-            case "+=": return TokenType.VARIABLE_INCREMENT;
-            case "-=": return TokenType.VARIABLE_DECREMENT;
-            case "++": return TokenType.VARIABLE_ADD_ONE;
-            case "--": return TokenType.VARIABLE_REMOVE_ONE;
-            case "{": return TokenType.OPEN_BRACE;
-            case "}": return TokenType.CLOSE_BRACE;
-            case "(": return TokenType.OPEN_PAREN;
-            case ")": return TokenType.CLOSE_PAREN;
-            case ",": return TokenType.COMMA;
-            case ";": return TokenType.SEMICOLON;
-            case "null": return TokenType.STRING;
+            case "func": return net.runelite.client.plugins.tscripts.adapter.models.TokenType.KEYWORD_USER_DEFINED_FUNCTION;
+            case ">": return net.runelite.client.plugins.tscripts.adapter.models.TokenType.CONDITION_GT;
+            case "<": return net.runelite.client.plugins.tscripts.adapter.models.TokenType.CONDITION_LT;
+            case ">=": return net.runelite.client.plugins.tscripts.adapter.models.TokenType.CONDITION_GTEQ;
+            case "<=": return net.runelite.client.plugins.tscripts.adapter.models.TokenType.CONDITION_LTEQ;
+            case "==": return net.runelite.client.plugins.tscripts.adapter.models.TokenType.CONDITION_EQ;
+            case "!=": return net.runelite.client.plugins.tscripts.adapter.models.TokenType.CONDITION_NEQ;
+            case "&&": return net.runelite.client.plugins.tscripts.adapter.models.TokenType.CONDITION_AND;
+            case "||": return net.runelite.client.plugins.tscripts.adapter.models.TokenType.CONDITION_OR;
+            case "!": return net.runelite.client.plugins.tscripts.adapter.models.TokenType.NEGATE;
+            case "=": return net.runelite.client.plugins.tscripts.adapter.models.TokenType.VARIABLE_ASSIGNMENT;
+            case "+=": return net.runelite.client.plugins.tscripts.adapter.models.TokenType.VARIABLE_INCREMENT;
+            case "-=": return net.runelite.client.plugins.tscripts.adapter.models.TokenType.VARIABLE_DECREMENT;
+            case "++": return net.runelite.client.plugins.tscripts.adapter.models.TokenType.VARIABLE_ADD_ONE;
+            case "--": return net.runelite.client.plugins.tscripts.adapter.models.TokenType.VARIABLE_REMOVE_ONE;
+            case "{": return net.runelite.client.plugins.tscripts.adapter.models.TokenType.OPEN_BRACE;
+            case "}": return net.runelite.client.plugins.tscripts.adapter.models.TokenType.CLOSE_BRACE;
+            case "(": return net.runelite.client.plugins.tscripts.adapter.models.TokenType.OPEN_PAREN;
+            case ")": return net.runelite.client.plugins.tscripts.adapter.models.TokenType.CLOSE_PAREN;
+            case ",": return net.runelite.client.plugins.tscripts.adapter.models.TokenType.COMMA;
+            case ";": return net.runelite.client.plugins.tscripts.adapter.models.TokenType.SEMICOLON;
+            case "null": return net.runelite.client.plugins.tscripts.adapter.models.TokenType.STRING;
             default:
-                if (tokenValue.startsWith("$")) return TokenType.VARIABLE;
-                if (tokenValue.startsWith("//")) return TokenType.COMMENT;
-                if (tokenValue.startsWith("/*")) return TokenType.MULTI_LINE_COMMENT;
-                if (tokenValue.startsWith("\"")) return TokenType.STRING;
-                if (TextUtil.isNumeric(tokenValue)) return TokenType.INTEGER;
-                if (tokenValue.equalsIgnoreCase("true") || tokenValue.equalsIgnoreCase("false")) return TokenType.BOOLEAN;
-                if (tokenValue.contains(".")) return TokenType.STATIC_VALUE;
+                if (tokenValue.startsWith("$")) return net.runelite.client.plugins.tscripts.adapter.models.TokenType.VARIABLE;
+                if (tokenValue.startsWith("//")) return net.runelite.client.plugins.tscripts.adapter.models.TokenType.COMMENT;
+                if (tokenValue.startsWith("/*")) return net.runelite.client.plugins.tscripts.adapter.models.TokenType.MULTI_LINE_COMMENT;
+                if (tokenValue.startsWith("\"")) return net.runelite.client.plugins.tscripts.adapter.models.TokenType.STRING;
+                if (TextUtil.isNumeric(tokenValue)) return net.runelite.client.plugins.tscripts.adapter.models.TokenType.INTEGER;
+                if (tokenValue.equalsIgnoreCase("true") || tokenValue.equalsIgnoreCase("false")) return net.runelite.client.plugins.tscripts.adapter.models.TokenType.BOOLEAN;
+                if (tokenValue.contains(".")) return net.runelite.client.plugins.tscripts.adapter.models.TokenType.STATIC_VALUE;
                 return TokenType.IDENTIFIER;
         }
     }

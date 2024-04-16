@@ -2,7 +2,7 @@ package net.runelite.client.plugins.tscripts.types;
 
 import com.google.common.collect.ImmutableMap;
 import net.runelite.client.plugins.tscripts.api.MethodManager;
-import net.runelite.client.plugins.tscripts.lexer.MethodCall;
+import net.runelite.client.plugins.tscripts.adapter.method.MethodCall;
 
 import java.util.List;
 import java.util.function.Consumer;

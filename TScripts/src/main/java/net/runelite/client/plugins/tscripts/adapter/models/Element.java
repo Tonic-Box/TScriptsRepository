@@ -1,4 +1,4 @@
-package net.runelite.client.plugins.tscripts.lexer.models;
+package net.runelite.client.plugins.tscripts.adapter.models;
 
 import lombok.Data;
 

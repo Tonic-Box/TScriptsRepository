@@ -5,11 +5,10 @@ import lombok.SneakyThrows;
 import net.runelite.client.config.Keybind;
 import net.runelite.client.plugins.tscripts.TScriptsConfig;
 import net.runelite.client.plugins.tscripts.TScriptsPlugin;
+import net.runelite.client.plugins.tscripts.adapter.Adapter;
 import net.runelite.client.plugins.tscripts.ui.editor.ScriptEditor;
 import net.runelite.client.plugins.tscripts.util.eventbus.events.ScriptStateChanged;
-import net.runelite.client.plugins.tscripts.lexer.Lexer;
-import net.runelite.client.plugins.tscripts.lexer.Scope.Scope;
-import net.runelite.client.plugins.tscripts.lexer.Tokenizer;
+import net.runelite.client.plugins.tscripts.adapter.Scope.Scope;
 import net.runelite.client.plugins.tscripts.util.Logging;
 import net.runelite.client.ui.ColorScheme;
 import net.runelite.client.ui.FontManager;
@@ -513,8 +512,7 @@ public class ScriptPanel extends JPanel
                 return;
             String path = profile + getScriptName() + ".script";
             String code = Files.readString(Paths.get(path));
-            var tokens = Tokenizer.parse(code);
-            Scope scope = Lexer.lex(tokens);
+            Scope scope = Adapter.parse(code);
             plugin.getRuntime().execute(scope, getScriptName(), plugin.getProfile());
         } catch (Exception ex) {
             Logging.errorLog(ex);

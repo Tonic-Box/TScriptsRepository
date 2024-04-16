@@ -1,8 +1,6 @@
-package net.runelite.client.plugins.tscripts.lexer.Scope.condition;
+package net.runelite.client.plugins.tscripts.adapter.Scope.condition;
 
 import lombok.Data;
-import lombok.Setter;
-import net.runelite.client.plugins.tscripts.lexer.MethodCall;
 
 /**
  * Represents a condition in a script

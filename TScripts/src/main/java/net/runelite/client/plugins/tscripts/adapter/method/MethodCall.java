@@ -1,9 +1,9 @@
-package net.runelite.client.plugins.tscripts.lexer;
+package net.runelite.client.plugins.tscripts.adapter.method;
 
 import lombok.Getter;
+import net.runelite.client.plugins.tscripts.adapter.models.ElementType;
 import net.runelite.client.plugins.tscripts.api.MethodManager;
-import net.runelite.client.plugins.tscripts.lexer.models.Element;
-import net.runelite.client.plugins.tscripts.lexer.models.ElementType;
+import net.runelite.client.plugins.tscripts.adapter.models.Element;
 
 /**
  * Represents a method call in the script

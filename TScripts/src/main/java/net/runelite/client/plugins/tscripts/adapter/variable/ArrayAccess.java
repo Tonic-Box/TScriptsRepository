@@ -1,4 +1,4 @@
-package net.runelite.client.plugins.tscripts.lexer.variable;
+package net.runelite.client.plugins.tscripts.adapter.variable;
 
 import lombok.Getter;
 import lombok.RequiredArgsConstructor;

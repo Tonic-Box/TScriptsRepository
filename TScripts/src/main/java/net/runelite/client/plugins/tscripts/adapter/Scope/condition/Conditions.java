@@ -1,4 +1,4 @@
-package net.runelite.client.plugins.tscripts.lexer.Scope.condition;
+package net.runelite.client.plugins.tscripts.adapter.Scope.condition;
 
 import lombok.Data;
 import java.util.HashMap;
