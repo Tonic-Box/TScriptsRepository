@@ -5,7 +5,7 @@ options {
 }
 
 @header {
-  package net.runelite.client.plugins.tscripts.lexer.lexer;
+  package net.runelite.client.plugins.tscripts.adapter.lexer;
 }
 
 script : statement* EOF;

@@ -46,7 +46,7 @@ tasks {
     register("CompileTScriptsGrammar", Exec::class) {
         setWorkingDir("src\\main\\antlr\\")
         commandLine("cmd", "/c", "java -jar antlr.jar TScript.g4"
-                + " -o ..\\java\\net\\runelite\\client\\plugins\\tscripts\\lexer\\lexer"
+                + " -o ..\\java\\net\\runelite\\client\\plugins\\tscripts\\adapter\\lexer"
                 + " -visitor -no-listener"
         )
         doLast {
