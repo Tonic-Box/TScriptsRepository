@@ -130,6 +130,11 @@ public class Runtime
                 scope.setCurrent(false);
                 variableMap.popScope();
                 return;
+            case LAMBDA:
+                addUserDefinedFunction(scope);
+                scope.setCurrent(false);
+                variableMap.popScope();
+                return;
             case WHILE:
                 isLoopScope = true;
                 break;
@@ -278,6 +283,16 @@ public class Runtime
         }
 
         Object value = getValue(variableAssignment.getValues().get(0));
+        if(value instanceof Scope)
+        {
+            Scope scope = (Scope) value;
+            if(scope.getConditions() == null || scope.getConditions().getType() != ConditionType.LAMBDA)
+            {
+                return;
+            }
+            scope.getConditions().setUserFunctionName(name);
+            addUserDefinedFunction(scope);
+        }
         switch (variableAssignment.getAssignmentType())
         {
             case ASSIGNMENT:
@@ -540,6 +555,10 @@ public class Runtime
      */
     private Object getValue(Object object)
     {
+        if(object instanceof Scope)
+        {
+            return object;
+        }
         if (object instanceof String)
         {
             String string = (String) object;

@@ -11,5 +11,7 @@ public enum ConditionType
     ELSE,
     FOR,
     USER_DEFINED_FUNCTION,
-    TERNARY, NONE
+    TERNARY,
+    LAMBDA,
+    NONE
 }

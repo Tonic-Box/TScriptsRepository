@@ -188,6 +188,13 @@ public class TScriptBaseVisitor<T> extends AbstractParseTreeVisitor<T> implement
 	 * <p>The default implementation returns the result of calling
 	 * {@link #visitChildren} on {@code ctx}.</p>
 	 */
+	@Override public T visitRefferanceFunctionCall(TScriptParser.RefferanceFunctionCallContext ctx) { return visitChildren(ctx); }
+	/**
+	 * {@inheritDoc}
+	 *
+	 * <p>The default implementation returns the result of calling
+	 * {@link #visitChildren} on {@code ctx}.</p>
+	 */
 	@Override public T visitParams(TScriptParser.ParamsContext ctx) { return visitChildren(ctx); }
 	/**
 	 * {@inheritDoc}
@@ -196,4 +203,11 @@ public class TScriptBaseVisitor<T> extends AbstractParseTreeVisitor<T> implement
 	 * {@link #visitChildren} on {@code ctx}.</p>
 	 */
 	@Override public T visitArguments(TScriptParser.ArgumentsContext ctx) { return visitChildren(ctx); }
+	/**
+	 * {@inheritDoc}
+	 *
+	 * <p>The default implementation returns the result of calling
+	 * {@link #visitChildren} on {@code ctx}.</p>
+	 */
+	@Override public T visitLambda(TScriptParser.LambdaContext ctx) { return visitChildren(ctx); }
 }

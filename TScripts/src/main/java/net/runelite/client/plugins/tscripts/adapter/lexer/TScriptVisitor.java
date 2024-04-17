@@ -157,6 +157,12 @@ public interface TScriptVisitor<T> extends ParseTreeVisitor<T> {
 	 */
 	T visitFunctionCall(TScriptParser.FunctionCallContext ctx);
 	/**
+	 * Visit a parse tree produced by {@link TScriptParser#refferanceFunctionCall}.
+	 * @param ctx the parse tree
+	 * @return the visitor result
+	 */
+	T visitRefferanceFunctionCall(TScriptParser.RefferanceFunctionCallContext ctx);
+	/**
 	 * Visit a parse tree produced by {@link TScriptParser#params}.
 	 * @param ctx the parse tree
 	 * @return the visitor result
@@ -168,4 +174,10 @@ public interface TScriptVisitor<T> extends ParseTreeVisitor<T> {
 	 * @return the visitor result
 	 */
 	T visitArguments(TScriptParser.ArgumentsContext ctx);
+	/**
+	 * Visit a parse tree produced by {@link TScriptParser#lambda}.
+	 * @param ctx the parse tree
+	 * @return the visitor result
+	 */
+	T visitLambda(TScriptParser.LambdaContext ctx);
 }

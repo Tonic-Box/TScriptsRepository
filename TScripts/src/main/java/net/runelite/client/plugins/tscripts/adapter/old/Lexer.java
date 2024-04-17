@@ -26,6 +26,7 @@ import java.util.*;
  * The Lexer class is responsible for parsing the tokens into an AST.
  */
 @Data
+@Deprecated
 public class Lexer
 {
     private static final Lexer lexer = new Lexer();

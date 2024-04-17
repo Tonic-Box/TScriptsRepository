@@ -78,6 +78,14 @@ public class Adapter
             {
                 element = flushFunctionCall((TScriptParser.FunctionCallContext) tree, false);
             }
+            else if(tree instanceof TScriptParser.RefferanceFunctionCallContext)
+            {
+                element = flushReferenceFunctionCall((TScriptParser.RefferanceFunctionCallContext) tree, false);
+            }
+            else if(tree instanceof TScriptParser.LambdaContext)
+            {
+                element = flushLambdaExpression((TScriptParser.LambdaContext) tree);
+            }
             else if(tree instanceof TScriptParser.BlockContext)
             {
                 TScriptParser.BlockContext block = (TScriptParser.BlockContext) tree;
@@ -125,6 +133,22 @@ public class Adapter
         Condition condition = new Condition(ctx.array().ID().getText(), null, null);
         conditions.getConditions().put(conditions.getConditions().size(), condition);
 
+        Map<Integer, Element> elements = flushBlock(ctx.block().children);
+        return new Scope(elements, conditions);
+    }
+
+    public static Scope flushLambdaExpression(TScriptParser.LambdaContext ctx)
+    {
+        Conditions conditions = new Conditions();
+        conditions.setType(ConditionType.LAMBDA);
+        if(ctx.params() != null)
+        {
+            for(var arg : ctx.params().variable())
+            {
+                Condition condition = new Condition("$" + arg.ID().getText(), null, null);
+                conditions.getConditions().put(conditions.getConditions().size(), condition);
+            }
+        }
         Map<Integer, Element> elements = flushBlock(ctx.block().children);
         return new Scope(elements, conditions);
     }
@@ -273,6 +297,10 @@ public class Adapter
         {
             return flushNullCheckExpression(shorthand.nullCheck(), negated);
         }
+        else if(shorthand.lambda() != null)
+        {
+            return flushLambdaExpression(shorthand.lambda());
+        }
         return null;
     }
 
@@ -310,6 +338,10 @@ public class Adapter
             {
                 return flushFunctionCall((TScriptParser.FunctionCallContext) child, negated);
             }
+            else if(child instanceof TScriptParser.RefferanceFunctionCallContext)
+            {
+                return flushReferenceFunctionCall((TScriptParser.RefferanceFunctionCallContext) child, negated);
+            }
             else if(child instanceof TScriptParser.ShorthandExpressionContext)
             {
                 TScriptParser.ShorthandExpressionContext shorthand = (TScriptParser.ShorthandExpressionContext) child;
@@ -340,6 +372,20 @@ public class Adapter
     private static MethodCall flushFunctionCall(TScriptParser.FunctionCallContext ctx, boolean negated)
     {
         String name = ctx.ID().getText();
+        List<Object> objects = new ArrayList<>();
+        if(ctx.arguments() != null)
+        {
+            for(var arg : ctx.arguments().expression())
+            {
+                objects.add(flushExpression(arg));
+            }
+        }
+        return new MethodCall(name, objects.toArray(), negated);
+    }
+
+    private static Element flushReferenceFunctionCall(TScriptParser.RefferanceFunctionCallContext ctx, boolean negated)
+    {
+        String name = "$" + ctx.variable().ID().getText();
         List<Object> objects = new ArrayList<>();
         if(ctx.arguments() != null)
         {

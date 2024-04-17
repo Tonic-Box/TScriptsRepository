@@ -16,6 +16,7 @@ statement
     | variableDeclaration ';'
     | arrayDeclaration ';'
     | functionCall ';'
+    | refferanceFunctionCall ';'
     | scopeStatement
     | block
     | ';'
@@ -50,6 +51,7 @@ block
 functionDefinition
     : 'function' ID '(' params? ')' block
     ;
+
 
 subscriberDefinition
     : 'subscribe' ID '(' array ')' block
@@ -102,6 +104,7 @@ expression
 
 shorthandExpression
     : '(' shorthandExpression ')'
+    | lambda
     | ternaryExpression
     | nullCoalescingExpression
     | nullCheck
@@ -126,12 +129,20 @@ functionCall
     : ID ('(' arguments? ')')?
     ;
 
+refferanceFunctionCall
+    : variable '(' arguments? ')'
+    ;
+
 params
     : (variable | array) (',' (variable | array))*
     ;
 
 arguments
     : expression (',' expression)*
+    ;
+
+lambda
+    : '(' params? ')' '=>' block
     ;
 
 CONSTANT : [A-Z_]+;

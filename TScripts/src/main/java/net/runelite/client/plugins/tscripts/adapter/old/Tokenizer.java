@@ -10,6 +10,7 @@ import java.util.List;
 /**
  * Tokenizer
  */
+@Deprecated
 public class Tokenizer
 {
     /**
