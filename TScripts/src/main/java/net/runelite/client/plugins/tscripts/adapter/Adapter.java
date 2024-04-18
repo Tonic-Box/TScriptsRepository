@@ -124,14 +124,20 @@ public class Adapter
         return new VariableAssignment(arrayAccess, values, type);
     }
 
-    private static Element flushSubscriberDefinition(TScriptParser.SubscriberDefinitionContext ctx)
-    {
+    private static Element flushSubscriberDefinition(TScriptParser.SubscriberDefinitionContext ctx) {
         Conditions conditions = new Conditions();
         conditions.setType(ConditionType.SUBSCRIBE);
         conditions.setUserFunctionName(ctx.ID().getText());
 
-        Condition condition = new Condition(ctx.array().ID().getText(), null, null);
-        conditions.getConditions().put(conditions.getConditions().size(), condition);
+        if (ctx.array() != null) {
+            Condition condition = new Condition("$" + ctx.array().ID().getText(), null, null);
+            conditions.getConditions().put(conditions.getConditions().size(), condition);
+        }
+        else if (ctx.variable() != null) {
+            Condition condition = new Condition("$" + ctx.variable().ID().getText(), null, null);
+            conditions.getConditions().put(conditions.getConditions().size(), condition);
+        }
+
 
         Map<Integer, Element> elements = flushBlock(ctx.block().children);
         return new Scope(elements, conditions);

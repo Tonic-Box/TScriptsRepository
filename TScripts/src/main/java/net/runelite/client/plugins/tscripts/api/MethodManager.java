@@ -4,10 +4,7 @@ import com.google.common.reflect.ClassPath;
 import lombok.Getter;
 import net.runelite.client.plugins.tscripts.TScriptsPlugin;
 import net.runelite.client.plugins.tscripts.api.library.TDelay;
-import net.runelite.client.plugins.tscripts.types.GroupDefinition;
-import net.runelite.client.plugins.tscripts.types.MethodDefinition;
-import net.runelite.client.plugins.tscripts.types.Pair;
-import net.runelite.client.plugins.tscripts.types.Type;
+import net.runelite.client.plugins.tscripts.types.*;
 import net.runelite.client.plugins.tscripts.adapter.models.method.MethodCall;
 import net.runelite.client.plugins.tscripts.util.Logging;
 import org.apache.commons.lang3.NotImplementedException;
@@ -27,6 +24,7 @@ public class MethodManager
     private final TScriptsPlugin plugin;
     private List<GroupDefinition> methodGroups = null;
     private List<Class<?>> eventClasses = null;
+    private Map<String, EventData> eventDataClasses = null;
     @Getter
     private final HashMap<String, MethodDefinition> methods = new HashMap<>();
     private final Set<String> blacklist = Set.of("continue", "break", "die", "subscribe", "breakpoint", "tick", "return");
@@ -276,5 +274,48 @@ public class MethodManager
             }
         }
         return null;
+    }
+
+    public Map<String,EventData> getEventDataClasses()
+    {
+        System.out.println(1);
+        if(eventDataClasses != null)
+        {
+            System.out.println(2);
+            return eventDataClasses;
+        }
+
+        ClassPath classPath;
+        try
+        {
+            classPath = ClassPath.from(getClass().getClassLoader());
+        } catch (IOException e)
+        {
+            return new HashMap<>();
+        }
+
+        System.out.println(3);
+        String packageName = "net.runelite.client.plugins.tscripts.api.events";
+        try {
+            System.out.println(4);
+            eventDataClasses = new HashMap<>();
+            // Load all classes accessible from the context class loader
+            for (ClassPath.ClassInfo classInfo : classPath.getTopLevelClassesRecursive(packageName)) {
+                Class<?> clazz = classInfo.load();
+                // Check if the class implements EventData
+                System.out.println(5);
+                if (EventData.class.isAssignableFrom(clazz) && !clazz.isInterface()) {
+                    EventData instance = (EventData) clazz.getDeclaredConstructor().newInstance();
+                    System.out.println("6 Found event class: " + instance.getEventName());
+                    eventDataClasses.put(instance.getEventName(), instance);
+                }
+            }
+        } catch (ReflectiveOperationException e) {
+            System.out.println(7);
+            System.err.println("Error processing classes: " + e.getMessage());
+        }
+
+        System.out.println(8);
+        return eventDataClasses;
     }
 }

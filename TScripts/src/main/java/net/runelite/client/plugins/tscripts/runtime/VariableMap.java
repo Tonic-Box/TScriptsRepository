@@ -1,6 +1,8 @@
 package net.runelite.client.plugins.tscripts.runtime;
 
 import lombok.Getter;
+import lombok.Setter;
+import net.runelite.client.plugins.tscripts.types.Pair;
 import net.runelite.client.plugins.tscripts.util.eventbus.TEventBus;
 import net.runelite.client.plugins.tscripts.util.eventbus.events.VariableUpdated;
 import net.runelite.client.plugins.tscripts.util.eventbus.events.VariablesCleaned;

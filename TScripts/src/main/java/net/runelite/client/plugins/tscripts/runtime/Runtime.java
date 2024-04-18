@@ -17,6 +17,7 @@ import net.runelite.client.plugins.tscripts.adapter.models.condition.Glue;
 import net.runelite.client.plugins.tscripts.adapter.models.Element;
 import net.runelite.client.plugins.tscripts.adapter.models.variable.ArrayAccess;
 import net.runelite.client.plugins.tscripts.adapter.models.variable.VariableAssignment;
+import net.runelite.client.plugins.tscripts.types.Pair;
 import net.runelite.client.plugins.tscripts.util.Logging;
 import net.runelite.client.plugins.tscripts.util.eventbus.TEventBus;
 import net.runelite.client.plugins.tscripts.util.eventbus._Subscribe;
@@ -33,6 +34,7 @@ public class Runtime
     private final VariableMap variableMap;
     private final List<EventBus.Subscriber> subscribers = new ArrayList<>();
     private final Map<String, UserDefinedFunction> userDefinedFunctions = new HashMap<>();
+    private Pair<String, Map<String,Object>> globalArrays;
     @Getter
     private final MethodManager methodManager;
     private UserDefinedFunction currentFunction = null;
@@ -126,10 +128,6 @@ public class Runtime
                 variableMap.popScope();
                 return;
             case USER_DEFINED_FUNCTION:
-                addUserDefinedFunction(scope);
-                scope.setCurrent(false);
-                variableMap.popScope();
-                return;
             case LAMBDA:
                 addUserDefinedFunction(scope);
                 scope.setCurrent(false);
@@ -265,6 +263,10 @@ public class Runtime
         {
             ArrayAccess arrayAccess = (ArrayAccess) var;
             name = arrayAccess.getVariable();
+            if(globalArrays != null && globalArrays.getKey().equals(name))
+            {
+                return;
+            }
             Object index = getValue(arrayAccess.getIndex());
             processArrayIndexAssignment(name, index, variableAssignment);
             return;
@@ -590,7 +592,16 @@ public class Runtime
                 return null;
             }
             String name = arrayAccess.getVariable();
-            Object value = variableMap.get(name, index);
+
+            Object value;
+            if(globalArrays != null && globalArrays.getKey().equals(name))
+            {
+                value = globalArrays.getValue().get(index + "");
+            }
+            else
+            {
+                value = variableMap.get(name, index);
+            }
             if(arrayAccess.isNegated())
                 return (value instanceof Boolean) ? !((Boolean) value) : value;
             return value;
@@ -649,6 +660,13 @@ public class Runtime
                 try
                 {
                     Runtime runtime = getRuntimeChild();
+                    if(!scope.getConditions().getConditions().isEmpty() && methodManager.getEventDataClasses().containsKey(event.getSimpleName()))
+                    {
+                        Object varName = scope.getConditions().getConditions().get(0).getLeft();
+                        String dataVar = (String) varName;
+                        runtime.globalArrays = new Pair<>(dataVar, methodManager.getEventDataClasses().get(event.getSimpleName()).getEventData(object));
+                    }
+
                     Scope eventScope = scope.clone();
                     eventScope.setConditions(null);
                     new Thread(() -> runtime.execute(eventScope, "TS_EVENT", "TS_EVENT")).start();
@@ -660,13 +678,6 @@ public class Runtime
             });
             subscribers.add(subscriber);
         }
-    }
-
-    private Object[] processEventFields(Class<?> event)
-    {
-        Object[] object = new Object[0];
-
-        return object;
     }
 
     private Object processTernary(TernaryExpression expression)

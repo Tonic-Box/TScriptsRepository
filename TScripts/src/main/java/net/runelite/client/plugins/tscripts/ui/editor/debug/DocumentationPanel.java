@@ -1,6 +1,7 @@
 package net.runelite.client.plugins.tscripts.ui.editor.debug;
 
 import net.runelite.client.plugins.tscripts.api.MethodManager;
+import net.runelite.client.plugins.tscripts.types.EventData;
 import net.runelite.client.plugins.tscripts.types.GroupDefinition;
 import net.runelite.client.plugins.tscripts.types.MethodDefinition;
 import net.runelite.client.plugins.tscripts.types.Type;
@@ -66,7 +67,19 @@ public class DocumentationPanel extends JPanel
         root.add(conditionalConstructs);
 
         DefaultMutableTreeNode events = new DefaultMutableTreeNode("Event Subscribers");
-        events.add(new DefaultMutableTreeNode("subscribe"));
+        events.add(new DefaultMutableTreeNode("subscribe()"));
+        for(Class<?> event : MethodManager.getInstance().getEventClasses())
+        {
+            if(MethodManager.getInstance().getEventDataClasses().containsKey(event.getSimpleName()))
+            {
+                EventData eventData = MethodManager.getInstance().getEventDataClasses().get(event.getSimpleName());
+                events.add(new ExTreeNode(eventData));
+            }
+        }
+        for(EventData eventData : MethodManager.getInstance().getEventDataClasses().values())
+        {
+            events.add(new ExTreeNode(eventData));
+        }
         root.add(events);
 
         MethodManager methodManager = MethodManager.getInstance();
@@ -90,6 +103,11 @@ public class DocumentationPanel extends JPanel
             if (selectedNode != null && selectedNode.isLeaf()) {
                 if (selectedNode instanceof ExTreeNode) {
                     ExTreeNode exTreeNode = (ExTreeNode) selectedNode;
+                    if(exTreeNode.getEvent() != null)
+                    {
+                        updateDocumentation(exTreeNode.getEvent());
+                        return;
+                    }
                     MethodDefinition methodDefinition = exTreeNode.getMethod();
                     updateDocumentation(methodDefinition);
                     return;
@@ -142,7 +160,7 @@ public class DocumentationPanel extends JPanel
                         codeTextPane.setText(TextUtil.decodeBase64(usage.toString()));
                         codeTextPane.setCaretPosition(0);
                         break;
-                    case "subscribe":
+                    case "subscribe()":
                         usage = new StringBuilder(TextUtil.decodeBase64("LyoKICogVGhlIHN1YnNjcmliZSBzdGF0ZW1lbnQgaXMgdXNlZCB0byBzdWJzY3JpYmUgdG8gYW4gZXZlbnQKICoKKiBUaGUgZXZlbnQgY2FuIGJlIGFueSBldmVudCBkZWZpbmVkIGluIHRoZSBjbGllbnQKKiBUaGUgZXZlbnQgY2FuIGJlIGhhbmRsZWQgYnkgYSBmdW5jdGlvbgogKi8KCi8vcnVucyB0aGUgY29kZSB3aGVuIHRoZSBjbGllbnQgcG9zdHMgdGhlIGBNZW51T3B0aW9uQ2xpY2tlZGAgZXZlbnQuCnN1YnNjcmliZSgiTWVudU9wdGlvbkNsaWNrZWQiKQp7CgkvL2NvZGUgdG8gZG8gdGhpbmdzCn0="));
                         List<Class<?>> eventClasses = MethodManager.getInstance().getEventClasses();
                         usage.append("\n\n/* Available events:\n");
@@ -154,12 +172,21 @@ public class DocumentationPanel extends JPanel
                         codeTextPane.setText(usage.toString());
                         codeTextPane.setCaretPosition(0);
                         break;
+                    default:
+                        codeTextPane.setText("");
+                        codeTextPane.setCaretPosition(0);
+                        break;
 
                 }
             }
         });
 
         return tree;
+    }
+
+    public void updateDocumentation(EventData eventData) {
+        codeTextPane.setText("/*\n * " + eventData.getEventName() + "\n * Data:\n */\n" + generateUsage(eventData));
+        codeTextPane.setCaretPosition(0);
     }
 
     public void updateDocumentation(MethodDefinition methodDefinition) {
@@ -183,5 +210,13 @@ public class DocumentationPanel extends JPanel
         String returnType = method.getReturnType() == null || method.getReturnType().equals(Type.VOID) ? "" : "<" + method.getReturnType().name().toLowerCase() + "> ";
         String name = method.getName() + "(";
         return returnType + name + params + ");";
+    }
+
+    private String generateUsage(EventData event) {
+        StringBuilder params = new StringBuilder();
+        for (String key : event.getKeys()) {
+            params.append("$event[\"").append(key).append("\"];\n");
+        }
+        return params.toString();
     }
 }

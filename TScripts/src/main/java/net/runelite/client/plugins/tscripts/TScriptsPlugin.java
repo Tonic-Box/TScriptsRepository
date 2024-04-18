@@ -465,7 +465,7 @@ public class TScriptsPlugin  extends Plugin {
                         .setTarget(color + entry.getItemId() + " ")
                         .setType(MenuAction.RUNELITE)
                         .setParent(objectHelper)
-                        .onClick(c -> Logging.copyToClipboard(entry.getItemId() + ""));
+                        .onClick(c -> Logging.copyToClipboard(entry.getIdentifier() + ""));
             }
             else if(opcode == MenuAction.WALK.getId())
             {

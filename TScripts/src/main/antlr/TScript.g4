@@ -55,6 +55,8 @@ functionDefinition
 
 subscriberDefinition
     : 'subscribe' ID '(' array ')' block
+    | 'subscribe' ID '(' variable ')' block
+    | 'subscribe' ID '(' ')' block
     ;
 
 variableDeclaration
