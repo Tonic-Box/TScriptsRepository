@@ -30,7 +30,7 @@ public class Logging {
                 fileWriter.close();
             }
         });
-        logToEditor(ex.toString(), Color.RED);
+        logToEditor(ex.getMessage(), Color.RED);
         ex.printStackTrace();
         thread.start();
     }

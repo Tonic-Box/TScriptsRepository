@@ -278,10 +278,8 @@ public class MethodManager
 
     public Map<String,EventData> getEventDataClasses()
     {
-        System.out.println(1);
         if(eventDataClasses != null)
         {
-            System.out.println(2);
             return eventDataClasses;
         }
 
@@ -294,28 +292,22 @@ public class MethodManager
             return new HashMap<>();
         }
 
-        System.out.println(3);
         String packageName = "net.runelite.client.plugins.tscripts.api.events";
         try {
-            System.out.println(4);
             eventDataClasses = new HashMap<>();
             // Load all classes accessible from the context class loader
             for (ClassPath.ClassInfo classInfo : classPath.getTopLevelClassesRecursive(packageName)) {
                 Class<?> clazz = classInfo.load();
                 // Check if the class implements EventData
-                System.out.println(5);
                 if (EventData.class.isAssignableFrom(clazz) && !clazz.isInterface()) {
                     EventData instance = (EventData) clazz.getDeclaredConstructor().newInstance();
-                    System.out.println("6 Found event class: " + instance.getEventName());
                     eventDataClasses.put(instance.getEventName(), instance);
                 }
             }
-        } catch (ReflectiveOperationException e) {
-            System.out.println(7);
-            System.err.println("Error processing classes: " + e.getMessage());
+        } catch (ReflectiveOperationException ex) {
+            Logging.errorLog(ex);
         }
 
-        System.out.println(8);
         return eventDataClasses;
     }
 }

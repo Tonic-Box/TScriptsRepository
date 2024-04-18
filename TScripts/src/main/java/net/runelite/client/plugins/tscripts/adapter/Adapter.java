@@ -33,8 +33,14 @@ public class Adapter
     {
         CharStream input = new ANTLRInputStream(script);
         TScriptLexer lexer = new TScriptLexer(input);
+        lexer.removeErrorListeners();
+        lexer.addErrorListener(ErrorListener.INSTANCE);
         CommonTokenStream tokens = new CommonTokenStream(lexer);
         TScriptParser parser = new TScriptParser(tokens);
+        parser.removeErrorListeners();
+        parser.addErrorListener(ErrorListener.INSTANCE);
+
+
         TScriptParser.ScriptContext tree = parser.script();
         return new Scope(flushBlock(tree.children), null);
     }
