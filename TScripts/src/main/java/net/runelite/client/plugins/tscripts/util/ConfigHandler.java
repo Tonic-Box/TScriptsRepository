@@ -72,6 +72,7 @@ public class ConfigHandler {
             properties.setProperty("minimized", "false");
             properties.setProperty("keycode", "0");
             properties.setProperty("mod", "0");
+            properties.setProperty("event", "(No Event Set)");
             try (FileOutputStream output = new FileOutputStream(CONFIG_DIR + script + ".cfg")) {
                 properties.store(output, "Script Configuration");
             } catch (IOException ex) {
@@ -161,5 +162,23 @@ public class ConfigHandler {
             Logging.errorLog(ex);
         }
         return Keybind.NOT_SET;
+    }
+
+    /**
+     * Gets the event for the script
+     * @param script The name of the script
+     * @return The event
+     */
+    public String getEvent(String script) {
+        return get(script, "event");
+    }
+
+    /**
+     * Sets the event for the script
+     * @param script The name of the script
+     * @param event The event
+     */
+    public void setEvent(String script, String event) {
+        set(script, "event", event);
     }
 }

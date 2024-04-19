@@ -1,10 +1,8 @@
 package net.runelite.client.plugins.tscripts.util;
 
-import lombok.SneakyThrows;
 import net.runelite.api.ChatMessageType;
 import net.runelite.client.plugins.tscripts.ui.editor.ScriptEditor;
 import net.unethicalite.client.Static;
-
 import javax.swing.*;
 import java.awt.*;
 import java.awt.datatransfer.StringSelection;
@@ -22,17 +20,16 @@ public class Logging {
      * @param ex the exception to log
      */
     public static void errorLog(Exception ex) {
-        Thread thread = new Thread(new Runnable() {
-            @SneakyThrows
-            public void run() {
+        logToEditor(ex.getMessage(), Color.RED);
+        ThreadPool.submit(() -> {
+            try {
                 Writer fileWriter = new FileWriter(HOME_DIR + "ErrorLogs.txt", true);
                 fileWriter.write(ex + "\n");
                 fileWriter.close();
+            } catch (Exception ignored) {
             }
         });
-        logToEditor(ex.getMessage(), Color.RED);
         ex.printStackTrace();
-        thread.start();
     }
 
     /**
@@ -62,9 +59,6 @@ public class Logging {
         ScriptEditor editor = ScriptEditor.get();
         if (editor == null)
             return;
-        SwingUtilities.invokeLater(() ->
-        {
-            editor.logToConsole(message, color);
-        });
+        SwingUtilities.invokeLater(() -> editor.logToConsole(message, color));
     }
 }

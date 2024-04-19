@@ -3,6 +3,7 @@ import lombok.SneakyThrows;
 import static net.runelite.client.plugins.tscripts.TScriptsPlugin.*;
 import net.runelite.client.plugins.tscripts.TScriptsConfig;
 import net.runelite.client.plugins.tscripts.TScriptsPlugin;
+import net.runelite.client.plugins.tscripts.util.ScriptEventManager;
 import net.runelite.client.plugins.tscripts.util.eventbus.TEventBus;
 import net.runelite.client.plugins.tscripts.util.eventbus._Subscribe;
 import net.runelite.client.plugins.tscripts.util.eventbus.events.ScriptStateChanged;
@@ -38,6 +39,7 @@ public class TScriptsPanel extends PluginPanel
     public JCheckBox logActions = new JCheckBox("Menu Actions");
     public JCheckBox logPackets = new JCheckBox("Packets");
     public ToggleSwitch hotkeys = new ToggleSwitch();
+    public ToggleSwitch events = new ToggleSwitch();
     public ToggleSwitch copyMenu = new ToggleSwitch();
     private final Border blackline = BorderFactory.createLineBorder(Color.black);
     public String editName = "";
@@ -118,6 +120,19 @@ public class TScriptsPanel extends PluginPanel
             hotkeyPanel.add(hotkeys);
             hotkeyPanel.add(hktext);
 
+            JPanel eventPanel = new JPanel(new FlowLayout(FlowLayout.LEFT,2,0));
+            eventPanel.setBackground(ColorScheme.DARK_GRAY_COLOR);
+            JLabel eventText = new JLabel("Events");
+            eventText.setBorder(new EmptyBorder(0, 5, 0, 8));
+            events.setBorder(new EmptyBorder(1, 10, 1, 10));
+            events.addActionListener(e -> {
+                config.setEventsEnabled(events.isActivated());
+                //TODO: implement event listener
+            });
+            events.setActivated(config.eventsEnabled());
+            eventPanel.add(events);
+            eventPanel.add(eventText);
+
             JPanel copyMenuPanel = new JPanel(new FlowLayout(FlowLayout.LEFT,2,0));
             copyMenuPanel.setBackground(ColorScheme.DARK_GRAY_COLOR);
             JLabel cmtext = new JLabel("Helper Menus");
@@ -135,6 +150,7 @@ public class TScriptsPanel extends PluginPanel
             southPanel.setBorder(new EmptyBorder(5, 0, 0, 0));
 
             bottomPanel.add(hotkeyPanel, BorderLayout.NORTH);
+            bottomPanel.add(eventPanel, BorderLayout.CENTER);
             bottomPanel.add(copyMenuPanel, BorderLayout.SOUTH);
 
             southPanel.add(bottomPanel, BorderLayout.NORTH);
@@ -165,6 +181,7 @@ public class TScriptsPanel extends PluginPanel
                     plugin.setProfile(s);
                     HOME_DIR = plugin.getProfilePath(s);
                     plugin.configHandler = new ConfigHandler(plugin.getProfilePath(current_profile));
+                    ScriptEventManager.getInstance().clearAllSubscribers();
                     rebuild();
                 }
             });
@@ -340,8 +357,18 @@ public class TScriptsPanel extends PluginPanel
                         writer.write(CompletionSupplier.genDocs(plugin.getRuntime().getMethodManager()));
                         writer.close();
 
-                        // Open the temporary file in Notepad
-                        Runtime.getRuntime().exec("notepad " + tempFile.getAbsolutePath());
+                        // Check if Desktop is supported by the platform
+                        if (Desktop.isDesktopSupported()) {
+                            Desktop desktop = Desktop.getDesktop();
+                            if (desktop.isSupported(Desktop.Action.OPEN)) {
+                                // Open the temporary file in the default text editor
+                                desktop.open(tempFile);
+                            } else {
+                                System.err.println("Open action is not supported on this platform!");
+                            }
+                        } else {
+                            System.err.println("Desktop is not supported on this platform!");
+                        }
                     } catch (IOException ex) {
                         Logging.errorLog(ex);
                     }

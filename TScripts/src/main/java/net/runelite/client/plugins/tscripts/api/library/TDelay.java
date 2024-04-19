@@ -3,6 +3,7 @@ package net.runelite.client.plugins.tscripts.api.library;
 import net.runelite.api.GameState;
 import net.runelite.api.Player;
 import net.runelite.client.plugins.tscripts.util.Logging;
+import net.runelite.client.plugins.tscripts.util.ThreadPool;
 import net.unethicalite.client.Static;
 
 public class TDelay
@@ -64,9 +65,9 @@ public class TDelay
 
     public static void invokeLater(Runnable runnable, int ticks)
     {
-        new Thread(() -> {
+        ThreadPool.submit(() -> {
             tick(ticks);
             Static.getClientThread().invoke(runnable);
-        }).start();
+        });
     }
 }

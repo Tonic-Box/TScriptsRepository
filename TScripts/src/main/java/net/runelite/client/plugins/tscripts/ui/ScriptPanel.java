@@ -6,7 +6,9 @@ import net.runelite.client.config.Keybind;
 import net.runelite.client.plugins.tscripts.TScriptsConfig;
 import net.runelite.client.plugins.tscripts.TScriptsPlugin;
 import net.runelite.client.plugins.tscripts.adapter.Adapter;
+import net.runelite.client.plugins.tscripts.api.MethodManager;
 import net.runelite.client.plugins.tscripts.ui.editor.ScriptEditor;
+import net.runelite.client.plugins.tscripts.util.ScriptEventManager;
 import net.runelite.client.plugins.tscripts.util.eventbus.events.ScriptStateChanged;
 import net.runelite.client.plugins.tscripts.adapter.models.Scope.Scope;
 import net.runelite.client.plugins.tscripts.util.Logging;
@@ -36,57 +38,35 @@ public class ScriptPanel extends JPanel
             BorderFactory.createMatteBorder(0, 0, 1, 0, ColorScheme.DARK_GRAY_COLOR),
             BorderFactory.createLineBorder(ColorScheme.DARKER_GRAY_COLOR));
     private final ImageIcon RUN_ICON;
-
     private final ImageIcon RUN_DISABLED_ICON;
-
     private final ImageIcon STOP_ICON;
-
     private final ImageIcon STOP_DISABLED_ICON;
-
     private final ImageIcon EDIT_ICON;
-
     private final ImageIcon EDIT_HOVER_ICON;
-
     private final ImageIcon DELETE_ICON;
-
     private final ImageIcon DELETE_HOVER_ICON;
-
     private TScriptsPlugin plugin;
-
     private TScriptsConfig config;
-
     private TScriptsPanel panel;
-
     private String script;
-
     @Getter
     private final JLabel runLabel = new JLabel();
-
     private final JLabel stopLabel = new JLabel();
-
     private final JButton bindkey = new JButton("...");
-
+    private final JComboBox<String> eventList = new JComboBox<>();
     private final JLabel editLabel = new JLabel();
-
     private final JLabel deleteLabel = new JLabel();
-
     private final FlatTextField nameInput = new FlatTextField();
-
     private final JLabel save = new JLabel("Save");
-
     private final JLabel cancel = new JLabel("Cancel");
-
     private final JLabel rename = new JLabel("Rename");
-
+    private final JLabel hotkeyLabel = new JLabel("Hotkey   ");
     private final JLabel minimizeLabel = new JLabel("--");
-
     private boolean minimized;
-
-    JPanel bottomContainer;
-
+    private JPanel bottomContainer;
     private String profile;
-
     private final Border blackline = BorderFactory.createLineBorder(Color.black);
+    private Keybind hke = Keybind.NOT_SET;
 
     {
         BufferedImage runImg =  ImageUtil.loadImageResource(TScriptsPlugin.class, "run_icon.png");
@@ -107,8 +87,6 @@ public class ScriptPanel extends JPanel
         DELETE_ICON = new ImageIcon(deleteImg);
         DELETE_HOVER_ICON = new ImageIcon(ImageUtil.alphaOffset(deleteImg, -100));
     }
-
-    private Keybind hke = Keybind.NOT_SET;
 
     /**
      * Creates a new script panel
@@ -372,6 +350,40 @@ public class ScriptPanel extends JPanel
             });
         });
 
+        this.eventList.addItem("(No Event Set)");
+        for(Class<?> clazz : MethodManager.getInstance().getEventClasses())
+        {
+            this.eventList.addItem(clazz.getSimpleName());
+        }
+
+        this.eventList.setToolTipText("Set Event Trigger");
+        String event = plugin.configHandler.getEvent(getScriptName());
+        Class<?> clazz = MethodManager.getInstance().getEventClass(event);
+
+        if(clazz != null)
+        {
+            this.eventList.setSelectedItem(clazz.getSimpleName());
+            ScriptEventManager.getInstance().registerSubscriber(getScriptName(), profile, clazz);
+        }
+
+        eventList.addActionListener(e -> {
+            JComboBox<?> cb = (JComboBox<?>) e.getSource();
+            String selectedItem = (String) cb.getSelectedItem();
+            if(selectedItem == null)
+                return;
+            plugin.configHandler.setEvent(getScriptName(), selectedItem);
+            Class<?> eventClass = MethodManager.getInstance().getEventClass(selectedItem);
+            if(selectedItem.equals("(No Event Set)") || eventClass == null)
+            {
+                ScriptEventManager.getInstance().unregisterSubscriber(getScriptName());
+                return;
+            }
+            ScriptEventManager.getInstance().registerSubscriber(getScriptName(), profile, eventClass);
+        });
+
+        this.hotkeyLabel.setFont(FontManager.getRunescapeFont());
+        this.hotkeyLabel.setForeground(ColorScheme.LIGHT_GRAY_COLOR.darker());
+
         leftActions.add(this.runLabel);
         leftActions.add(this.stopLabel);
         rightActions.add(this.editLabel);
@@ -379,8 +391,21 @@ public class ScriptPanel extends JPanel
 
         JPanel southActions = new JPanel(new BorderLayout());
         southActions.setBorder(new EmptyBorder(0, 0, 0, 0));
-        southActions.add(bindkey, BorderLayout.CENTER);
         southActions.setBackground(ColorScheme.DARKER_GRAY_COLOR);
+
+        JPanel hotkeyPanel = new JPanel(new BorderLayout());
+        hotkeyPanel.setBorder(new EmptyBorder(10, 0, 10, 5));
+        hotkeyPanel.setBackground(ColorScheme.DARKER_GRAY_COLOR);
+        hotkeyPanel.add(hotkeyLabel, BorderLayout.WEST);
+        hotkeyPanel.add(bindkey, BorderLayout.CENTER);
+
+        JPanel eventPanel = new JPanel(new BorderLayout());
+        hotkeyPanel.setBorder(new EmptyBorder(10, 0, 10, 5));
+        eventPanel.setBackground(ColorScheme.DARKER_GRAY_COLOR);
+        eventPanel.add(eventList, BorderLayout.CENTER);
+
+        southActions.add(hotkeyPanel, BorderLayout.NORTH);
+        southActions.add(eventPanel, BorderLayout.SOUTH);
         bottomContainer.add(leftActions, "West");
         bottomContainer.add(rightActions, "East");
         bottomContainer.add(southActions, BorderLayout.SOUTH);
@@ -488,7 +513,8 @@ public class ScriptPanel extends JPanel
      *
      * @param name the new name
      */
-    public void updateScriptName(String name) {
+    public void updateScriptName(String name)
+    {
         this.script = name;
     }
 
@@ -497,8 +523,6 @@ public class ScriptPanel extends JPanel
      */
     public void stop()
     {
-        //runLabel.setEnabled(true);
-        //stopLabel.setEnabled(false);
         plugin.stopScript(getScriptName());
     }
 

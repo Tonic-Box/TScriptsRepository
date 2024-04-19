@@ -19,6 +19,7 @@ import net.runelite.client.plugins.tscripts.adapter.models.variable.ArrayAccess;
 import net.runelite.client.plugins.tscripts.adapter.models.variable.VariableAssignment;
 import net.runelite.client.plugins.tscripts.types.Pair;
 import net.runelite.client.plugins.tscripts.util.Logging;
+import net.runelite.client.plugins.tscripts.util.ThreadPool;
 import net.runelite.client.plugins.tscripts.util.eventbus.TEventBus;
 import net.runelite.client.plugins.tscripts.util.eventbus._Subscribe;
 import net.runelite.client.plugins.tscripts.util.eventbus.events.*;
@@ -88,7 +89,8 @@ public class Runtime
         this.breakpointTripped = false;
         this.userDefinedFunctions.clear();
         this.variableMap.clear();
-        new Thread(() -> {
+        ThreadPool.submit(() ->
+        {
             postFlags();
             try
             {
@@ -103,7 +105,7 @@ public class Runtime
             _done = true;
             postScriptStateChanged(false);
             postFlags();
-        }).start();
+        });
     }
 
     /**
@@ -669,7 +671,7 @@ public class Runtime
 
                     Scope eventScope = scope.clone();
                     eventScope.setConditions(null);
-                    new Thread(() -> runtime.execute(eventScope, "TS_EVENT", "TS_EVENT")).start();
+                    ThreadPool.submit(() -> runtime.execute(eventScope, "TS_EVENT", "TS_EVENT"));
                 }
                 catch (Exception ex)
                 {
