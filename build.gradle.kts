@@ -34,7 +34,7 @@ subprojects {
     group = "com.tonic.externals"
 
     project.extra["PluginProvider"] = "TonicBox"
-    project.extra["ProjectUrl"] = "https://discord.gg/"
+    project.extra["ProjectUrl"] = "https://discord.gg/m6htemjY5j"
     project.extra["PluginLicense"] = "3-Clause BSD License"
 
     repositories {
