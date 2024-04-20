@@ -1,8 +1,6 @@
 package net.runelite.client.plugins.tscripts.util.cache;
 
-import lombok.Getter;
-import net.runelite.api.Actor;
-import net.runelite.api.TileObject;
+import net.runelite.api.*;
 import net.runelite.api.events.*;
 import net.runelite.client.eventbus.Subscribe;
 import net.unethicalite.client.Static;
@@ -65,10 +63,7 @@ public class EntityCache
     @Subscribe
     public void onSpawned(GameObjectSpawned event)
     {
-        synchronized (objectCache)
-        {
-            objectCache.add(event.getGameObject());
-        }
+        addObject(event.getGameObject());
     }
 
     @Subscribe
@@ -80,10 +75,7 @@ public class EntityCache
     @Subscribe
     public void onSpawned(WallObjectSpawned event)
     {
-        synchronized (objectCache)
-        {
-            objectCache.add(event.getWallObject());
-        }
+        addObject(event.getWallObject());
     }
 
     @Subscribe
@@ -95,10 +87,7 @@ public class EntityCache
     @Subscribe
     public void onSpawned(DecorativeObjectSpawned event)
     {
-        synchronized (objectCache)
-        {
-            objectCache.add(event.getDecorativeObject());
-        }
+        addObject(event.getDecorativeObject());
     }
 
     @Subscribe
@@ -110,16 +99,21 @@ public class EntityCache
     @Subscribe
     public void onSpawned(GroundObjectSpawned event)
     {
-        synchronized (objectCache)
-        {
-            objectCache.add(event.getGroundObject());
-        }
+        addObject(event.getGroundObject());
     }
 
     @Subscribe
     public void onDespawned(GroundObjectDespawned event)
     {
         removeTileObject(event.getGroundObject());
+    }
+
+    private void addObject(TileObject tileObject)
+    {
+        synchronized (objectCache)
+        {
+            objectCache.add(tileObject);
+        }
     }
 
     private void removeTileObject(TileObject tileObject)

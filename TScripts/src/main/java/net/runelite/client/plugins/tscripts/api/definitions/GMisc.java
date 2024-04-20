@@ -4,6 +4,7 @@ import com.google.common.collect.ImmutableMap;
 import net.runelite.api.ChatMessageType;
 import net.runelite.api.GameState;
 import net.runelite.client.plugins.tscripts.api.MethodManager;
+import net.runelite.client.plugins.tscripts.api.library.TDelay;
 import net.runelite.client.plugins.tscripts.types.GroupDefinition;
 import net.runelite.client.plugins.tscripts.types.MethodDefinition;
 import net.runelite.client.plugins.tscripts.types.Pair;
@@ -43,6 +44,7 @@ public class GMisc implements GroupDefinition
                         Robot bot = new Robot();
                         bot.mousePress(InputEvent.BUTTON1_DOWN_MASK);
                         bot.mouseRelease(InputEvent.BUTTON1_DOWN_MASK);
+                        TDelay.sleep(100);
                     } catch (AWTException ignored) { }
                 },
                 "Clicks the mouse"
