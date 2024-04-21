@@ -495,7 +495,7 @@ public class CFGVisualizer extends JPanel {
     private String processArrayAccess(ArrayAccess arrayAccess)
     {
         String varName = arrayAccess.getVariable();
-        String index = arrayAccess.getIndex();
+        String index = arrayAccess.getIndex() == null ? "" : arrayAccess.getIndex();
         return colorize(varName, Colors.VARIABLES) + colorize("[", Colors.OPERATORS) + colorize(index, Colors.VALUES) + colorize("]", Colors.OPERATORS);
     }
 

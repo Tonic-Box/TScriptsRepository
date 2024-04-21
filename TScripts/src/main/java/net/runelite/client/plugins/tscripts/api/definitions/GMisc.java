@@ -65,9 +65,23 @@ public class GMisc implements GroupDefinition
                     });
                 }, "Prints the arguments to the console and chatbox");
         addMethod(methods, "rand", Type.INT,
-                ImmutableMap.of(),
-                function -> (int) (Math.random() * Integer.MAX_VALUE),
-                "Clicks the mouse"
+                ImmutableMap.of(0, Pair.of("args", Type.VARARGS)),
+                function ->
+                {
+                    if(function.getArgs().length == 0)
+                    {
+                        return (int) (Math.random() * Integer.MAX_VALUE);
+                    }
+                    else if(function.getArgs().length == 1)
+                    {
+                        return (int) (Math.random() * (int) function.getArg(0, manager));
+                    }
+                    else
+                    {
+                        return (int) (Math.random() * ((int) function.getArg(1, manager) - (int) function.getArg(0, manager)) + (int) function.getArg(0, manager));
+                    }
+                },
+                "Returns a random number. Overloads: rand(), rand(int max), rand(int min, int max)"
         );
         addMethod(methods, "getTickCount", Type.INT,
                 ImmutableMap.of(),

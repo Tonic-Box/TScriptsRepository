@@ -14,6 +14,6 @@ public class ArrayAccess
 
     public String getIndex()
     {
-        return index == null ? "" : index.toString();
+        return index == null ? null : index.toString();
     }
 }

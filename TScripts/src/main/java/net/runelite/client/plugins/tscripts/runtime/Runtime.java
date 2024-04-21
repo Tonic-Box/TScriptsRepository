@@ -316,10 +316,8 @@ public class Runtime
         if(index == null)
         {
             Object value = getValue(variableAssignment.getValues().get(0));
-
             if(value == null)
                 return;
-
             if (value.getClass().isArray())
             {
                 Object[] integers = (Object[]) value;
