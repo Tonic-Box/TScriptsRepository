@@ -1,4 +1,4 @@
-package net.runelite.client.plugins.tscripts.util.eventbus.events;
+package net.runelite.client.plugins.tscripts.sevices.eventbus.events;
 
 import lombok.AllArgsConstructor;
 import lombok.Getter;

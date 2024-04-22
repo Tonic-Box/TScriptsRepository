@@ -8,8 +8,8 @@ import net.runelite.client.plugins.tscripts.TScriptsPlugin;
 import net.runelite.client.plugins.tscripts.adapter.Adapter;
 import net.runelite.client.plugins.tscripts.api.MethodManager;
 import net.runelite.client.plugins.tscripts.ui.editor.ScriptEditor;
-import net.runelite.client.plugins.tscripts.util.ScriptEventManager;
-import net.runelite.client.plugins.tscripts.util.eventbus.events.ScriptStateChanged;
+import net.runelite.client.plugins.tscripts.sevices.ScriptEventService;
+import net.runelite.client.plugins.tscripts.sevices.eventbus.events.ScriptStateChanged;
 import net.runelite.client.plugins.tscripts.adapter.models.Scope.Scope;
 import net.runelite.client.plugins.tscripts.util.Logging;
 import net.runelite.client.ui.ColorScheme;
@@ -363,7 +363,7 @@ public class ScriptPanel extends JPanel
         if(clazz != null)
         {
             this.eventList.setSelectedItem(clazz.getSimpleName());
-            ScriptEventManager.getInstance().registerSubscriber(getScriptName(), profile, clazz);
+            ScriptEventService.getInstance().registerSubscriber(getScriptName(), profile, clazz);
         }
 
         eventList.addActionListener(e -> {
@@ -375,10 +375,10 @@ public class ScriptPanel extends JPanel
             Class<?> eventClass = MethodManager.getInstance().getEventClass(selectedItem);
             if(selectedItem.equals("(No Event Set)") || eventClass == null)
             {
-                ScriptEventManager.getInstance().unregisterSubscriber(getScriptName());
+                ScriptEventService.getInstance().unregisterSubscriber(getScriptName());
                 return;
             }
-            ScriptEventManager.getInstance().registerSubscriber(getScriptName(), profile, eventClass);
+            ScriptEventService.getInstance().registerSubscriber(getScriptName(), profile, eventClass);
         });
 
         this.hotkeyLabel.setFont(FontManager.getRunescapeFont());

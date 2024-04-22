@@ -1,12 +1,10 @@
 package net.runelite.client.plugins.tscripts.runtime;
 
 import lombok.Getter;
-import lombok.Setter;
-import net.runelite.client.plugins.tscripts.types.Pair;
-import net.runelite.client.plugins.tscripts.util.eventbus.TEventBus;
-import net.runelite.client.plugins.tscripts.util.eventbus.events.VariableUpdated;
-import net.runelite.client.plugins.tscripts.util.eventbus.events.VariablesCleaned;
-import net.runelite.client.plugins.tscripts.util.eventbus.events.VariablesCleared;
+import net.runelite.client.plugins.tscripts.sevices.eventbus.TEventBus;
+import net.runelite.client.plugins.tscripts.sevices.eventbus.events.VariableUpdated;
+import net.runelite.client.plugins.tscripts.sevices.eventbus.events.VariablesCleaned;
+import net.runelite.client.plugins.tscripts.sevices.eventbus.events.VariablesCleared;
 import java.util.*;
 import java.util.concurrent.ConcurrentHashMap;
 

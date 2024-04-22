@@ -1,4 +1,4 @@
-package net.runelite.client.plugins.tscripts.util;
+package net.runelite.client.plugins.tscripts.sevices;
 
 import lombok.Getter;
 import lombok.RequiredArgsConstructor;
@@ -8,6 +8,8 @@ import net.runelite.client.plugins.tscripts.adapter.Adapter;
 import net.runelite.client.plugins.tscripts.adapter.models.Scope.Scope;
 import net.runelite.client.plugins.tscripts.api.library.TGame;
 import net.runelite.client.plugins.tscripts.runtime.Runtime;
+import net.runelite.client.plugins.tscripts.util.Logging;
+import net.runelite.client.plugins.tscripts.util.ThreadPool;
 import net.unethicalite.client.Static;
 
 import java.nio.file.Files;
@@ -17,15 +19,15 @@ import java.util.HashMap;
 import java.util.Map;
 
 @RequiredArgsConstructor
-public class ScriptEventManager
+public class ScriptEventService
 {
     private final TScriptsPlugin plugin;
     @Getter
-    private static ScriptEventManager instance;
+    private static ScriptEventService instance;
 
     public static void init(TScriptsPlugin plugin)
     {
-        instance = new ScriptEventManager(plugin);
+        instance = new ScriptEventService(plugin);
     }
     private final Map<String, EventBus.Subscriber> subscribers = new HashMap<>();
 

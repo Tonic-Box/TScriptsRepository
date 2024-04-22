@@ -17,12 +17,12 @@ import net.runelite.client.plugins.tscripts.adapter.models.condition.Glue;
 import net.runelite.client.plugins.tscripts.adapter.models.Element;
 import net.runelite.client.plugins.tscripts.adapter.models.variable.ArrayAccess;
 import net.runelite.client.plugins.tscripts.adapter.models.variable.VariableAssignment;
+import net.runelite.client.plugins.tscripts.sevices.eventbus.events.*;
 import net.runelite.client.plugins.tscripts.types.Pair;
 import net.runelite.client.plugins.tscripts.util.Logging;
 import net.runelite.client.plugins.tscripts.util.ThreadPool;
-import net.runelite.client.plugins.tscripts.util.eventbus.TEventBus;
-import net.runelite.client.plugins.tscripts.util.eventbus._Subscribe;
-import net.runelite.client.plugins.tscripts.util.eventbus.events.*;
+import net.runelite.client.plugins.tscripts.sevices.eventbus.TEventBus;
+import net.runelite.client.plugins.tscripts.sevices.eventbus._Subscribe;
 
 import java.util.*;
 

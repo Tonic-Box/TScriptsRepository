@@ -1,4 +1,4 @@
-package net.runelite.client.plugins.tscripts.util.eventbus;
+package net.runelite.client.plugins.tscripts.sevices.eventbus;
 
 import net.runelite.client.plugins.tscripts.util.Logging;
 

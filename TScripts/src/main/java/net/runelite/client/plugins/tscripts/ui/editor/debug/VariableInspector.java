@@ -1,11 +1,11 @@
 package net.runelite.client.plugins.tscripts.ui.editor.debug;
 
 import net.runelite.client.plugins.tscripts.runtime.Variable;
-import net.runelite.client.plugins.tscripts.util.eventbus.TEventBus;
-import net.runelite.client.plugins.tscripts.util.eventbus._Subscribe;
-import net.runelite.client.plugins.tscripts.util.eventbus.events.VariableUpdated;
-import net.runelite.client.plugins.tscripts.util.eventbus.events.VariablesCleaned;
-import net.runelite.client.plugins.tscripts.util.eventbus.events.VariablesCleared;
+import net.runelite.client.plugins.tscripts.sevices.eventbus.TEventBus;
+import net.runelite.client.plugins.tscripts.sevices.eventbus._Subscribe;
+import net.runelite.client.plugins.tscripts.sevices.eventbus.events.VariableUpdated;
+import net.runelite.client.plugins.tscripts.sevices.eventbus.events.VariablesCleaned;
+import net.runelite.client.plugins.tscripts.sevices.eventbus.events.VariablesCleared;
 import net.runelite.client.plugins.tscripts.runtime.Runtime;
 import javax.swing.*;
 import javax.swing.table.*;

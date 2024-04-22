@@ -11,7 +11,7 @@ import net.runelite.client.plugins.tscripts.types.GroupDefinition;
 import net.runelite.client.plugins.tscripts.types.MethodDefinition;
 import net.runelite.client.plugins.tscripts.types.Pair;
 import net.runelite.client.plugins.tscripts.types.Type;
-import net.runelite.client.plugins.tscripts.util.cache.EntityCache;
+import net.runelite.client.plugins.tscripts.sevices.cache.EntityCache;
 import net.unethicalite.client.Static;
 import java.util.ArrayList;
 import java.util.List;

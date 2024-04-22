@@ -1,8 +1,8 @@
 package net.runelite.client.plugins.tscripts.ui.editor.debug;
 
-import net.runelite.client.plugins.tscripts.util.eventbus.TEventBus;
-import net.runelite.client.plugins.tscripts.util.eventbus._Subscribe;
-import net.runelite.client.plugins.tscripts.util.eventbus.events.FlagChanged;
+import net.runelite.client.plugins.tscripts.sevices.eventbus.TEventBus;
+import net.runelite.client.plugins.tscripts.sevices.eventbus._Subscribe;
+import net.runelite.client.plugins.tscripts.sevices.eventbus.events.FlagChanged;
 import javax.swing.*;
 import javax.swing.table.DefaultTableModel;
 import java.awt.*;

@@ -3,10 +3,10 @@ import lombok.SneakyThrows;
 import static net.runelite.client.plugins.tscripts.TScriptsPlugin.*;
 import net.runelite.client.plugins.tscripts.TScriptsConfig;
 import net.runelite.client.plugins.tscripts.TScriptsPlugin;
-import net.runelite.client.plugins.tscripts.util.ScriptEventManager;
-import net.runelite.client.plugins.tscripts.util.eventbus.TEventBus;
-import net.runelite.client.plugins.tscripts.util.eventbus._Subscribe;
-import net.runelite.client.plugins.tscripts.util.eventbus.events.ScriptStateChanged;
+import net.runelite.client.plugins.tscripts.sevices.ScriptEventService;
+import net.runelite.client.plugins.tscripts.sevices.eventbus.TEventBus;
+import net.runelite.client.plugins.tscripts.sevices.eventbus._Subscribe;
+import net.runelite.client.plugins.tscripts.sevices.eventbus.events.ScriptStateChanged;
 import net.runelite.client.plugins.tscripts.util.CompletionSupplier;
 import net.runelite.client.plugins.tscripts.util.ConfigHandler;
 import net.runelite.client.plugins.tscripts.util.Logging;
@@ -181,7 +181,7 @@ public class TScriptsPanel extends PluginPanel
                     plugin.setProfile(s);
                     HOME_DIR = plugin.getProfilePath(s);
                     plugin.configHandler = new ConfigHandler(plugin.getProfilePath(current_profile));
-                    ScriptEventManager.getInstance().clearAllSubscribers();
+                    ScriptEventService.getInstance().clearAllSubscribers();
                     rebuild();
                 }
             });

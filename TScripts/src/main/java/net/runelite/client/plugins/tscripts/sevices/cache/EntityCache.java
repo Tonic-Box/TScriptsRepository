@@ -1,4 +1,4 @@
-package net.runelite.client.plugins.tscripts.util.cache;
+package net.runelite.client.plugins.tscripts.sevices.cache;
 
 import net.runelite.api.*;
 import net.runelite.api.events.*;
