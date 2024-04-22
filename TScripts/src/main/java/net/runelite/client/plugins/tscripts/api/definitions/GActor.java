@@ -3,6 +3,7 @@ package net.runelite.client.plugins.tscripts.api.definitions;
 import com.google.common.collect.ImmutableMap;
 import net.runelite.api.Actor;
 import net.runelite.client.plugins.tscripts.api.MethodManager;
+import net.runelite.client.plugins.tscripts.api.enums.NpcFilter;
 import net.runelite.client.plugins.tscripts.types.GroupDefinition;
 import net.runelite.client.plugins.tscripts.types.MethodDefinition;
 import net.runelite.client.plugins.tscripts.types.Pair;
@@ -47,6 +48,30 @@ public class GActor implements GroupDefinition {
                     }
                     return 0;
                 }, "Get the combat level of the actor");
+        addMethod(methods, "getActorLocation", Type.OBJECT,
+                ImmutableMap.of(
+                        0, Pair.of("actor", Type.OBJECT)
+                ), function ->
+                {
+                    Object actor = function.getArg(0, manager);
+                    if(actor instanceof Actor)
+                    {
+                        return ((Actor) actor).getWorldLocation();
+                    }
+                    return null;
+                }, "Get the worldpoint of the actor");
+        addMethod(methods, "actorInCombat", Type.OBJECT,
+                ImmutableMap.of(
+                        0, Pair.of("actor", Type.OBJECT)
+                ), function ->
+                {
+                    Object actor = function.getArg(0, manager);
+                    if(actor instanceof Actor)
+                    {
+                        return NpcFilter.NPC_FREE.getCondition().test((Actor) actor);
+                    }
+                    return null;
+                }, "Check if the actor is in combat");
 
         return methods;
     }

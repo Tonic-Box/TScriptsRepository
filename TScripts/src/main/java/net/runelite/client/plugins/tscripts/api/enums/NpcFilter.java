@@ -40,7 +40,7 @@ public enum NpcFilter
 
     private final String name;
     private final String description;
-    private final Predicate<NPC> condition;
+    private final Predicate<Actor> condition;
     private final static BiPredicate<Object, NPC> byName = (name, npc) -> npc.getName().equals(name);
     private final static BiPredicate<Object, NPC> byId = (id, npc) -> npc.getId() == (int)id;
 
