@@ -279,4 +279,8 @@ public class TextUtil {
         byte[] decodedBytes = Base64.getDecoder().decode(encodedString);
         return new String(decodedBytes);
     }
+
+    public static String getHex(int number) {
+        return Integer.toString(number, 16);
+    }
 }

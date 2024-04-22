@@ -42,12 +42,24 @@ public class EntityCache
     {
         if(event.getSource() == Static.getClient().getLocalPlayer() && event.getTarget() != null)
         {
-            lastInteracting = event.getTarget();
+            if(filter(event.getSource()))
+                lastInteracting = event.getTarget();
         }
         else if(event.getTarget() == Static.getClient().getLocalPlayer() && event.getSource() != null)
         {
-            lastInteracting = event.getSource();
+            if(filter(event.getSource()))
+                lastInteracting = event.getSource();
         }
+    }
+
+    private boolean filter(Actor actor)
+    {
+        return actor.getName() != null;
+    }
+
+    public String data(Actor actor)
+    {
+        return "Name: " + actor.getName() + ", ID: " + actor.getId() + ", Combat Level: " + actor.getCombatLevel() + (actor instanceof NPC ? ", Is NPC: true" : ", Is NPC: false");
     }
 
     // ############## TileObjects ##############

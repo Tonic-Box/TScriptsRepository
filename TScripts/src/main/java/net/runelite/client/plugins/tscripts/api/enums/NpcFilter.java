@@ -16,9 +16,23 @@ import java.util.function.Predicate;
 @Getter
 public enum NpcFilter
 {
-    NPC_FREE("NPC_FREE", "The npc is not interacting with anything",
+    /*NPC_FREE("NPC_FREE", "The npc is not interacting with anything",
             npc -> !npc.isInteracting() || !(npc.getIdlePoseAnimation() == npc.getPoseAnimation() && npc.getAnimation() == -1)
-            || (npc.getInteracting() != null && npc.getInteracting().getHealthScale() != -1)),
+                    || (npc.getInteracting() != null && npc.getInteracting().getHealthScale() == -1)),*/
+    NPC_FREE("NPC_FREE", "The npc is not interacting with anything",
+            npc ->
+            {
+                Actor interacting = npc.getInteracting();
+                if(interacting != null)
+                {
+                    return interacting.equals(Static.getClient().getLocalPlayer());
+                }
+
+                if(!(npc.getIdlePoseAnimation() == npc.getPoseAnimation() && npc.getAnimation() == -1))
+                    return false;
+
+                return npc.getHealthScale() == -1;
+            }),
     NPC_REACHABLE("NPC_REACHABLE", "The npc's tile is reachable", npc -> TMovement.isReachable(npc.getWorldLocation())),
     NPC_UNREACHABLE("NPC_UNREACHABLE", "The npc's tile is not reachable", npc -> !TMovement.isReachable(npc.getWorldLocation())),
     NPC_ALIVE("NPC_ALIVE", "The npc is alive", npc -> !npc.isDead()),
