@@ -190,7 +190,26 @@ public class DocumentationPanel extends JPanel
     }
 
     public void updateDocumentation(MethodDefinition methodDefinition) {
-        codeTextPane.setText("//" + methodDefinition.getDescription() + "\n" + generateUsage(methodDefinition));
+        String docs = methodDefinition.getDescription();
+        StringBuilder out = new StringBuilder();
+        if(docs.contains("\n"))
+        {
+            String[] lines = docs.split("\n");
+            for(int i = 0; i < lines.length; i++)
+            {
+                if(i == 0)
+                    out.append("/*\n * ").append(lines[i]).append("\n");
+                else if(i == lines.length - 1)
+                    out.append(" * ").append(lines[i]).append("\n */");
+                else
+                    out.append(" * ").append(lines[i]).append("\n");
+            }
+        }
+        else
+        {
+            out = new StringBuilder("//" + docs);
+        }
+        codeTextPane.setText(out + "\n" + generateUsage(methodDefinition));
         codeTextPane.setCaretPosition(0);
     }
 

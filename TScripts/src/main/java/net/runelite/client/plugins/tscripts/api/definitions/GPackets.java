@@ -46,15 +46,15 @@ public class GPackets implements GroupDefinition
                 }, "Interact with a player using a packet");
         addMethod(methods, "objectPacket",
                 ImmutableMap.of(
-                        0, Pair.of("objectId", Type.INT),
-                        1, Pair.of("action", Type.INT),
+                        0, Pair.of("action", Type.INT),
+                        1, Pair.of("objectId", Type.INT),
                         2, Pair.of("worldX", Type.INT),
                         3, Pair.of("worldY", Type.INT)
                 ),
                 function ->
                 {
-                    int id = function.getArg(0, manager);
-                    int action = function.getArg(1, manager);
+                    int id = function.getArg(1, manager);
+                    int action = function.getArg(0, manager);
                     int x = function.getArg(2, manager);
                     int y = function.getArg(3, manager);
                     TPackets.sendClickPacket();

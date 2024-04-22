@@ -7,7 +7,6 @@ import net.runelite.client.plugins.tscripts.sevices.ScriptEventService;
 import net.runelite.client.plugins.tscripts.sevices.eventbus.TEventBus;
 import net.runelite.client.plugins.tscripts.sevices.eventbus._Subscribe;
 import net.runelite.client.plugins.tscripts.sevices.eventbus.events.ScriptStateChanged;
-import net.runelite.client.plugins.tscripts.util.CompletionSupplier;
 import net.runelite.client.plugins.tscripts.util.ConfigHandler;
 import net.runelite.client.plugins.tscripts.util.Logging;
 import net.runelite.client.ui.ColorScheme;
@@ -343,40 +342,8 @@ public class TScriptsPanel extends PluginPanel
                     constraints.gridy++;
                 }
             }
-            JButton docs = new JButton("Documentation");
-            docs.addMouseListener(new MouseAdapter() {
-                @SneakyThrows
-                public void mousePressed(MouseEvent mouseEvent) {
-                    try {
-                        // Create a temporary file
-                        File tempFile = File.createTempFile("tempFile", ".txt");
-                        tempFile.deleteOnExit(); // Delete the file when the program exits
-
-                        // Write some text to the temporary file
-                        BufferedWriter writer = new BufferedWriter(new FileWriter(tempFile));
-                        writer.write(CompletionSupplier.genDocs(plugin.getRuntime().getMethodManager()));
-                        writer.close();
-
-                        // Check if Desktop is supported by the platform
-                        if (Desktop.isDesktopSupported()) {
-                            Desktop desktop = Desktop.getDesktop();
-                            if (desktop.isSupported(Desktop.Action.OPEN)) {
-                                // Open the temporary file in the default text editor
-                                desktop.open(tempFile);
-                            } else {
-                                System.err.println("Open action is not supported on this platform!");
-                            }
-                        } else {
-                            System.err.println("Desktop is not supported on this platform!");
-                        }
-                    } catch (IOException ex) {
-                        Logging.errorLog(ex);
-                    }
-                }
-            });
             add(titlePanel, BorderLayout.NORTH);
             add(scriptsView, BorderLayout.CENTER);
-            add(docs, BorderLayout.SOUTH);
             TEventBus.register(this);
         }
 
@@ -385,17 +352,6 @@ public class TScriptsPanel extends PluginPanel
         }
 
         plugin.setListenersToggle(config.keybindsEnabled());
-    }
-
-    /**
-     * Checks if the hotkeys toggle has been changed and updates the config and plugin accordingly
-     */
-    private void checkToggle()
-    {
-        if(hotkeys.isActivated() != config.keybindsEnabled()) {
-            config.setkeybindsEnabled(hotkeys.isActivated());
-            plugin.setListenersToggle(hotkeys.isActivated());
-        }
     }
 
     /**

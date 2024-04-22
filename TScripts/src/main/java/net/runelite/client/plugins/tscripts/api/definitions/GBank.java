@@ -44,7 +44,6 @@ public class GBank implements GroupDefinition
                         TBank.deposit((String) item, amount);
                     }
                 }, "Deposit an item into the bank");
-
         addMethod(methods, "withdraw",
                 ImmutableMap.of(
                         0, Pair.of("item", Type.ANY),
@@ -69,7 +68,6 @@ public class GBank implements GroupDefinition
                         TBank.withdraw((String) item, amount, noted);
                     }
                 }, "withdraw an item from the bank");
-
         addMethod(methods, "countBank", Type.INT,
                 ImmutableMap.of(
                         0, Pair.of("item", Type.ANY)
@@ -110,6 +108,26 @@ public class GBank implements GroupDefinition
                         return TBank.contains((String) item);
                     }
                 }, "Check if the bank contains an item");
+        addMethod(methods, "bankGetSlot", Type.INT,
+                ImmutableMap.of(
+                        0, Pair.of("item", Type.ANY)
+                ),
+                function ->
+                {
+                    Object item = function.getArg(0, manager);
+                    if(item instanceof Item)
+                    {
+                        return TBank.getSlot(((Item) item).getId());
+                    }
+                    else if(item instanceof Integer)
+                    {
+                        return TBank.getSlot((int) item);
+                    }
+                    else
+                    {
+                        return TBank.getSlot((String) item);
+                    }
+                }, "gets the slot of an item in the bank");
         addMethod(methods, "depositAllInventory",
                 ImmutableMap.of(),
                 function -> TBank.depositAllInventory(), "Deposit all items in the inventory into the bank");

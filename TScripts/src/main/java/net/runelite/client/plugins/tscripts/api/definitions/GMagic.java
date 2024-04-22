@@ -26,7 +26,7 @@ import java.util.List;
 public class GMagic implements GroupDefinition {
     @Override
     public String groupName() {
-        return "WidgetOn";
+        return "Magic";
     }
 
     @Override

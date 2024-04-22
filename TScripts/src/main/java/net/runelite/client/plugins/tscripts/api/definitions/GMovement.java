@@ -1,6 +1,7 @@
 package net.runelite.client.plugins.tscripts.api.definitions;
 
 import com.google.common.collect.ImmutableMap;
+import net.runelite.api.Actor;
 import net.runelite.api.Player;
 import net.runelite.api.Tile;
 import net.runelite.api.coords.WorldPoint;
@@ -49,7 +50,7 @@ public class GMovement implements GroupDefinition
                     int y = function.getArg(1, manager);
                     TMovement.walkTo(x, y);
                 }, "Sends a walk to the specified coordinates. coords can be\n" +
-                            "//either a worldpoint object or x, y.");
+                            "either a worldpoint object or x, y.");
         addMethod(methods, "pathfinder",
                 ImmutableMap.of(
                         0, Pair.of("coords", Type.VARARGS)
@@ -104,25 +105,57 @@ public class GMovement implements GroupDefinition
                 ),
                 function ->
                 {
-                    WorldPoint current = Static.getClient().getLocalPlayer().getWorldLocation();
                     int rX = function.getArg(0, manager);
                     int ry = function.getArg(1, manager);
+
+                    Object arg = function.getArg(2, manager);
+                    WorldPoint current;
+                    if(arg instanceof WorldPoint)
+                    {
+                        current = (WorldPoint) arg;
+                    }
+                    else if(arg instanceof Actor)
+                    {
+                        current = ((Actor) arg).getWorldLocation();
+                    }
+                    else if(arg instanceof Integer)
+                    {
+                        current = new WorldPoint((int) arg, function.getArg(3, manager), Static.getClient().getPlane());
+                    }
+                    else
+                    {
+                        current = Static.getClient().getLocalPlayer().getWorldLocation();
+                    }
+
                     int worldX = current.getX() + rX;
                     int worldY = current.getY() + ry;
                     TMovement.walkTo(worldX, worldY);
                 }, "Walks to the specified relative coordinates of the specified\n" +
-                            "//coordinates. The corrds can be either a worldpoint object or x, y.");
+                            "coordinates. The coordds can be either a worldpoint, and actor\n" +
+                            "(Npc/Player) object, x/y, or blank which will walk relative to\n" +
+                            "your current location.");
         addMethod(methods, "getWorldPoint", Type.OBJECT,
                 ImmutableMap.of(
                         0, Pair.of("coords", Type.VARARGS)
                 ),
                 function ->
                 {
+                    if(function.getArgs().length == 0)
+                    {
+                        return TWorldPoint.get(Static.getClient().getLocalPlayer().getWorldLocation());
+                    }
+                    else if(function.getArg(0, manager) instanceof Actor)
+                    {
+                        return TWorldPoint.get((((Actor) function.getArg(0, manager)).getWorldLocation()).getWorldLocation());
+                    }
                     int x = function.getArg(0, manager);
                     int y = function.getArg(1, manager);
                     int z = function.getArgs().length > 2 ? function.getArg(2, manager) : Static.getClient().getPlane();
                     return TWorldPoint.get(new WorldPoint(x, y, z));
-                }, "Gets a world point object from the specified coordinates.");
+                }, "Gets a world point object from the specified coordinates.\n" +
+                        "The coordds can be either a worldpoint, and actor\n" +
+                        "(Npc/Player) object, x/y, or blank which will return\n" +
+                        "your current location.");
         addMethod(methods, "walkHere",
                 ImmutableMap.of(
                         0, Pair.of("coords", Type.VARARGS)
@@ -184,7 +217,7 @@ public class GMovement implements GroupDefinition
                     int y2 = function.getArg(3, manager);
                     return TMovement.inArea(x1, y1, x2, y2);
                 }, "Checks if you're in an area. Takes either 2 worldpoint\n" +
-                            "//objects, or x, y, x, y.");
+                            "objects, or x, y, x, y.");
         return methods;
     }
 }

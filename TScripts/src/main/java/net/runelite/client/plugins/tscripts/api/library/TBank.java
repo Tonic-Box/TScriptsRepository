@@ -93,6 +93,25 @@ public class TBank
         });
     }
 
+    public static int getSlot(int itemId)
+    {
+        return TGame.invoke(() -> {
+            ItemContainer bank = Static.getClient().getItemContainer(InventoryID.BANK);
+            if(bank == null)
+            {
+                return -1;
+            }
+            for(Item item : getItems())
+            {
+                if(item.getId() == itemId)
+                {
+                    return item.getSlot();
+                }
+            }
+            return -1;
+        });
+    }
+
     public static boolean contains(String itemName)
     {
         return TGame.invoke(() -> {
@@ -107,6 +126,23 @@ public class TBank
                 }
             }
             return false;
+        });
+    }
+
+    public static int getSlot(String itemName)
+    {
+        return TGame.invoke(() -> {
+            ItemContainer bank = Static.getClient().getItemContainer(InventoryID.BANK);
+            if(bank == null)
+                return -1;
+            for(Item item : getItems())
+            {
+                if(item.getName().toLowerCase().contains(itemName.toLowerCase()))
+                {
+                    return item.getSlot();
+                }
+            }
+            return -1;
         });
     }
 

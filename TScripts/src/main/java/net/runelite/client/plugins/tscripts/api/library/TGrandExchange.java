@@ -356,7 +356,6 @@ public class TGrandExchange
         return TGame.invoke(() -> {
             Widget setupWindow = Static.getClient().getWidget(WidgetInfo.GRAND_EXCHANGE_WINDOW_CONTAINER);
             return setupWindow != null && !setupWindow.isHidden();
-
         });
     }
 

@@ -42,8 +42,8 @@ public class GGrandExchange implements GroupDefinition {
                     return TGrandExchange.buy(id, quantity, price, noted);
                 },
                 "Purchase an item from the grand exchange. If price is -1, it will \n" +
-                        "//just bump price until it buys and collect for you. otherwise will \n" +
-                        "//return the slot number."
+                        "just bump price until it buys and collect for you. otherwise will \n" +
+                        "return the slot number."
         );
 
         addMethod(methods, "sellGE", Type.INT,
@@ -65,8 +65,8 @@ public class GGrandExchange implements GroupDefinition {
                     return TGrandExchange.sell(id, quantity, price);
                 },
                 "Purchase an item from the grand exchange. If price is -1, it will \n" +
-                         "//just bump price until it sells and collect for you. otherwise will \n" +
-                        "//return the slot number."
+                         "just bump price until it sells and collect for you. otherwise will \n" +
+                        "return the slot number."
         );
 
         addMethod(methods, "checkSlotGE", Type.BOOL,
