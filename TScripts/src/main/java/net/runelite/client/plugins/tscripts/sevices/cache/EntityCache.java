@@ -57,11 +57,6 @@ public class EntityCache
         return actor.getName() != null;
     }
 
-    public String data(Actor actor)
-    {
-        return "Name: " + actor.getName() + ", ID: " + actor.getId() + ", Combat Level: " + actor.getCombatLevel() + (actor instanceof NPC ? ", Is NPC: true" : ", Is NPC: false");
-    }
-
     // ############## TileObjects ##############
 
     public Stream<TileObject> objectStream()
@@ -75,7 +70,7 @@ public class EntityCache
     @Subscribe
     public void onSpawned(GameObjectSpawned event)
     {
-        addObject(event.getGameObject());
+        addTileObject(event.getGameObject());
     }
 
     @Subscribe
@@ -87,7 +82,7 @@ public class EntityCache
     @Subscribe
     public void onSpawned(WallObjectSpawned event)
     {
-        addObject(event.getWallObject());
+        addTileObject(event.getWallObject());
     }
 
     @Subscribe
@@ -99,7 +94,7 @@ public class EntityCache
     @Subscribe
     public void onSpawned(DecorativeObjectSpawned event)
     {
-        addObject(event.getDecorativeObject());
+        addTileObject(event.getDecorativeObject());
     }
 
     @Subscribe
@@ -111,7 +106,7 @@ public class EntityCache
     @Subscribe
     public void onSpawned(GroundObjectSpawned event)
     {
-        addObject(event.getGroundObject());
+        addTileObject(event.getGroundObject());
     }
 
     @Subscribe
@@ -120,7 +115,7 @@ public class EntityCache
         removeTileObject(event.getGroundObject());
     }
 
-    private void addObject(TileObject tileObject)
+    private void addTileObject(TileObject tileObject)
     {
         synchronized (objectCache)
         {
