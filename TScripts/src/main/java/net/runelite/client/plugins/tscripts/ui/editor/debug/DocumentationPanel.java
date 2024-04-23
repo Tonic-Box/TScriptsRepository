@@ -8,8 +8,14 @@ import net.runelite.client.plugins.tscripts.types.Type;
 import net.runelite.client.plugins.tscripts.ui.editor.ExRSyntaxTextArea;
 import net.runelite.client.plugins.tscripts.util.TextUtil;
 import javax.swing.*;
+import javax.swing.event.DocumentEvent;
+import javax.swing.event.DocumentListener;
 import javax.swing.tree.DefaultMutableTreeNode;
+import javax.swing.tree.DefaultTreeModel;
 import java.awt.*;
+import java.awt.event.ActionEvent;
+import java.awt.event.ActionListener;
+import java.util.Enumeration;
 import java.util.List;
 
 public class DocumentationPanel extends JPanel
@@ -24,6 +30,7 @@ public class DocumentationPanel extends JPanel
 
     private final JTree categoryTree;
     private final ExRSyntaxTextArea codeTextPane;
+    private DefaultTreeModel originalTreeModel;
 
     private DocumentationPanel() {
         setLayout(new BorderLayout());
@@ -41,13 +48,23 @@ public class DocumentationPanel extends JPanel
         codeTextPane.setEditable(false);
         JScrollPane codeScrollPane = new JScrollPane(codeTextPane);
         codeScrollPane.setPreferredSize(new Dimension(300, 200));
+        documentationPanel.add(createSearchBar(), BorderLayout.NORTH);
         documentationPanel.add(codeScrollPane);
 
         JScrollPane documentationScrollPane = new JScrollPane(documentationPanel);
 
         JSplitPane splitPane = new JSplitPane(JSplitPane.HORIZONTAL_SPLIT, treeScrollPane, documentationScrollPane);
         splitPane.setDividerLocation(150); // You can adjust this value to set the initial divider location
+        add(createSearchBar(), BorderLayout.NORTH);
         add(splitPane, BorderLayout.CENTER);
+    }
+
+    private JTextField createSearchBar()
+    {
+        JTextField searchField = new JTextField(20);
+        searchField.setMaximumSize(new Dimension(Integer.MAX_VALUE, searchField.getPreferredSize().height));
+        searchField.addActionListener(e -> filterTree(searchField.getText()));
+        return searchField;
     }
 
     private JTree createTree() {
@@ -187,6 +204,8 @@ public class DocumentationPanel extends JPanel
             }
         });
 
+        originalTreeModel = new DefaultTreeModel(root);
+
         return tree;
     }
 
@@ -243,5 +262,46 @@ public class DocumentationPanel extends JPanel
             params.append("$event[\"").append(key).append("\"];\n");
         }
         return params.toString();
+    }
+
+    public void filterTree(String searchTerm) {
+        // Always start with a fresh copy of the original tree structure
+        DefaultMutableTreeNode root = (DefaultMutableTreeNode) originalTreeModel.getRoot();
+        DefaultMutableTreeNode filteredRoot = new DefaultMutableTreeNode("Categories");
+
+        // Recursive method to filter nodes
+        filterNode(root, filteredRoot, searchTerm.toLowerCase().trim());
+
+        // Apply the filtered model to the tree
+        categoryTree.setModel(new DefaultTreeModel(filteredRoot));
+        ((DefaultTreeModel) categoryTree.getModel()).reload();
+    }
+
+    private void filterNode(DefaultMutableTreeNode source, DefaultMutableTreeNode target, String searchTerm) {
+        Enumeration children = source.children();
+        while (children.hasMoreElements()) {
+            DefaultMutableTreeNode child = (DefaultMutableTreeNode) children.nextElement();
+            DefaultMutableTreeNode clone;
+            if (child instanceof ExTreeNode) {
+                ExTreeNode exNode = (ExTreeNode) child;
+                clone = exNode.clone();
+
+                if (exNode.getQueriable().toLowerCase().contains(searchTerm)) {
+                    target.add(clone);
+                }
+            } else {
+                clone = new DefaultMutableTreeNode(child.getUserObject());
+                if (child.getUserObject().toString().toLowerCase().contains(searchTerm)) {
+                    target.add(clone);
+                }
+            }
+
+            if (!child.isLeaf()) {
+                filterNode(child, clone, searchTerm);
+                if (clone.getChildCount() > 0) {
+                    target.add(clone);
+                }
+            }
+        }
     }
 }
