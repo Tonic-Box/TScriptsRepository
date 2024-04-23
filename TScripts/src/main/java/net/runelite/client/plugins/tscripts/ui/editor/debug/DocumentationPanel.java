@@ -64,6 +64,7 @@ public class DocumentationPanel extends JPanel
         conditionalConstructs.add(new DefaultMutableTreeNode("die"));
         conditionalConstructs.add(new DefaultMutableTreeNode("function"));
         conditionalConstructs.add(new DefaultMutableTreeNode("variables"));
+        conditionalConstructs.add(new DefaultMutableTreeNode("operators"));
         root.add(conditionalConstructs);
 
         DefaultMutableTreeNode events = new DefaultMutableTreeNode("Event Subscribers");
@@ -157,6 +158,11 @@ public class DocumentationPanel extends JPanel
                         break;
                     case "variables":
                         usage = new StringBuilder("LyoKICogVmFyaWFibGVzIGFyZSB1c2VkIHRvIHN0b3JlIGRhdGEKICoKKiBWYXJpYWJsZXMgY2FuIGJlIG9mIGFueSB0eXBlCiogVmFyaWFibGVzIGNhbiBiZSBhc3NpZ25lZCBhIHZhbHVlCiogVmFyaWFibGVzIGNhbiBiZSB1c2VkIGluIGV4cHJlc3Npb25zCiAqLwoKIC8vQXNzaWducyB0aGUgdmFsdWUgNSB0byB0aGUgdmFyaWFibGUgJHZhcgokdmFyID0gNTsKCi8qCiAqIEFycmF5cyBhcmUgYW5vdGhlciB0eXBlIG9mIHZhcmlhYmxlIHRoYXQgY2FuIHN0b3JlIG11bHRpcGxlIHZhbHVlcwogKiBhbmQgYWNjZXNzIHRoZW0gdmlhIGFuIGluZGV4LiBhcnJheXMgY2FuIGJlIGRlY2xhcmVkIHVzaW5nIHRoZQogKiBhcnJheSh2YXJhcmdzIHZhbHVlcykgZnVuY3Rpb24uIFNPbWUgbWV0aG9kcyBtYXkgYWxzbyByZXR1cm4gYXJyYXlzLgogKi8KCi8vY3JlYXRlIGFuIGFycmF5IHdpdGggc29tZSBpbmljaWFsIHZhbHVlcyBvZiBpbmRleGVzIDAtMwogJGFycmF5W10gPSBhcnJheSgib25lIiwgMTIsICJpZGsiLCBmYWxzZSk7CgogLy9wcmludHMgb3V0IHRoZSB2YWx1ZSBhdCBpbmRleCAxICgxMikKIGRlYnVnKCRhcnJheVsxXSk7CgogLy95b3UgY2FuIHNldCBuZXcgaW5kZXhlcwogJGFycmF5WzRdID0gIm5ldyB2YWx1ZSI7");
+                        codeTextPane.setText(TextUtil.decodeBase64(usage.toString()));
+                        codeTextPane.setCaretPosition(0);
+                        break;
+                    case "operators":
+                        usage = new StringBuilder("LyoKICogU3VwcG9ydGVkIG9wZXJhdG9ycwogKiAKICogKywgLSwgLywgKiwgJSwgPDwsID4+LCA+Pj4sIHwsICYKICogCiAqLw==");
                         codeTextPane.setText(TextUtil.decodeBase64(usage.toString()));
                         codeTextPane.setCaretPosition(0);
                         break;

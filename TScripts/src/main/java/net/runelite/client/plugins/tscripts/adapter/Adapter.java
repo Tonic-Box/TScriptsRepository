@@ -1,5 +1,7 @@
 package net.runelite.client.plugins.tscripts.adapter;
 
+import net.runelite.client.plugins.tscripts.adapter.models.Expression;
+import net.runelite.client.plugins.tscripts.adapter.models.OperatorType;
 import net.runelite.client.plugins.tscripts.adapter.models.Scope.Scope;
 import net.runelite.client.plugins.tscripts.adapter.models.condition.Comparator;
 import net.runelite.client.plugins.tscripts.adapter.models.condition.Condition;
@@ -316,6 +318,20 @@ public class Adapter
         return null;
     }
 
+    private static Expression flushExpression(TScriptParser.OperationExpressionContext ctx)
+    {
+        Object left = flushExpression(ctx.expression(0));
+        OperatorType type = null;
+        Object right = null;
+
+        if(ctx.expression().size() == 2 && ctx.opperationOperator() != null)
+        {
+            type = OperatorType.of(ctx.opperationOperator().getText());
+            right = flushExpression(ctx.expression(1));
+        }
+        return new Expression(left, type, right);
+    }
+
     private static Object flushExpression(TScriptParser.ExpressionContext ctx)
     {
         boolean negated = ctx.unaryOperator() != null && ctx.unaryOperator().getText().equals("!");
@@ -360,6 +376,14 @@ public class Adapter
                 negated = ctx.unaryOperator() != null && ctx.unaryOperator().getText().equals("!");
                 return flushExpression(shorthand, negated);
             }
+            else if(child instanceof TScriptParser.OperationExpressionContext)
+            {
+                return flushExpression((TScriptParser.OperationExpressionContext) child);
+            }
+            /*else if(child instanceof TScriptParser.ExpressionContext)
+            {
+                return flushExpression((TScriptParser.ExpressionContext) child);
+            }*/
         }
 
         if(ctx.NUMBER() != null)

@@ -2,6 +2,8 @@ package net.runelite.client.plugins.tscripts.runtime;
 
 import lombok.Getter;
 import net.runelite.client.eventbus.EventBus;
+import net.runelite.client.plugins.tscripts.adapter.models.Expression;
+import net.runelite.client.plugins.tscripts.adapter.models.OperatorType;
 import net.runelite.client.plugins.tscripts.adapter.models.shorthand.NullCheckExpression;
 import net.runelite.client.plugins.tscripts.adapter.models.shorthand.NullCoalescingExpression;
 import net.runelite.client.plugins.tscripts.adapter.models.shorthand.TernaryExpression;
@@ -627,12 +629,49 @@ public class Runtime
         {
             return processNullCheck((NullCheckExpression) object);
         }
+        else if(object instanceof Expression)
+        {
+            return flushOperationExpression((Expression) object);
+        }
         else if (typeOfAny(object, Integer.class, Boolean.class))
         {
             return object;
         }
 
         return null;
+    }
+
+    private Object flushOperationExpression(Expression expression)
+    {
+        Object element = getValue(expression.getData().getLeft());
+        OperatorType operator = expression.getData().getCenter();
+        if(operator == null)
+        {
+            return getValue(element);
+        }
+        Object element2 = getValue(expression.getData().getRight());
+
+        int left = 0;
+        if(element instanceof Integer)
+        {
+            left = (int) element;
+        }
+        else if(element instanceof Boolean)
+        {
+            left = (boolean) element ? 1 : 0;
+        }
+
+        int right = 0;
+        if(element2 instanceof Integer)
+        {
+            right = (int) element2;
+        }
+        else if(element2 instanceof Boolean)
+        {
+            right = (boolean) element2 ? 1 : 0;
+        }
+
+        return OperatorType.compute(left, operator, right);
     }
 
     /**

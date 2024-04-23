@@ -6,5 +6,5 @@ package net.runelite.client.plugins.tscripts.adapter.models;
 public enum ElementType {
     SCOPE,
     FUNCTION_CALL,
-    VARIABLE_ASSIGNMENT
+    EXPRESSION, VARIABLE_ASSIGNMENT
 }

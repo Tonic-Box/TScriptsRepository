@@ -121,11 +121,23 @@ public interface TScriptVisitor<T> extends ParseTreeVisitor<T> {
 	 */
 	T visitAssignmentOperator(TScriptParser.AssignmentOperatorContext ctx);
 	/**
+	 * Visit a parse tree produced by {@link TScriptParser#opperationOperator}.
+	 * @param ctx the parse tree
+	 * @return the visitor result
+	 */
+	T visitOpperationOperator(TScriptParser.OpperationOperatorContext ctx);
+	/**
 	 * Visit a parse tree produced by {@link TScriptParser#expression}.
 	 * @param ctx the parse tree
 	 * @return the visitor result
 	 */
 	T visitExpression(TScriptParser.ExpressionContext ctx);
+	/**
+	 * Visit a parse tree produced by {@link TScriptParser#operationExpression}.
+	 * @param ctx the parse tree
+	 * @return the visitor result
+	 */
+	T visitOperationExpression(TScriptParser.OperationExpressionContext ctx);
 	/**
 	 * Visit a parse tree produced by {@link TScriptParser#shorthandExpression}.
 	 * @param ctx the parse tree

@@ -42,6 +42,7 @@ forStatement
 
 condition
     : expression (comparator expression)?
+    | '(' condition ')'
     ;
 
 block
@@ -91,8 +92,13 @@ assignmentOperator
     : '-=' | '+=' | '=' | '++' | '--'
     ;
 
+opperationOperator
+    : '-' | '+' | '*' | '/' | '%' | '|' | '&' | '<<' | '>>' | '>>>'
+    ;
+
 expression
     : '(' expression ')'
+    | operationExpression
     | unaryOperator? '[' shorthandExpression ']'
     | unaryOperator? functionCall
     | unaryOperator? variable assignmentOperator?
@@ -102,6 +108,10 @@ expression
     | STRING
     | CONSTANT
     | 'null'
+    ;
+
+operationExpression
+    : '(' expression opperationOperator expression ')'
     ;
 
 shorthandExpression
@@ -128,11 +138,11 @@ nullCheck
     ;
 
 functionCall
-    : ID ('(' arguments? ')')?
+    : ID ('(' arguments? ')' | arguments?)
     ;
 
 refferanceFunctionCall
-    : variable '(' arguments? ')'
+    : variable arguments?
     ;
 
 params
@@ -141,6 +151,7 @@ params
 
 arguments
     : expression (',' expression)*
+    | '(' expression (',' expression)* ')'
     ;
 
 lambda
