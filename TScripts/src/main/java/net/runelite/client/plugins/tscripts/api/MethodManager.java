@@ -103,7 +103,8 @@ public class MethodManager
 
             if(method == null)
             {
-                return CHECK_RESPONSE.NOT_FOUND;
+                //Probably a user method
+                return CHECK_RESPONSE.OK;
             }
 
             for(int i = 0; i < method.getParameters().size(); i++)
@@ -126,7 +127,8 @@ public class MethodManager
             }
             return CHECK_RESPONSE.OK;
         }
-        return CHECK_RESPONSE.NOT_FOUND;
+        //Probably a user method
+        return CHECK_RESPONSE.OK;
     }
 
     /**
