@@ -24,6 +24,8 @@ import javax.swing.text.StyledDocument;
 import java.awt.*;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
+import java.awt.event.MouseAdapter;
+import java.awt.event.MouseEvent;
 import java.awt.image.BufferedImage;
 import java.io.File;
 import java.io.IOException;
@@ -410,6 +412,24 @@ public class ScriptEditor extends JFrame implements ActionListener {
         JTextPane pane = new JTextPane();
         pane.setEditable(false);
         pane.setContentType("text/html");
+
+        // Create the popup menu.
+        JPopupMenu popupMenu = new JPopupMenu();
+        JMenuItem clearItem = new JMenuItem("Clear Text");
+        popupMenu.add(clearItem);
+
+        // Add listener to clear text.
+        clearItem.addActionListener(e -> pane.setText(""));
+
+        // Add mouse listener to the JTextPane.
+        pane.addMouseListener(new MouseAdapter() {
+            @Override
+            public void mouseClicked(MouseEvent e) {
+                if (SwingUtilities.isRightMouseButton(e)) {
+                    popupMenu.show(e.getComponent(), e.getX(), e.getY());
+                }
+            }
+        });
 
         return pane;
     }
