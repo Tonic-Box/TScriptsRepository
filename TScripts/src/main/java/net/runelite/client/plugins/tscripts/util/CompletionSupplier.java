@@ -68,7 +68,7 @@ public class CompletionSupplier
         completions.add(new BasicCompletion(provider, "continue();", ""));
         completions.add(new BasicCompletion(provider, "break();", ""));
         completions.add(new BasicCompletion(provider, "die();", ""));
-        completions.add(new BasicCompletion(provider, "subscribe(", "String event) { ... }"));
+        completions.add(new BasicCompletion(provider, "subscribe", " EVENT_NAME($event) { ... }"));
         completions.add(new BasicCompletion(provider, "function", " FUNCTION_NAME() { ... }"));
 
 

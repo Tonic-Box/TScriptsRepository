@@ -19,6 +19,7 @@ import net.runelite.client.plugins.tscripts.adapter.models.shorthand.TernaryExpr
 import net.runelite.client.plugins.tscripts.adapter.models.variable.ArrayAccess;
 import net.runelite.client.plugins.tscripts.adapter.models.variable.AssignmentType;
 import net.runelite.client.plugins.tscripts.adapter.models.variable.VariableAssignment;
+import net.runelite.client.plugins.tscripts.api.MethodManager;
 import net.runelite.client.plugins.tscripts.util.Logging;
 import org.antlr.v4.runtime.ANTLRInputStream;
 import org.antlr.v4.runtime.CharStream;
@@ -416,6 +417,16 @@ public class Adapter
                 objects.add(flushExpression(arg));
             }
         }
+
+        MethodCall methodCall = new MethodCall(name, objects.toArray(), negated);
+
+        MethodManager.CHECK_RESPONSE resp = MethodManager.getInstance().check(methodCall);
+
+        if(resp != MethodManager.CHECK_RESPONSE.OK)
+        {
+            Logging.errorLog(new RuntimeException("Method call " + name + " failed check: " + resp));
+        }
+
         return new MethodCall(name, objects.toArray(), negated);
     }
 

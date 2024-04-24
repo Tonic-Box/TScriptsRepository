@@ -57,7 +57,7 @@ public class GGame implements GroupDefinition
                         .put(4, Pair.of("param0", Type.INT))
                         .put(5, Pair.of("param1", Type.INT))
                         .build(),
-                function -> Static.getClientThread().invoke(() -> Static.getClient().invokeMenuAction(
+                function -> TGame.invoke(() -> Static.getClient().invokeMenuAction(
                         function.getArg(0, manager),
                         function.getArg(1, manager),
                         function.getArg(2, manager),
