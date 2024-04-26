@@ -7,10 +7,11 @@ import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.concurrent.ConcurrentHashMap;
 
 public class TEventBus
 {
-    private static final Map<Object,List<Method>> subscribers = new HashMap<>();
+    private static final Map<Object,List<Method>> subscribers = new ConcurrentHashMap<>();
 
     public static void register(Object obj)
     {

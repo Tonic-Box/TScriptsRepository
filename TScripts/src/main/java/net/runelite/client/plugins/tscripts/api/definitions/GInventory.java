@@ -121,6 +121,14 @@ public class GInventory implements GroupDefinition
         addMethod(methods, "dropAll", ImmutableMap.of(0, Pair.of("items", Type.VARARGS)),
                 function ->
                 {
+                    if(function.getArgs().length == 0)
+                    {
+                        for(Item item : Inventory.getAll())
+                        {
+                            TInventory.interact(item, "Drop");
+                        }
+                        return;
+                    }
                     Object _item = function.getArg(0, manager);
                     List<Item> items = new ArrayList<>();
                     for (Object identifier : function.getArgs())
