@@ -1,6 +1,7 @@
 package net.runelite.client.plugins.tscripts.runtime;
 
 import lombok.Getter;
+import lombok.Setter;
 import net.runelite.client.eventbus.EventBus;
 import net.runelite.client.plugins.tscripts.adapter.models.Expression;
 import net.runelite.client.plugins.tscripts.adapter.models.OperatorType;
@@ -47,6 +48,9 @@ public class Runtime
     private String scriptName = "", profile = "";
     private boolean _die = false, _break = false, _continue = false, _done = true, _return = false, breakpointTripped = false;
     private boolean child = false;
+    @Getter
+    @Setter
+    private boolean anonymous = false;
 
     /**
      * Creates a new instance of the Runtime class.
@@ -791,7 +795,7 @@ public class Runtime
      */
     private void postFlags()
     {
-        if(child) return;
+        if(child || anonymous) return;
         Map<String,Object> flags = new HashMap<>();
         flags.put("scriptName", scriptName);
         flags.put("profile", profile);
@@ -813,23 +817,26 @@ public class Runtime
      */
     private void postCurrentInstructionChanged()
     {
+        if(anonymous) return;
         TEventBus.post(CurrentInstructionChanged.get());
     }
 
     private void postScriptStateChanged(boolean state)
     {
-        if(child) return;
+        if(child || anonymous) return;
         TEventBus.post(new ScriptStateChanged(scriptName, profile, state));
     }
 
     private void postBreakpointTripped()
     {
+        if(anonymous) return;
         TEventBus.post(BreakpointTripped.get());
     }
 
     @_Subscribe
     public void onBreakpointUnTripped(BreakpointUnTripped event)
     {
+        if(anonymous) return;
         breakpointTripped = false;
     }
 }
