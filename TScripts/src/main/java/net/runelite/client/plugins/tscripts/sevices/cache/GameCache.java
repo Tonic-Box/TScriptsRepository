@@ -1,5 +1,6 @@
 package net.runelite.client.plugins.tscripts.sevices.cache;
 
+import lombok.Getter;
 import net.runelite.api.*;
 import net.runelite.api.events.*;
 import net.runelite.client.eventbus.Subscribe;
@@ -10,19 +11,34 @@ import java.util.Iterator;
 import java.util.List;
 import java.util.stream.Stream;
 
-public class EntityCache
+public class GameCache
 {
-    public static EntityCache get()
+    public static GameCache get()
     {
         if(instance == null)
-            instance = new EntityCache();
+            instance = new GameCache();
         return instance;
     }
-    private static EntityCache instance;
+    private static GameCache instance;
     private final List<TileObject> objectCache = Collections.synchronizedList(new ArrayList<>());
     private Actor lastInteracting = null;
+    @Getter
+    private int tickCount = 0;
 
-    private EntityCache()
+    @Subscribe
+    public void onGameTick(GameTick event)
+    {
+        tickCount++;
+    }
+
+    @Subscribe
+    public void onGameStateChanged(GameStateChanged event)
+    {
+        if(event.getGameState() == GameState.LOGIN_SCREEN || event.getGameState() == GameState.HOPPING)
+            tickCount = 0;
+    }
+
+    private GameCache()
     {
         Static.getEventBus().register(this);
     }

@@ -43,7 +43,7 @@ public class GPackets implements GroupDefinition
                     int npcIndex = function.getArg(1, manager);
                     TPackets.sendClickPacket();
                     TPackets.sendNpcActionPacket(action, npcIndex, false);
-                }, "Interact with a player using a packet");
+                }, "Interact with an npc using a packet");
         addMethod(methods, "objectPacket",
                 ImmutableMap.of(
                         0, Pair.of("action", Type.INT),
@@ -90,7 +90,7 @@ public class GPackets implements GroupDefinition
                     int y = function.getArg(3, manager);
                     TPackets.sendClickPacket();
                     TPackets.sendGroundItemActionPacket(action, id, x, y, false);
-                }, "Interact with an item using a packet");
+                }, "Interact with a ground item using a packet");
 
         addMethod(methods, "widgetPacket",
                 ImmutableMap.of(
@@ -120,7 +120,7 @@ public class GPackets implements GroupDefinition
                     int y = function.getArg(1, manager);
                     TPackets.sendClickPacket();
                     TPackets.sendWalkPacket(x, y, false);
-                }, "Interact with a widget using a packet");
+                }, "send a packet to walk to a coordinate");
         return methods;
     }
 }

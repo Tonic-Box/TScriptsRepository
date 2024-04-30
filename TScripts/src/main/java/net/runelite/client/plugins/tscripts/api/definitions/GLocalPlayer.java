@@ -11,7 +11,7 @@ import net.runelite.client.plugins.tscripts.types.GroupDefinition;
 import net.runelite.client.plugins.tscripts.types.MethodDefinition;
 import net.runelite.client.plugins.tscripts.types.Pair;
 import net.runelite.client.plugins.tscripts.types.Type;
-import net.runelite.client.plugins.tscripts.sevices.cache.EntityCache;
+import net.runelite.client.plugins.tscripts.sevices.cache.GameCache;
 import net.unethicalite.client.Static;
 import java.util.ArrayList;
 import java.util.List;
@@ -67,7 +67,7 @@ public class GLocalPlayer implements GroupDefinition
         addMethod(methods, "getInteracting", Type.OBJECT,
                 ImmutableMap.of(), function ->
                 {
-                    Actor actor = EntityCache.get().getInteracting();
+                    Actor actor = GameCache.get().getInteracting();
 
                     if(actor == null || actor.isDead())
                         return "null";

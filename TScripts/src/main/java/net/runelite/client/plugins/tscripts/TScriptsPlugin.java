@@ -22,7 +22,7 @@ import net.runelite.client.plugins.tscripts.runtime.Runtime;
 import net.runelite.client.plugins.tscripts.sevices.ScriptEventService;
 import net.runelite.client.plugins.tscripts.ui.TScriptsPanel;
 import net.runelite.client.plugins.tscripts.util.*;
-import net.runelite.client.plugins.tscripts.sevices.cache.EntityCache;
+import net.runelite.client.plugins.tscripts.sevices.cache.GameCache;
 import net.runelite.client.plugins.tscripts.util.packets.PacketBuffer;
 import net.runelite.client.plugins.tscripts.types.PacketDefinition;
 import net.runelite.client.plugins.tscripts.util.packets.PacketMapReader;
@@ -100,7 +100,7 @@ public class TScriptsPlugin  extends Plugin {
         this.runtime = new Runtime();
         this.baseCompletion = CompletionSupplier.createBaseCompletionProvider();
         sidePanel(true);
-        EntityCache.get();
+        GameCache.get();
     }
 
     /**

@@ -1,12 +1,9 @@
 package net.runelite.client.plugins.tscripts.api.definitions;
 
 import com.google.common.collect.ImmutableMap;
-import net.runelite.api.Actor;
 import net.runelite.client.plugins.tscripts.api.MethodManager;
 import net.runelite.client.plugins.tscripts.api.library.TShop;
-import net.runelite.client.plugins.tscripts.sevices.cache.EntityCache;
 import net.runelite.client.plugins.tscripts.types.*;
-import net.unethicalite.client.Static;
 
 import java.util.ArrayList;
 import java.util.List;

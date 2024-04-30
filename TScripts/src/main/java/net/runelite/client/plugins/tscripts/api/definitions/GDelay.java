@@ -34,7 +34,7 @@ public class GDelay implements GroupDefinition
                     int length = function.getArgs().length > 0 ? function.getArg(0, manager) : 1;
                     TDelay.tick(length);
                 },
-                "Pauses script for a # of game ticks. defaults to 1 tick."
+                "Pauses script for a # of game ticks. defaults to 1 tick.", false
         );
         addMethod(methods, "sleep", ImmutableMap.of(0, Pair.of("length", Type.INT)),
                 function ->
@@ -51,7 +51,7 @@ public class GDelay implements GroupDefinition
                 {
                     int length = function.getArg(0, manager);
                     TDelay.sleep(length);
-                }, "Pauses script for a # of milliseconds.");
+                }, "Pauses script for a # of milliseconds.", false);
         addMethod(methods, "waitUntilOnTile", ImmutableMap.of(
                 0, Pair.of("coords", Type.VARARGS)
                 ),

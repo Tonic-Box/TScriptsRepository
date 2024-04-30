@@ -3,7 +3,7 @@ package net.runelite.client.plugins.tscripts.api.library;
 import net.runelite.api.TileObject;
 import net.runelite.api.coords.WorldPoint;
 import net.runelite.client.plugins.tscripts.util.Compare;
-import net.runelite.client.plugins.tscripts.sevices.cache.EntityCache;
+import net.runelite.client.plugins.tscripts.sevices.cache.GameCache;
 import net.unethicalite.client.Static;
 
 import java.util.Arrays;
@@ -33,13 +33,13 @@ public class TObjects
         }
         if(identifier instanceof Integer)
         {
-            return EntityCache.get().objectStream()
+            return GameCache.get().objectStream()
                     .filter(o -> o.getId() == (int) identifier)
                     .min(Compare.DISTANCE).orElse(null);
         }
         else if (identifier instanceof String)
         {
-            return EntityCache.get().objectStream()
+            return GameCache.get().objectStream()
                     .filter(o -> o.getName().equals(identifier))
                     .min(Compare.DISTANCE).orElse(null);
         }
@@ -55,13 +55,13 @@ public class TObjects
         }
         if(identifier instanceof Integer)
         {
-            return EntityCache.get().objectStream()
+            return GameCache.get().objectStream()
                     .filter(o -> o.getId() == (int) identifier && o.distanceTo(Static.getClient().getLocalPlayer()) <= distance)
                     .min(Compare.DISTANCE).orElse(null);
         }
         else if (identifier instanceof String)
         {
-            return EntityCache.get().objectStream()
+            return GameCache.get().objectStream()
                     .filter(o -> o.getName().equals(identifier) && o.distanceTo(Static.getClient().getLocalPlayer()) <= distance)
                     .min(Compare.DISTANCE).orElse(null);
         }
@@ -72,13 +72,13 @@ public class TObjects
     {
         if(identifier instanceof Integer)
         {
-            return EntityCache.get().objectStream()
+            return GameCache.get().objectStream()
                     .filter(o -> o.getId() == (int) identifier && o.getWorldLocation().getX() == x && o.getWorldLocation().getY() == y)
                     .findFirst().orElse(null);
         }
         else if (identifier instanceof String)
         {
-            return EntityCache.get().objectStream()
+            return GameCache.get().objectStream()
                     .filter(o -> o.getName().equals(identifier) && o.getWorldLocation().getX() == x && o.getWorldLocation().getY() == y)
                     .findFirst().orElse(null);
         }

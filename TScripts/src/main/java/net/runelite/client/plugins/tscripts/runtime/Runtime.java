@@ -69,6 +69,14 @@ public class Runtime
         TEventBus.register(this);
     }
 
+    private Runtime(VariableMap variableMap, boolean sub)
+    {
+        this.methodManager = MethodManager.getInstance();
+        this.variableMap = variableMap;
+        if(sub)
+            TEventBus.register(this);
+    }
+
     public Runtime getRuntimeChild()
     {
         Runtime runtime = new Runtime(variableMap);

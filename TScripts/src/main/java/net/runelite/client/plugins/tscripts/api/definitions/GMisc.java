@@ -5,6 +5,7 @@ import net.runelite.api.ChatMessageType;
 import net.runelite.api.GameState;
 import net.runelite.client.plugins.tscripts.api.MethodManager;
 import net.runelite.client.plugins.tscripts.api.library.TDelay;
+import net.runelite.client.plugins.tscripts.sevices.cache.GameCache;
 import net.runelite.client.plugins.tscripts.types.GroupDefinition;
 import net.runelite.client.plugins.tscripts.types.MethodDefinition;
 import net.runelite.client.plugins.tscripts.types.Pair;
@@ -31,11 +32,11 @@ public class GMisc implements GroupDefinition
         List<MethodDefinition> methods = new ArrayList<>();
         addMethod(methods, "isEven", Type.BOOL, ImmutableMap.of(0, Pair.of("number", Type.INT)),
                 function -> ((int) function.getArg(0, manager)) % 2 == 0,
-                "Returns true if the number is even, false otherwise"
+                "Returns true if the number is even, false otherwise", false
         );
         addMethod(methods, "isOdd", Type.BOOL, ImmutableMap.of(0, Pair.of("number", Type.INT)),
                 function -> ((int) function.getArg(0, manager)) % 2 != 0,
-                "Returns true if the number is odd, false otherwise"
+                "Returns true if the number is odd, false otherwise", false
         );
         addMethod(methods, "click",
                 ImmutableMap.of(),
@@ -47,7 +48,7 @@ public class GMisc implements GroupDefinition
                         TDelay.sleep(100);
                     } catch (AWTException ignored) { }
                 },
-                "Clicks the mouse"
+                "Clicks the mouse", false
         );
         addMethod(methods, "debug", ImmutableMap.of(0, Pair.of("args", Type.VARARGS)),
                 function ->
@@ -63,7 +64,7 @@ public class GMisc implements GroupDefinition
                             Static.getClient().addChatMessage(ChatMessageType.GAMEMESSAGE, msg, msg, "", true);
                         Logging.logToEditor(msg, Color.WHITE);
                     });
-                }, "Prints the arguments to the console and chatbox");
+                }, "Prints the arguments to the console and chatbox", false);
         addMethod(methods, "rand", Type.INT,
                 ImmutableMap.of(0, Pair.of("args", Type.VARARGS)),
                 function ->
@@ -81,12 +82,12 @@ public class GMisc implements GroupDefinition
                         return (int) (Math.random() * ((int) function.getArg(1, manager) - (int) function.getArg(0, manager)) + (int) function.getArg(0, manager));
                     }
                 },
-                "Returns a random number. Overloads: rand(), rand(int max), rand(int min, int max)"
+                "Returns a random number. Overloads: rand(), rand(int max), rand(int min, int max)", false
         );
         addMethod(methods, "getTickCount", Type.INT,
                 ImmutableMap.of(),
-                function -> Static.getClient().getTickCount(),
-                "Clicks the mouse"
+                function -> GameCache.get().getTickCount(),
+                "gets the game tick count since login", false
         );
         addMethod(methods, "array", Type.OBJECT,
                 ImmutableMap.of(
@@ -102,7 +103,7 @@ public class GMisc implements GroupDefinition
                     return values;
 
                 },
-                "Creates a new array with the given values"
+                "Creates a new array with the given values", false
         );
 
         return methods;

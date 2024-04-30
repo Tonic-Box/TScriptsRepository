@@ -29,7 +29,7 @@ public class GHttp implements GroupDefinition
                         1, Pair.of("timeoutMS", Type.INT)
                 ),
                 function -> THttp.get(function.getArg(0, manager), function.getArg(1, manager)),
-                "Sends a GET request to the specified URL"
+                "Sends a GET request to the specified URL", false
         );
 
         addMethod(methods, "httpPost", Type.STRING,
@@ -40,7 +40,7 @@ public class GHttp implements GroupDefinition
                 ),
                 function -> THttp.post(function.getArg(0, manager), function.getArg(1, manager), function.getArg(2, manager)),
                 "Sends a POST request to the specified URL. data in the form\n" +
-                        "of \"param1=value1&param2=value2\" an so on"
+                        "of \"param1=value1&param2=value2\" an so on", false
         );
 
         return methods;
