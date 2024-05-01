@@ -23,6 +23,7 @@ import net.runelite.client.plugins.tscripts.sevices.ScriptEventService;
 import net.runelite.client.plugins.tscripts.ui.TScriptsPanel;
 import net.runelite.client.plugins.tscripts.util.*;
 import net.runelite.client.plugins.tscripts.sevices.cache.GameCache;
+import net.runelite.client.plugins.tscripts.util.BaseClientUI;
 import net.runelite.client.plugins.tscripts.util.packets.PacketBuffer;
 import net.runelite.client.plugins.tscripts.types.PacketDefinition;
 import net.runelite.client.plugins.tscripts.util.packets.PacketMapReader;
@@ -56,15 +57,19 @@ public class TScriptsPlugin  extends Plugin {
     @Inject
     private ClientUI clientUI;
     @Inject
+    private ClientToolbar titleToolbar;
+    @Inject
     public TScriptsConfig config;
     @Inject
     public KeyManager keyManager;
+
     @Getter
     @Setter
     private String profile = "[Default]";
     public ConfigHandler configHandler;
     @Inject
     private ClientToolbar clientToolbar;
+    private BaseClientUI baseClientUI;
     private NavigationButton navButton;
     public HashMap<String, KeyListener> hotKeyListeners = new HashMap<>();
     @Getter
@@ -73,6 +78,7 @@ public class TScriptsPlugin  extends Plugin {
     private CompletionProvider baseCompletion;
     public static final String START_DIR = RuneLite.RUNELITE_DIR + File.separator + "HPQScripts" + File.separator;
     public static String HOME_DIR;
+    private NavigationButton headlessToggleButton;
 
     @Provides
     TScriptsConfig provideConfig(ConfigManager configManager) {
@@ -101,6 +107,15 @@ public class TScriptsPlugin  extends Plugin {
         this.baseCompletion = CompletionSupplier.createBaseCompletionProvider();
         sidePanel(true);
         GameCache.get();
+        baseClientUI = new BaseClientUI(clientUI);
+        headlessToggleButton = NavigationButton
+                .builder()
+                .priority(99)
+                .icon(ImageUtil.loadImageResource(TScriptsPlugin.class, "Test_icon.png"))
+                .tooltip("Headless Mode")
+                .onClick(baseClientUI::toggleHeadless)
+                .build();
+        clientToolbar.addNavigation(headlessToggleButton);
     }
 
     /**
