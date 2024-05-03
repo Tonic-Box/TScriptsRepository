@@ -56,7 +56,7 @@ public class GLocalPlayer implements GroupDefinition
         );
         addMethod(methods, "getRunEnergy", Type.INT,
                 ImmutableMap.of(),
-                function -> Static.getClient().getEnergy(),
+                function -> Static.getClient().getEnergy() / 100,
                 "Returns the run energy of the local player"
         );
         addMethod(methods, "runEnabled", Type.INT,
