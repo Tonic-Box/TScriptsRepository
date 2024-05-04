@@ -51,20 +51,27 @@ public class MethodManager
     public Object call(MethodCall methodCall)
     {
         Object out = null;
-        if (methods.containsKey(methodCall.getName().toLowerCase()))
+        try
         {
-            MethodDefinition method = methods.getOrDefault(methodCall.getName().toLowerCase(), null);
-            if (method == null || !shouldProcess(method))
-                return "null";
-            out = method.getFunction().apply(methodCall);
-            if(methodCall.isNegate() && out instanceof Boolean)
+            if (methods.containsKey(methodCall.getName().toLowerCase()))
             {
-                out = !(boolean) out;
+                MethodDefinition method = methods.getOrDefault(methodCall.getName().toLowerCase(), null);
+                if (method == null || !shouldProcess(method))
+                    return "null";
+                out = method.getFunction().apply(methodCall);
+                if(methodCall.isNegate() && out instanceof Boolean)
+                {
+                    out = !(boolean) out;
+                }
+            }
+            else
+            {
+                Logging.errorLog(new NotImplementedException("Method " + methodCall.getName() + " not found"));
             }
         }
-        else
+        catch(Exception e)
         {
-            Logging.errorLog(new NotImplementedException("Method " + methodCall.getName() + " not found"));
+            Logging.errorLog(e);
         }
 
         //bc menuactions

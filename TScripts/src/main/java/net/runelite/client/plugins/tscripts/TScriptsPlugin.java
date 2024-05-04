@@ -20,6 +20,7 @@ import net.runelite.client.plugins.tscripts.api.MethodManager;
 import net.runelite.client.plugins.tscripts.api.library.TWorldPoint;
 import net.runelite.client.plugins.tscripts.runtime.Runtime;
 import net.runelite.client.plugins.tscripts.sevices.ScriptEventService;
+import net.runelite.client.plugins.tscripts.sevices.ipc.MulticastReceiver;
 import net.runelite.client.plugins.tscripts.ui.TScriptsPanel;
 import net.runelite.client.plugins.tscripts.util.*;
 import net.runelite.client.plugins.tscripts.sevices.cache.GameCache;
@@ -79,6 +80,7 @@ public class TScriptsPlugin  extends Plugin {
     public static final String START_DIR = RuneLite.RUNELITE_DIR + File.separator + "HPQScripts" + File.separator;
     public static String HOME_DIR;
     private NavigationButton headlessToggleButton;
+    private MulticastReceiver multicastReceiver;
 
     @Provides
     TScriptsConfig provideConfig(ConfigManager configManager) {
@@ -116,6 +118,8 @@ public class TScriptsPlugin  extends Plugin {
                 .onClick(baseClientUI::toggleHeadless)
                 .build();
         clientToolbar.addNavigation(headlessToggleButton);
+        this.multicastReceiver = new MulticastReceiver();
+        ThreadPool.submit(this.multicastReceiver);
     }
 
     /**
@@ -125,6 +129,7 @@ public class TScriptsPlugin  extends Plugin {
     protected void shutDown() {
         sidePanel(false);
         unregAllKeyListeners();
+        multicastReceiver.shutdown();
     }
 
     /**

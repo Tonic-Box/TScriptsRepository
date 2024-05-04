@@ -79,6 +79,10 @@ public class Adapter
             {
                 element = flushSubscriberDefinition((TScriptParser.SubscriberDefinitionContext) tree);
             }
+            else if(tree instanceof TScriptParser.IpcPostContext)
+            {
+                element = flushIpcPostDeclaration((TScriptParser.IpcPostContext) tree);
+            }
             else if(tree instanceof TScriptParser.ArrayDeclarationContext)
             {
                 element = flushArrayDeclaration((TScriptParser.ArrayDeclarationContext) tree);
@@ -131,6 +135,19 @@ public class Adapter
         values.add(flushExpression(ctx.expression()));
 
         return new VariableAssignment(arrayAccess, values, type);
+    } //flushIpcPostDeclaration
+
+    private static Element flushIpcPostDeclaration(TScriptParser.IpcPostContext ctx) {
+        Conditions conditions = new Conditions();
+        conditions.setType(ConditionType.IPC_POST);
+
+        if (ctx.expression() != null) {
+            Condition condition = new Condition(flushExpression(ctx.expression()), ctx.block(), null);
+            conditions.getConditions().put(conditions.getConditions().size(), condition);
+        }
+
+        Map<Integer, Element> elements = new HashMap<>();
+        return new Scope(elements, conditions);
     }
 
     private static Element flushSubscriberDefinition(TScriptParser.SubscriberDefinitionContext ctx) {

@@ -3,6 +3,7 @@ package net.runelite.client.plugins.tscripts.runtime;
 import lombok.Getter;
 import lombok.Setter;
 import net.runelite.client.eventbus.EventBus;
+import net.runelite.client.plugins.tscripts.adapter.Unparser;
 import net.runelite.client.plugins.tscripts.adapter.models.Expression;
 import net.runelite.client.plugins.tscripts.adapter.models.OperatorType;
 import net.runelite.client.plugins.tscripts.adapter.models.shorthand.NullCheckExpression;
@@ -21,11 +22,15 @@ import net.runelite.client.plugins.tscripts.adapter.models.Element;
 import net.runelite.client.plugins.tscripts.adapter.models.variable.ArrayAccess;
 import net.runelite.client.plugins.tscripts.adapter.models.variable.VariableAssignment;
 import net.runelite.client.plugins.tscripts.sevices.eventbus.events.*;
+import net.runelite.client.plugins.tscripts.sevices.ipc.MulticastSender;
+import net.runelite.client.plugins.tscripts.sevices.ipc.packets.IPCPacket;
+import net.runelite.client.plugins.tscripts.sevices.ipc.packets.PacketOpcodes;
 import net.runelite.client.plugins.tscripts.types.Pair;
 import net.runelite.client.plugins.tscripts.util.Logging;
 import net.runelite.client.plugins.tscripts.util.ThreadPool;
 import net.runelite.client.plugins.tscripts.sevices.eventbus.TEventBus;
 import net.runelite.client.plugins.tscripts.sevices.eventbus._Subscribe;
+import org.antlr.v4.runtime.tree.ParseTree;
 
 import java.util.*;
 
@@ -47,6 +52,7 @@ public class Runtime
     @Getter
     private String scriptName = "", profile = "";
     private boolean _die = false, _break = false, _continue = false, _done = true, _return = false, breakpointTripped = false;
+    @Setter
     private boolean child = false;
     @Getter
     @Setter
@@ -138,6 +144,20 @@ public class Runtime
         ConditionType type = scope.getConditions() != null ? scope.getConditions().getType() : ConditionType.NONE;
         switch (type)
         {
+            case IPC_POST:
+                String target;
+                if(scope.getConditions().getConditions().isEmpty())
+                {
+                    target = "NULL";
+                }
+                else
+                {
+                    target = (String) getValue(scope.getConditions().getConditions().get(0).getLeft());
+                }
+                String data = Unparser.revert((ParseTree) scope.getConditions().getConditions().get(0).getRight());
+                IPCPacket ipcPacket = new IPCPacket(target, data);
+                MulticastSender.getInstance().send(ipcPacket);
+                return;
             case SUBSCRIBE:
                 addAnonymousEventSubscriber(scope);
                 scope.setCurrent(false);

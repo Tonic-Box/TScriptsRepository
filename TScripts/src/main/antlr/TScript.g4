@@ -13,6 +13,7 @@ script : statement* EOF;
 statement
     : functionDefinition
     | subscriberDefinition
+    | ipcPost
     | variableDeclaration ';'
     | arrayDeclaration ';'
     | functionCall ';'
@@ -32,6 +33,10 @@ ifStatement
     : 'if' '(' condition (glue condition)* ')' block ('else' block)?
     ;
 
+ipcPost
+    : 'post' ('(' expression? ')')? block
+    ;
+
 whileStatement
     : 'while' '(' condition (glue condition)* ')' block
     ;
@@ -47,6 +52,10 @@ condition
 
 block
     : '{' statement* '}'
+    ;
+
+textBlock
+    : '{'  '}'
     ;
 
 functionDefinition
@@ -126,7 +135,7 @@ shorthandExpression
     ;
 
 ternaryExpression
-    : condition (glue condition)* '?' expression ':' expression
+    : condition (glue condition)* '?' (expression || '(' shorthandExpression ')') ':' (expression || '(' shorthandExpression ')')
     ;
 
 nullCoalescingExpression
@@ -164,5 +173,5 @@ NUMBER  : [0-9]+ ('.' [0-9]+)?;
 BOOLEAN : 'true' | 'false';
 ID      : [a-zA-Z_] [a-zA-Z_0-9]*;
 WS      : [ \t\r\n]+ -> skip;
-COMMENT : '//' .*? '\n' -> skip;
+COMMENT : '//' .*? '\n'-> skip;
 BLOCK_COMMENT : '/*' .*? '*/' -> skip;

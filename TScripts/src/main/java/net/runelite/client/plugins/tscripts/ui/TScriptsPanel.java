@@ -3,12 +3,17 @@ import lombok.SneakyThrows;
 import static net.runelite.client.plugins.tscripts.TScriptsPlugin.*;
 import net.runelite.client.plugins.tscripts.TScriptsConfig;
 import net.runelite.client.plugins.tscripts.TScriptsPlugin;
+import net.runelite.client.plugins.tscripts.adapter.Adapter;
+import net.runelite.client.plugins.tscripts.adapter.models.Scope.Scope;
+import net.runelite.client.plugins.tscripts.runtime.Runtime;
 import net.runelite.client.plugins.tscripts.sevices.ScriptEventService;
 import net.runelite.client.plugins.tscripts.sevices.eventbus.TEventBus;
 import net.runelite.client.plugins.tscripts.sevices.eventbus._Subscribe;
 import net.runelite.client.plugins.tscripts.sevices.eventbus.events.ScriptStateChanged;
+import net.runelite.client.plugins.tscripts.sevices.ipc.packets.IPCPacket;
 import net.runelite.client.plugins.tscripts.util.ConfigHandler;
 import net.runelite.client.plugins.tscripts.util.Logging;
+import net.runelite.client.plugins.tscripts.util.ThreadPool;
 import net.runelite.client.ui.ColorScheme;
 import net.runelite.client.ui.PluginPanel;
 import net.runelite.client.util.ImageUtil;
@@ -409,5 +414,16 @@ public class TScriptsPanel extends PluginPanel
         for (ScriptPanel scriptPanel : this.scriptPanels) {
             scriptPanel.checkIfRunning(event);
         }
+    }
+
+    @_Subscribe
+    public void onIpcPacket(IPCPacket event)
+    {
+        ThreadPool.submit(() -> {
+            Scope scope = Adapter.parse(event.getData());
+            Runtime runtime = new Runtime();
+            runtime.setChild(true);
+            runtime.execute(scope, "TS_EVENT", "TS_EVENT");
+        });
     }
 }

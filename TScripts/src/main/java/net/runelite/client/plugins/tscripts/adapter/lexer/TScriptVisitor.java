@@ -37,6 +37,12 @@ public interface TScriptVisitor<T> extends ParseTreeVisitor<T> {
 	 */
 	T visitIfStatement(TScriptParser.IfStatementContext ctx);
 	/**
+	 * Visit a parse tree produced by {@link TScriptParser#ipcPost}.
+	 * @param ctx the parse tree
+	 * @return the visitor result
+	 */
+	T visitIpcPost(TScriptParser.IpcPostContext ctx);
+	/**
 	 * Visit a parse tree produced by {@link TScriptParser#whileStatement}.
 	 * @param ctx the parse tree
 	 * @return the visitor result
@@ -60,6 +66,12 @@ public interface TScriptVisitor<T> extends ParseTreeVisitor<T> {
 	 * @return the visitor result
 	 */
 	T visitBlock(TScriptParser.BlockContext ctx);
+	/**
+	 * Visit a parse tree produced by {@link TScriptParser#textBlock}.
+	 * @param ctx the parse tree
+	 * @return the visitor result
+	 */
+	T visitTextBlock(TScriptParser.TextBlockContext ctx);
 	/**
 	 * Visit a parse tree produced by {@link TScriptParser#functionDefinition}.
 	 * @param ctx the parse tree

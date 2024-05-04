@@ -231,6 +231,14 @@ public class GInventory implements GroupDefinition
                         return 0;
                     return  TInventory.count(function.getArgs());
                 }, "Counts the number of items in the inventory");
+        addMethod(methods, "inventoryEmptySlots", Type.INT, ImmutableMap.of(),
+                function ->
+                {
+                    ItemContainer container = Static.getClient().getItemContainer(InventoryID.INVENTORY);
+                    if(container == null)
+                        return 0;
+                    return  TInventory.emptySlots();
+                }, "Counts the number of empty slots in the inventory left");
         return methods;
     }
 }

@@ -13,5 +13,5 @@ public enum ConditionType
     USER_DEFINED_FUNCTION,
     TERNARY,
     LAMBDA,
-    NONE
+    IPC_POST, NONE
 }

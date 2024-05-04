@@ -8,7 +8,9 @@ import net.runelite.api.widgets.WidgetInfo;
 import net.unethicalite.api.items.Inventory;
 import net.unethicalite.client.Static;
 
+import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.List;
 
 public class TInventory
 {
@@ -68,7 +70,7 @@ public class TInventory
 
     public static int count(int itemId)
     {
-        return TGame.invoke(() -> {
+        Integer value = TGame.invoke(() -> {
             ItemContainer inventory = Static.getClient().getItemContainer(InventoryID.INVENTORY);
             if(inventory == null)
                 return 0;
@@ -82,11 +84,12 @@ public class TInventory
             }
             return count;
         });
+        return value == null ? 0 : value;
     }
 
     public static int count(String itemName)
     {
-        return TGame.invoke(() ->
+        Integer value = TGame.invoke(() ->
         {
             ItemContainer inventory = Static.getClient().getItemContainer(InventoryID.INVENTORY);
             if(inventory == null)
@@ -101,6 +104,7 @@ public class TInventory
             }
             return count;
         });
+        return value == null ? 0 : value;
     }
 
     public static Item getItem(Object identifier)
@@ -131,5 +135,26 @@ public class TInventory
             }
         }
         return item;
+    }
+
+    public static int emptySlots()
+    {
+        Integer value = TGame.invoke(() -> {
+            ItemContainer inventory = Static.getClient().getItemContainer(InventoryID.INVENTORY);
+            if(inventory == null)
+                return 0;
+            int count = 0;
+
+            for(Item item : inventory.getItems())
+            {
+                if(item == null || item.getId() == -1 || item.getQuantity() == 0)
+                {
+                    count++;
+                }
+            }
+
+            return count;
+        });
+        return value == null ? 0 : value;
     }
 }
