@@ -156,7 +156,7 @@ public class GPackets implements GroupDefinition
                     TPackets.sendResumeCountDialoguePacket(count);
                 }, "send resume count dialogue packet");
 
-        addMethod(methods, "resumePauseWidgetPacketPacket",
+        addMethod(methods, "resumePauseWidgetPacket",
                 ImmutableMap.of(
                         0, Pair.of("widgetID", Type.INT),
                         1, Pair.of("optionIndex", Type.INT)
@@ -168,7 +168,7 @@ public class GPackets implements GroupDefinition
                     TPackets.sendResumePauseWidgetPacket(widgetID, optionIndex);
                 }, "send resume pause widget packet packet");
 
-        addMethod(methods, "resumeObjectDialoguePacketPacket",
+        addMethod(methods, "resumeObjectDialoguePacket",
                 ImmutableMap.of(
                         0, Pair.of("id", Type.INT)
                 ),

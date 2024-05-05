@@ -306,16 +306,16 @@ public class TScriptsPlugin  extends Plugin {
                     out = "widgetPacket(" + pd.getName().split("_")[3] + ", " + pd.getMap().get("widgetId") + ", " + pd.getMap().get("childId") + ", " + pd.getMap().get("itemId") + ");";
                     break;
                 case "OP_RESUME_COUNTDIALOG":
-                    out = "sendResumeCountDialogue(" + pd.getMap().get("count") + ");";
+                    out = "resumeCountDialoguePacket(" + pd.getMap().get("count") + ");";
                     break;
                 case "OP_RESUME_PAUSEBUTTON":
-                    out =  "sendResumePauseWidget(" + pd.getMap().get("widgetID") + ", " + pd.getMap().get("optionIndex") + ");";
+                    out =  "resumePauseWidgetPacket(" + pd.getMap().get("widgetID") + ", " + pd.getMap().get("optionIndex") + ");";
                     break;
                 case "OP_RESUME_OBJDIALOG":
-                    out = "sendResumeObjectDialogue(" + pd.getMap().get("id") + ");";
+                    out = "resumeObjectDialoguePacket(" + pd.getMap().get("id") + ");";
                     break;
                 case "OP_RESUME_NAMEDIALOG":
-                    out = "sendResumeNameDialogue(" + pd.getMap().get("var7") + ");";
+                    out = "resumeNameDialoguePacket(" + pd.getMap().get("var7") + ");";
                     break;
                 case "OP_PLAYER_ACTION_0":
                 case "OP_PLAYER_ACTION_1":
