@@ -75,7 +75,7 @@ public class TGrandExchange
         if(TGame.invoke(() -> Static.getClient().getWidget(289, 8) != null && !Static.getClient().getWidget(289, 8).isHidden()))
         {
             TPackets.sendClickPacket();
-            TPackets.sendResumeCountDialogue(1);
+            TPackets.sendResumeCountDialoguePacket(1);
             TDelay.tick(1);
         }
     }
@@ -115,13 +115,13 @@ public class TGrandExchange
         TGame.invoke(() -> {
             TPackets.sendClickPacket();
             TPackets.sendWidgetActionPacket(0, slot.getId(), slot.getBuyChild(), -1);
-            TPackets.sendResumeObjectDialogue(itemId);
+            TPackets.sendResumeObjectDialoguePacket(itemId);
             TPackets.sendClickPacket();
             TPackets.sendWidgetActionPacket(0, 30474265, 12, -1);
-            TPackets.sendResumeCountDialogue(price);
+            TPackets.sendResumeCountDialoguePacket(price);
             TPackets.sendClickPacket();
             TPackets.sendWidgetActionPacket(0, 30474265, 7, -1);
-            TPackets.sendResumeCountDialogue(amount);
+            TPackets.sendResumeCountDialoguePacket(amount);
             TPackets.sendClickPacket();
             TPackets.sendWidgetActionPacket(0, 30474269, -1, -1);
         });
@@ -144,10 +144,10 @@ public class TGrandExchange
         TGame.invoke(() -> {
             TPackets.sendClickPacket();
             TPackets.sendWidgetActionPacket(0, slot.getId(), slot.getBuyChild(), -1);
-            TPackets.sendResumeObjectDialogue(itemId);
+            TPackets.sendResumeObjectDialoguePacket(itemId);
             TPackets.sendClickPacket();
             TPackets.sendWidgetActionPacket(0, 30474265, 7, -1);
-            TPackets.sendResumeCountDialogue(amount);
+            TPackets.sendResumeCountDialoguePacket(amount);
         });
         int ticker;
         if(FivePercents < 0) {
@@ -254,7 +254,7 @@ public class TGrandExchange
             {
                 TPackets.sendClickPacket();
                 TPackets.sendWidgetActionPacket(0, 30474265, 7, 65535);
-                TPackets.sendResumeCountDialogue(amount);
+                TPackets.sendResumeCountDialoguePacket(amount);
             }
             TPackets.sendClickPacket();
             TPackets.sendWidgetActionPacket(0, 30474269, 65535, 65535);
@@ -285,12 +285,12 @@ public class TGrandExchange
 
             TPackets.sendClickPacket();
             TPackets.sendWidgetActionPacket(0, 30474265, 12, 65535);
-            TPackets.sendResumeCountDialogue(price);
+            TPackets.sendResumeCountDialoguePacket(price);
             if(amount != -1)
             {
                 TPackets.sendClickPacket();
                 TPackets.sendWidgetActionPacket(0, 30474265, 7, 65535);
-                TPackets.sendResumeCountDialogue(price);
+                TPackets.sendResumeCountDialoguePacket(price);
             }
             TPackets.sendWidgetActionPacket(0, 30474269, 65535, 65535);
         });

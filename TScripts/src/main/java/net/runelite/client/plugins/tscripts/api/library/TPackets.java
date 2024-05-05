@@ -4,7 +4,6 @@ import net.runelite.api.packets.ClientPacket;
 import net.runelite.api.widgets.WidgetInfo;
 import net.runelite.client.plugins.tscripts.types.MapEntry;
 import net.runelite.client.plugins.tscripts.util.packets.PacketMapReader;
-import net.unethicalite.api.packets.MousePackets;
 import net.unethicalite.client.Static;
 import java.util.HashMap;
 import java.util.Map;
@@ -108,7 +107,7 @@ public class TPackets
         PacketMapReader.createBuffer(entry, args).send(clientPacket);
     }
     
-    public static void sendResumeCountDialogue(int count)
+    public static void sendResumeCountDialoguePacket(int count)
     {
         MapEntry entry = PacketMapReader.get("OP_RESUME_COUNTDIALOG");
         Map<String,Object> args = new HashMap<>();
@@ -117,7 +116,7 @@ public class TPackets
         PacketMapReader.createBuffer(entry, args).send(Static.getClientPacket().RESUME_COUNTDIALOG());
     }
     
-    public static void sendResumePauseWidget(int widgetID, int optionIndex)
+    public static void sendResumePauseWidgetPacket(int widgetID, int optionIndex)
     {
         MapEntry entry = PacketMapReader.get("OP_RESUME_PAUSEBUTTON");
         Map<String,Object> args = new HashMap<>();
@@ -126,14 +125,14 @@ public class TPackets
         PacketMapReader.createBuffer(entry, args).send(Static.getClientPacket().RESUME_PAUSEBUTTON());
     }
     
-    public static void sendResumeObjectDialogue(int id) {
+    public static void sendResumeObjectDialoguePacket(int id) {
         MapEntry entry = PacketMapReader.get("OP_RESUME_OBJDIALOG");
         Map<String,Object> args = new HashMap<>();
         args.put("id", id);
         PacketMapReader.createBuffer(entry, args).send(Static.getClientPacket().RESUME_OBJDIALOG());
     }
     
-    public static void sendResumeNameDialogue(String text) {
+    public static void sendResumeNameDialoguePacket(String text) {
         MapEntry entry = PacketMapReader.get("OP_RESUME_NAMEDIALOG");
         Map<String,Object> args = new HashMap<>();
         args.put("length", text.length());
@@ -320,14 +319,14 @@ public class TPackets
         PacketMapReader.createBuffer(entry, args).send(Static.getClientPacket().OPLOCT());
     }
 
-    public static void sendWidgetOnGroundItemPacket(int selectedWidgetId, int itemId, int slot, int objectID, int worldX, int worldY, boolean ctrl)
+    public static void sendWidgetOnGroundItemPacket(int selectedWidgetId, int itemId, int slot, int groundItemID, int worldX, int worldY, boolean ctrl)
     {
         MapEntry entry = PacketMapReader.get("OP_WIDGET_TARGET_ON_GROUND_ITEM");
         Map<String,Object> args = new HashMap<>();
         args.put("selectedWidgetId", selectedWidgetId);
         args.put("itemId", itemId);
         args.put("slot", slot);
-        args.put("identifier", objectID);
+        args.put("identifier", groundItemID);
         args.put("worldX", worldX);
         args.put("worldY", worldY);
         args.put("ctrl", ctrl ? 0 : 1);
@@ -369,6 +368,13 @@ public class TPackets
         args.put("identifier2", itemId2);
         args.put("param0", slot2);
         PacketMapReader.createBuffer(entry, args).send(Static.getClientPacket().IF_BUTTONT());
+    }
+
+    public static void sendInterfaceClosePacket()
+    {
+        MapEntry entry = PacketMapReader.get("OP_INTERFACE_CLOSE");
+        Map<String,Object> args = new HashMap<>();
+        PacketMapReader.createBuffer(entry, args).send(Static.getClientPacket().CLOSE_MODAL());
     }
 
     public static void sendItemActionPacket(int slot, int id, int action)

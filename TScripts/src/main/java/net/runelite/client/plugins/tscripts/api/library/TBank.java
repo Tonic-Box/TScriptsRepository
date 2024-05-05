@@ -36,13 +36,13 @@ public class TBank
             if(client.getVarbitValue(WITHDRAW_X_AMOUNT) != amount && amount != 1 && amount != 5 && amount != 10 && amount != -1)
             {
                 TPackets.sendWidgetActionPacket(1, 786466, -1, -1);
-                TPackets.sendResumeCountDialogue(amount);
+                TPackets.sendResumeCountDialoguePacket(amount);
                 TClientScript.closeNumericInputDialogue();
             }
             else if(client.getVarbitValue(6590) != 3)
             {
                 TPackets.sendWidgetActionPacket(1, 786466, -1, -1);
-                TPackets.sendResumeCountDialogue(1);
+                TPackets.sendResumeCountDialoguePacket(1);
                 TClientScript.closeNumericInputDialogue();
             }
         });
@@ -274,7 +274,7 @@ public class TBank
         }
         else {
             TPackets.sendWidgetActionPacket(6, WidgetInfo.BANK_INVENTORY_ITEMS_CONTAINER.getId(), slot, itemId);
-            TPackets.sendResumeCountDialogue(amount);
+            TPackets.sendResumeCountDialoguePacket(amount);
             TClientScript.closeNumericInputDialogue();
         }
     }

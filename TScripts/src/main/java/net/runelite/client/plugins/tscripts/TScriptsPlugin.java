@@ -305,18 +305,18 @@ public class TScriptsPlugin  extends Plugin {
                 case "OP_WIDGET_ACTION_9":
                     out = "widgetPacket(" + pd.getName().split("_")[3] + ", " + pd.getMap().get("widgetId") + ", " + pd.getMap().get("childId") + ", " + pd.getMap().get("itemId") + ");";
                     break;
-                /*case "OP_RESUME_COUNTDIALOG":
-                    logger.log(CustomLoggerLevels.SHORTPACKET, "sendResumeCountDialogue(" + pd.getMap().get("count") + "); //" + out);
+                case "OP_RESUME_COUNTDIALOG":
+                    out = "sendResumeCountDialogue(" + pd.getMap().get("count") + ");";
                     break;
                 case "OP_RESUME_PAUSEBUTTON":
-                    logger.log(CustomLoggerLevels.SHORTPACKET, "sendResumePauseWidget(" + pd.getMap().get("widgetID") + ", " + pd.getMap().get("optionIndex") + "); //" + out);
+                    out =  "sendResumePauseWidget(" + pd.getMap().get("widgetID") + ", " + pd.getMap().get("optionIndex") + ");";
                     break;
                 case "OP_RESUME_OBJDIALOG":
-                    logger.log(CustomLoggerLevels.SHORTPACKET, "sendResumeObjectDialogue(" + pd.getMap().get("id") + "); //" + out);
+                    out = "sendResumeObjectDialogue(" + pd.getMap().get("id") + ");";
                     break;
                 case "OP_RESUME_NAMEDIALOG":
-                    logger.log(CustomLoggerLevels.SHORTPACKET, "sendResumeNameDialogue(" + pd.getMap().get("var7") + "); //" + out);
-                    break;*/
+                    out = "sendResumeNameDialogue(" + pd.getMap().get("var7") + ");";
+                    break;
                 case "OP_PLAYER_ACTION_0":
                 case "OP_PLAYER_ACTION_1":
                 case "OP_PLAYER_ACTION_2":
@@ -348,24 +348,24 @@ public class TScriptsPlugin  extends Plugin {
                 case "OP_GROUND_ITEM_ACTION_4":
                     out = "groundItemPacket(" + pd.getName().split("_")[4] + ", " + pd.getMap().get("identifier") + ", " + pd.getMap().get("worldX") + ", " + pd.getMap().get("worldY") + ");";
                     break;
-                /*case "OP_WIDGET_TARGET_ON_GAME_OBJECT":
-                    logger.log(CustomLoggerLevels.SHORTPACKET, "sendWidgetOnObjectPacket(" + pd.getMap().get("selectedWidgetId") + ", " + pd.getMap().get("itemId") + ", " + pd.getMap().get("slot") + ", " + pd.getMap().get("identifier") + ", " + pd.getMap().get("worldX") + ", " + pd.getMap().get("worldY") + ", " + ((pd.getMap().get("ctrl") == 1) ? "true" : "false") + "); //" + out);
+                case "OP_WIDGET_TARGET_ON_WIDGET":
+                    out = "widgetOnWidgetPacket(" + pd.getMap().get("selectedWidgetId") + ", " + pd.getMap().get("itemId") + ", " + pd.getMap().get("slot") + ", " + pd.getMap().get("targetWidgetID") + ", " + pd.getMap().get("identifier2") + ", " + pd.getMap().get("param0") + ");";
+                    break;
+                case "OP_WIDGET_TARGET_ON_GAME_OBJECT":
+                    out = "widgetOnObjectPacket(" + pd.getMap().get("selectedWidgetId") + ", " + pd.getMap().get("itemId") + ", " + pd.getMap().get("slot") + ", " + pd.getMap().get("identifier") + ", " + pd.getMap().get("worldX") + ", " + pd.getMap().get("worldY") + ", " + ((pd.getMap().get("ctrl") == 1) ? "true" : "false") + "); //";
                     break;
                 case "OP_WIDGET_TARGET_ON_GROUND_ITEM":
-                    logger.log(CustomLoggerLevels.SHORTPACKET, "sendWidgetOnGroundItemPacket(" + pd.getMap().get("selectedWidgetId") + ", " + pd.getMap().get("itemId") + ", " + pd.getMap().get("slot") + ", " + pd.getMap().get("identifier") + ", " + pd.getMap().get("worldX") + ", " + pd.getMap().get("worldY") + ", " + ((pd.getMap().get("ctrl") == 1) ? "true" : "false") + "); //" + out);
+                    out = "widgetOnGroundItemPacket(" + pd.getMap().get("selectedWidgetId") + ", " + pd.getMap().get("itemId") + ", " + pd.getMap().get("slot") + ", " + pd.getMap().get("identifier") + ", " + pd.getMap().get("worldX") + ", " + pd.getMap().get("worldY") + ", " + ((pd.getMap().get("ctrl") == 1) ? "true" : "false") + ");";
                     break;
                 case "OP_WIDGET_TARGET_ON_NPC":
-                    logger.log(CustomLoggerLevels.SHORTPACKET, "sendWidgetOnNpcPacket(" + pd.getMap().get("selectedWidgetId") + ", " + pd.getMap().get("itemId") + ", " + pd.getMap().get("slot") + ", " + pd.getMap().get("identifier") + ", " + ((pd.getMap().get("ctrl") == 1) ? "true" : "false") + "); //" + out);
+                    out = "widgetOnNpcPacket(" + pd.getMap().get("selectedWidgetId") + ", " + pd.getMap().get("itemId") + ", " + pd.getMap().get("slot") + ", " + pd.getMap().get("identifier") + ", " + ((pd.getMap().get("ctrl") == 1) ? "true" : "false") + ");";
                     break;
                 case "OP_WIDGET_TARGET_ON_PLAYER":
-                    logger.log(CustomLoggerLevels.SHORTPACKET, "sendWidgetOnPlayerPacket(" + pd.getMap().get("selectedWidgetId") + ", " + pd.getMap().get("itemId") + ", " + pd.getMap().get("slot") + ", " + pd.getMap().get("identifier") + ", " + ((pd.getMap().get("ctrl") == 1) ? "true" : "false") + "); //" + out);
-                    break;
-                case "OP_WIDGET_TARGET_ON_WIDGET":
-                    logger.log(CustomLoggerLevels.SHORTPACKET, "sendWidgetOnWidgetPacket(" + pd.getMap().get("selectedWidgetId") + ", " + pd.getMap().get("itemId") + ", " + pd.getMap().get("slot") + ", " + pd.getMap().get("targetWidgetID") + ", " + pd.getMap().get("identifier2") + ", " + pd.getMap().get("param0") + "); //" + out);
+                    out = "widgetOnPlayerPacket(" + pd.getMap().get("selectedWidgetId") + ", " + pd.getMap().get("itemId") + ", " + pd.getMap().get("slot") + ", " + pd.getMap().get("identifier") + ", " + ((pd.getMap().get("ctrl") == 1) ? "true" : "false") + ");";
                     break;
                 case "OP_INTERFACE_CLOSE":
-                    logger.log(CustomLoggerLevels.SHORTPACKET, "sendWidgetClosePacket(); //" + out);
-                    break;*/
+                    out = "interfaceClosePacket();";
+                    break;
             }
         }
         pb.release();

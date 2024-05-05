@@ -43,7 +43,7 @@ public class TTrade
         if(type == 4)
         {
             TDelay.tick(1);
-            TPackets.sendResumeCountDialogue(amount);
+            TPackets.sendResumeCountDialoguePacket(amount);
             TClientScript.closeNumericInputDialogue();
         }
     }
@@ -81,7 +81,7 @@ public class TTrade
         if(type == 4)
         {
             TDelay.tick(1);
-            TPackets.sendResumeCountDialogue(amount);
+            TPackets.sendResumeCountDialoguePacket(amount);
             TClientScript.closeNumericInputDialogue();
         }
     }

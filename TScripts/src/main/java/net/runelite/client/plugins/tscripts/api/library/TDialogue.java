@@ -20,7 +20,7 @@ public class TDialogue
     {
         TGame.invoke(() -> {
             TPackets.sendClickPacket();
-            TPackets.sendResumePauseWidget(WidgetInfo.DIALOG_OPTION_OPTION1.getId(), option);
+            TPackets.sendResumePauseWidgetPacket(WidgetInfo.DIALOG_OPTION_OPTION1.getId(), option);
             return null;
         });
     }
@@ -29,7 +29,7 @@ public class TDialogue
     {
         TGame.invoke(() -> {
             TPackets.sendClickPacket();
-            TPackets.sendResumePauseWidget(17694734, quantity);
+            TPackets.sendResumePauseWidgetPacket(17694734, quantity);
         });
     }
 
@@ -68,30 +68,30 @@ public class TDialogue
     public static boolean continueDialogue() {
         return TGame.invoke(() -> {
             if (Widgets.get(WidgetID.DIALOG_NPC_GROUP_ID, 5) != null) {
-                TPackets.sendResumePauseWidget(WidgetInfo.PACK(WidgetID.DIALOG_NPC_GROUP_ID, 5), -1);
+                TPackets.sendResumePauseWidgetPacket(WidgetInfo.PACK(WidgetID.DIALOG_NPC_GROUP_ID, 5), -1);
                 return true;
             }
             else if (Widgets.get(633, 0) != null) {
-                TPackets.sendResumePauseWidget(WidgetInfo.PACK(633, 0), -1);
+                TPackets.sendResumePauseWidgetPacket(WidgetInfo.PACK(633, 0), -1);
                 return true;
             }
             else if (Widgets.get(WidgetID.DIALOG_PLAYER_GROUP_ID, 5) != null) {
-                TPackets.sendResumePauseWidget(WidgetInfo.PACK(WidgetID.DIALOG_PLAYER_GROUP_ID, 5), -1);
+                TPackets.sendResumePauseWidgetPacket(WidgetInfo.PACK(WidgetID.DIALOG_PLAYER_GROUP_ID, 5), -1);
                 return true;
             }
             else if (Widgets.get(WidgetInfo.DIALOG_SPRITE) != null) {
-                TPackets.sendResumePauseWidget(WidgetInfo.DIALOG_SPRITE.getId(), -1);
+                TPackets.sendResumePauseWidgetPacket(WidgetInfo.DIALOG_SPRITE.getId(), -1);
                 return true;
             }
             else if (Widgets.get(WidgetInfo.DIALOG2_SPRITE) != null) {
-                TPackets.sendResumePauseWidget(WidgetInfo.DIALOG2_SPRITE_CONTINUE.getId(), -1);
+                TPackets.sendResumePauseWidgetPacket(WidgetInfo.DIALOG2_SPRITE_CONTINUE.getId(), -1);
                 return true;
             }
             else if (Widgets.get(WidgetInfo.MINIGAME_DIALOG_CONTINUE) != null) {
                 Widget w = Widgets.get(WidgetInfo.MINIGAME_DIALOG_CONTINUE);
                 if(w != null && w.getText() != null && w.getText().equals("Click here to continue"))
                 {
-                    net.runelite.client.plugins.tscripts.api.library.TPackets.sendResumePauseWidget(WidgetInfo.MINIGAME_DIALOG_CONTINUE.getId(), -1);
+                    net.runelite.client.plugins.tscripts.api.library.TPackets.sendResumePauseWidgetPacket(WidgetInfo.MINIGAME_DIALOG_CONTINUE.getId(), -1);
                     return true;
                 }
             }
@@ -99,7 +99,7 @@ public class TDialogue
                 Widget w = Widgets.get(WidgetInfo.DIALOG_NOTIFICATION_CONTINUE);
                 if(w != null && w.getText() != null && w.getText().equals("Click here to continue"))
                 {
-                    net.runelite.client.plugins.tscripts.api.library.TPackets.sendResumePauseWidget(WidgetInfo.DIALOG_NOTIFICATION_CONTINUE.getId(), -1);
+                    net.runelite.client.plugins.tscripts.api.library.TPackets.sendResumePauseWidgetPacket(WidgetInfo.DIALOG_NOTIFICATION_CONTINUE.getId(), -1);
                     return true;
                 }
             }
@@ -107,7 +107,7 @@ public class TDialogue
                 Widget w = Widgets.get(WidgetInfo.LEVEL_UP_CONTINUE);
                 if(w != null && w.getText() != null && w.getText().equals("Click here to continue"))
                 {
-                    TPackets.sendResumePauseWidget(WidgetInfo.LEVEL_UP_CONTINUE.getId(), -1);
+                    TPackets.sendResumePauseWidgetPacket(WidgetInfo.LEVEL_UP_CONTINUE.getId(), -1);
                     return true;
                 }
             }
