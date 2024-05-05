@@ -3,6 +3,7 @@ package net.runelite.client.plugins.tscripts.api.definitions;
 import com.google.common.collect.ImmutableMap;
 import net.runelite.api.Actor;
 import net.runelite.api.Skill;
+import net.runelite.api.VarPlayer;
 import net.runelite.client.plugins.tscripts.api.MethodManager;
 import net.runelite.client.plugins.tscripts.api.library.TActor;
 import net.runelite.client.plugins.tscripts.api.library.TGame;
@@ -56,7 +57,7 @@ public class GLocalPlayer implements GroupDefinition
         );
         addMethod(methods, "getRunEnergy", Type.INT,
                 ImmutableMap.of(),
-                function -> Static.getClient().getEnergy(),
+                function -> Static.getClient().getEnergy() / 100,
                 "Returns the run energy of the local player"
         );
         addMethod(methods, "runEnabled", Type.INT,
@@ -77,6 +78,16 @@ public class GLocalPlayer implements GroupDefinition
 
                     return actor;
                 }, "Get the actor that the local player is interacting with"
+        );
+        addMethod(methods, "getSpecialAttackPercent", Type.INT,
+                ImmutableMap.of(),
+                function -> TGame.invoke(() -> Static.getClient().getVarpValue(VarPlayer.SPECIAL_ATTACK_PERCENT)),
+                "Gets special attack percent"
+        );
+        addMethod(methods, "isSpecialAttackEnabled", Type.INT,
+                ImmutableMap.of(),
+                function -> TGame.invoke(() -> Static.getClient().getVarpValue(VarPlayer.SPECIAL_ATTACK_ENABLED)) == 1,
+                "Returns true if special attack is enabled"
         );
         return methods;
     }
