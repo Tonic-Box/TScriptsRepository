@@ -70,7 +70,6 @@ public class TScriptsPlugin  extends Plugin {
     public ConfigHandler configHandler;
     @Inject
     private ClientToolbar clientToolbar;
-    private BaseClientUI baseClientUI;
     private NavigationButton navButton;
     public HashMap<String, KeyListener> hotKeyListeners = new HashMap<>();
     @Getter
@@ -79,11 +78,11 @@ public class TScriptsPlugin  extends Plugin {
     private CompletionProvider baseCompletion;
     public static final String START_DIR = RuneLite.RUNELITE_DIR + File.separator + "HPQScripts" + File.separator;
     public static String HOME_DIR;
-    private NavigationButton headlessToggleButton;
     private MulticastReceiver multicastReceiver;
 
     @Provides
-    TScriptsConfig provideConfig(ConfigManager configManager) {
+    TScriptsConfig provideConfig(ConfigManager configManager)
+    {
         return configManager.getConfig(TScriptsConfig.class);
     }
 
@@ -109,8 +108,8 @@ public class TScriptsPlugin  extends Plugin {
         this.baseCompletion = CompletionSupplier.createBaseCompletionProvider();
         sidePanel(true);
         GameCache.get();
-        baseClientUI = new BaseClientUI(clientUI);
-        headlessToggleButton = NavigationButton
+        BaseClientUI baseClientUI = new BaseClientUI(clientUI);
+        NavigationButton headlessToggleButton = NavigationButton
                 .builder()
                 .priority(99)
                 .icon(ImageUtil.loadImageResource(TScriptsPlugin.class, "Test_icon.png"))

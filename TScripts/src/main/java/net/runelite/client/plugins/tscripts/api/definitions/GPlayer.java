@@ -4,10 +4,12 @@ import com.google.common.collect.ImmutableMap;
 import net.runelite.api.Player;
 import net.runelite.api.queries.PlayerQuery;
 import net.runelite.client.plugins.tscripts.api.MethodManager;
+import net.runelite.client.plugins.tscripts.api.library.TPlayer;
 import net.runelite.client.plugins.tscripts.types.GroupDefinition;
 import net.runelite.client.plugins.tscripts.types.MethodDefinition;
 import net.runelite.client.plugins.tscripts.types.Pair;
 import net.runelite.client.plugins.tscripts.types.Type;
+import net.unethicalite.api.entities.Players;
 import net.unethicalite.client.Static;
 
 import java.util.ArrayList;
@@ -33,10 +35,9 @@ public class GPlayer implements GroupDefinition
                 function ->
                 {
                     String username = function.getArg(0, manager);
-
-                    Player player = new PlayerQuery().filter(p -> p.getName().equals(username)).result(Static.getClient()).first();
-
                     Object action = function.getArg(1, manager);
+
+                    Player player = TPlayer.getPlayer(TPlayer.nameEquals(username));
 
                     if(player == null)
                         return;
@@ -52,13 +53,12 @@ public class GPlayer implements GroupDefinition
                 }, "Interact with a player");
         addMethod(methods, "getPlayer", Type.OBJECT,
                 ImmutableMap.of(
-                        0, Pair.of("username", Type.STRING),
-                        1, Pair.of("action", Type.ANY)
+                        0, Pair.of("username", Type.STRING)
                 ),
                 function ->
                 {
                     String username = function.getArg(0, manager);
-                    return new PlayerQuery().filter(p -> p.getName().equals(username)).result(Static.getClient()).first();
+                    return TPlayer.getPlayer(TPlayer.nameEquals(username));
                 }, "get a player");
         addMethod(methods, "getPlayerOverhead",
                 Type.STRING,
@@ -71,11 +71,11 @@ public class GPlayer implements GroupDefinition
                     Object identifier = function.getArg(0, manager);
                     if(identifier instanceof String)
                     {
-                        player = new PlayerQuery().filter(p -> p.getName().equals(identifier)).result(Static.getClient()).first();
+                        player = TPlayer.getPlayer(TPlayer.nameEquals((String) identifier));
                     }
                     else if(identifier instanceof Integer)
                     {
-                        player = new PlayerQuery().filter(p -> p.getIndex() == (int) identifier).result(Static.getClient()).first();
+                        player = TPlayer.getPlayer(TPlayer.indexEquals((int) identifier));
                     }
                     else if(identifier instanceof Player)
                     {
@@ -101,6 +101,33 @@ public class GPlayer implements GroupDefinition
                 },
                 "gets the overhead protection of a player"
         );
+
+        addMethod(methods, "getPlayerWithin", Type.OBJECT,
+                ImmutableMap.of(
+                        0, Pair.of("distance", Type.INT)
+                ),
+                function ->
+                {
+                    int distance = function.getArg(0, manager);
+                    return TPlayer.getPlayer(TPlayer.withinDistance(distance));
+                }, "get a random player within a distance");
+
+        addMethod(methods, "isPlayerWithin", Type.BOOL,
+                ImmutableMap.of(
+                        0, Pair.of("distance", Type.INT)
+                ),
+                function ->
+                {
+                    int distance = function.getArg(0, manager);
+                    Player player = TPlayer.getPlayer(TPlayer.withinDistance(distance));
+                    if(player == null)
+                    {
+                        return false;
+                    }
+                    System.out.println("Player nearby: " + player.getName());
+                    return true;
+                }, "check if a player is within a distance");
+
         return methods;
     }
 }

@@ -297,7 +297,7 @@ public class TBank
                     inventoryItems.get(i).getId() == -1 ||
                     !inventoryItems.get(i).getName().contains(itemName))
                 continue;
-            deposit(inventoryItems.get(i).getId(), amount, i);
+            deposit(inventoryItems.get(i).getId(), amount, inventoryItems.get(i).getSlot());
             break;
         }
     }
@@ -320,7 +320,7 @@ public class TBank
                     inventoryItems.get(i).getId() == -1 ||
                     inventoryItems.get(i).getId() != itemId)
                 continue;
-            deposit(inventoryItems.get(i).getId(), amount, i);
+            deposit(inventoryItems.get(i).getId(), amount, inventoryItems.get(i).getSlot());
             break;
         }
     }
