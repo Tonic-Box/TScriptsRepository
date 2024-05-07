@@ -147,13 +147,13 @@ public class TInventory
 
             for(Item item : inventory.getItems())
             {
-                if(item == null || item.getId() == -1 || item.getQuantity() == 0)
+                if(item != null && item.getId() != -1 && item.getQuantity() != 0)
                 {
                     count++;
                 }
             }
 
-            return count;
+            return 28 - count;
         });
         return value == null ? 0 : value;
     }

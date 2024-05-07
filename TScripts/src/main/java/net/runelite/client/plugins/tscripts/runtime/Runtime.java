@@ -506,6 +506,10 @@ public class Runtime
         function.setReturnValue(null);
         currentFunction = null;
         _return = false;
+        if(call.isNegate() && output instanceof Boolean)
+        {
+            return !((Boolean) output);
+        }
         return output;
     }
 

@@ -5,6 +5,9 @@ import net.runelite.client.plugins.tscripts.sevices.eventbus.TEventBus;
 import net.runelite.client.plugins.tscripts.sevices.eventbus.events.VariableUpdated;
 import net.runelite.client.plugins.tscripts.sevices.eventbus.events.VariablesCleaned;
 import net.runelite.client.plugins.tscripts.sevices.eventbus.events.VariablesCleared;
+import net.runelite.client.plugins.tscripts.util.Logging;
+
+import java.rmi.UnexpectedException;
 import java.util.*;
 import java.util.concurrent.ConcurrentHashMap;
 
@@ -46,6 +49,7 @@ public class VariableMap
                 }
             }
         }
+        Logging.errorLog(new UnexpectedException("Array variable not found: " + key + " " + index));
         return "null";
     }
 
@@ -74,6 +78,7 @@ public class VariableMap
                 return variable.getValue();
             }
         }
+        Logging.errorLog(new UnexpectedException("Variable not found: " + key));
         return variableMap.getOrDefault(key + " " + scopeStack.peek(), new Variable(key, "null", scopeStack.peek())).getValue();
     }
 
