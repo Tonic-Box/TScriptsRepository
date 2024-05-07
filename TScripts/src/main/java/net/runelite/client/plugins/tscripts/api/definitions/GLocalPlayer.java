@@ -41,6 +41,14 @@ public class GLocalPlayer implements GroupDefinition
                 function -> TActor.isInCombat(Static.getClient().getLocalPlayer()),
                 "Returns true if the local player is in combat"
         );
+        addMethod(methods, "getAnimation", Type.INT, ImmutableMap.of(),
+        function -> Static.getClient().getLocalPlayer().getAnimation(),
+                "Returns the animation of the local player"
+        );
+        addMethod(methods, "getGraphic", Type.INT, ImmutableMap.of(),
+                function -> Static.getClient().getLocalPlayer().getGraphic(),
+                "Returns the graphic of the local player"
+        );
         addMethod(methods, "getBoostedSkill", Type.INT,
                 ImmutableMap.of(
                         0, Pair.of("skill", Type.STRING)
