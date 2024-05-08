@@ -4,6 +4,7 @@ import net.runelite.api.Client;
 import net.runelite.api.widgets.Widget;
 import net.runelite.api.widgets.WidgetID;
 import net.runelite.api.widgets.WidgetInfo;
+import net.runelite.client.plugins.tscripts.api.enums.VarrockMuseumAnswer;
 import net.unethicalite.api.widgets.Widgets;
 import net.unethicalite.client.Static;
 
@@ -39,7 +40,7 @@ public class TDialogue
      * @return true if the option was interacted with
      */
     public static boolean interact(String option) {
-        return TGame.invoke(() -> {
+        Boolean out = TGame.invoke(() -> {
             Client client = Static.getClient();
             Widget widget = client.getWidget(WidgetInfo.DIALOG_OPTION_OPTION1);
             if(widget == null)
@@ -59,6 +60,7 @@ public class TDialogue
             }
             return false;
         });
+        return out != null && out;
     }
 
     /**
@@ -66,7 +68,7 @@ public class TDialogue
      * @return true if there was a dialogue to continue
      */
     public static boolean continueDialogue() {
-        return TGame.invoke(() -> {
+        Boolean out = TGame.invoke(() -> {
             if (Widgets.get(WidgetID.DIALOG_NPC_GROUP_ID, 5) != null) {
                 TPackets.sendResumePauseWidgetPacket(WidgetInfo.PACK(WidgetID.DIALOG_NPC_GROUP_ID, 5), -1);
                 return true;
@@ -113,10 +115,11 @@ public class TDialogue
             }
             return false;
         });
+        return out != null && out;
     }
 
     public static boolean isDialogueOpen() {
-        return TGame.invoke(() -> {
+        Boolean out = TGame.invoke(() -> {
             if (Widgets.get(WidgetID.DIALOG_NPC_GROUP_ID, 5) != null) {
                 return true;
             }
@@ -146,5 +149,62 @@ public class TDialogue
             }
             return false;
         });
+        return out != null && out;
+    }
+
+    public static boolean continueQuestHelper() {
+        Widget widget = Static.getClient().getWidget(WidgetInfo.DIALOG_OPTION_OPTION1);
+        if(widget == null)
+            return false;
+        Widget[] dialogOption1kids = widget.getChildren();
+        if(dialogOption1kids == null)
+            return false;
+        int i = 0;
+        for(Widget w : dialogOption1kids) {
+            if(w.getTextColor() == -0xff4d4e) {
+                interact(i);
+                return true;
+            }
+            ++i;
+        }
+        return false;
+    }
+
+    public static void continueAllDialogue()
+    {
+        while(true)
+        {
+            if(!continueDialogue())
+            {
+                if(!continueQuestHelper())
+                {
+                    if(!continueMuseumQuiz())
+                    {
+                        TDelay.tick(1);
+                        break;
+                    }
+                }
+            }
+            TDelay.tick(1);
+        }
+    }
+
+    public static boolean continueMuseumQuiz() {
+        Widget questionWidget = Static.getClient().getWidget(WidgetInfo.VARROCK_MUSEUM_QUESTION);
+        if(questionWidget == null)
+            return false;
+
+        final Widget answerWidget = VarrockMuseumAnswer.findCorrect(
+                Static.getClient(),
+                questionWidget.getText(),
+                WidgetInfo.VARROCK_MUSEUM_FIRST_ANSWER,
+                WidgetInfo.VARROCK_MUSEUM_SECOND_ANSWER,
+                WidgetInfo.VARROCK_MUSEUM_THIRD_ANSWER);
+
+        if (answerWidget == null)
+            return false;
+
+        TPackets.sendWidgetActionPacket(1, answerWidget.getId(), -1, -1);
+        return true;
     }
 }

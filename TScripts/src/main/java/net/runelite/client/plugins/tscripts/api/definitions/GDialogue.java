@@ -27,6 +27,18 @@ public class GDialogue implements GroupDefinition
                 function -> TDialogue.continueDialogue(),
                 "Continues the dialogue"
         );
+        addMethod(methods, "continueAllDialogue", ImmutableMap.of(),
+                function -> TDialogue.continueAllDialogue(),
+                "Continues through all dialogue. Selects options highlighted\n" +
+                        "by quest helper if present. Completes history museum quiz questions\n" +
+                        "if present. Stops when dialogue is completed or when options are shown\n" +
+                        "but don't fall under museum quiz or quest helper."
+        );
+        addMethod(methods, "continueQuestHelper", ImmutableMap.of(),
+                function -> TDialogue.continueQuestHelper(),
+                "Selects the option highlighted by quest helper. If \n" +
+                        "none present it continues dialogue if a continue is present"
+        );
         addMethod(methods, "isDialogueOpen", Type.BOOL, ImmutableMap.of(),
                 function -> TDialogue.isDialogueOpen(),
                 "Returns true if a dialogue is open"
@@ -78,6 +90,7 @@ public class GDialogue implements GroupDefinition
                 },
                 "Handles a conversation with the given options. Requires string options."
         );
+
         return methods;
     }
 
