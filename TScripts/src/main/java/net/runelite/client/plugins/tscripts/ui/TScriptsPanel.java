@@ -1,4 +1,5 @@
 package net.runelite.client.plugins.tscripts.ui;
+import lombok.Getter;
 import lombok.SneakyThrows;
 import static net.runelite.client.plugins.tscripts.TScriptsPlugin.*;
 import net.runelite.client.plugins.tscripts.TScriptsConfig;
@@ -37,6 +38,7 @@ public class TScriptsPanel extends PluginPanel
 {
     private ImageIcon ADD_ICON;
     private ImageIcon ADD_HOVER_ICON;
+    @Getter
     private final List<ScriptPanel> scriptPanels = new ArrayList<>();
     private TScriptsConfig config;
     private TScriptsPlugin plugin;

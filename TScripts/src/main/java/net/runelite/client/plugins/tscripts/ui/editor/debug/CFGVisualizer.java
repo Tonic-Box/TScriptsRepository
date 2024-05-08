@@ -46,7 +46,7 @@ public class CFGVisualizer extends JPanel {
     private int nodeCounter = 0;
     private final Map<Object,String> linkBacks = new HashMap<>();
     private String scriptName;
-    private final Runtime runtime;
+    private Runtime runtime;
     private boolean isCurrent = false;
     private double scale = 1.0;
     private long lastUpdateTime = 0;
@@ -151,9 +151,10 @@ public class CFGVisualizer extends JPanel {
         });
     }
 
-    public void changeScript(String name)
+    public void changeScript(Runtime runtime, String name)
     {
         this.scriptName = name;
+        this.runtime = runtime;
     }
 
     /**

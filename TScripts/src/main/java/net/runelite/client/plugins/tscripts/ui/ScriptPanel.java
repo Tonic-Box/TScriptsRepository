@@ -7,6 +7,7 @@ import net.runelite.client.plugins.tscripts.TScriptsConfig;
 import net.runelite.client.plugins.tscripts.TScriptsPlugin;
 import net.runelite.client.plugins.tscripts.adapter.Adapter;
 import net.runelite.client.plugins.tscripts.api.MethodManager;
+import net.runelite.client.plugins.tscripts.runtime.Runtime;
 import net.runelite.client.plugins.tscripts.ui.editor.ScriptEditor;
 import net.runelite.client.plugins.tscripts.sevices.ScriptEventService;
 import net.runelite.client.plugins.tscripts.sevices.eventbus.events.ScriptStateChanged;
@@ -66,6 +67,8 @@ public class ScriptPanel extends JPanel
     private JPanel bottomContainer;
     private String profile;
     private final Border blackline = BorderFactory.createLineBorder(Color.black);
+    @Getter
+    private final Runtime runtime = new Runtime();
     private Keybind hke = Keybind.NOT_SET;
 
     {
@@ -139,7 +142,7 @@ public class ScriptPanel extends JPanel
         this.save.setForeground(ColorScheme.PROGRESS_COMPLETE_COLOR);
         this.save.addMouseListener(new MouseAdapter() {
             public void mousePressed(MouseEvent mouseEvent) {
-                if(running())
+                if(!runtime.isDone())
                     return;
                 String input = nameInput.getText();
                 input = input.replace(".", "");
@@ -206,7 +209,7 @@ public class ScriptPanel extends JPanel
         this.rename.setForeground(ColorScheme.LIGHT_GRAY_COLOR.darker());
         this.rename.addMouseListener(new MouseAdapter() {
             public void mousePressed(MouseEvent mouseEvent) {
-                if(running())
+                if(!runtime.isDone())
                     return;
                 panel.editName = script.split("\\.")[0];
                 panel.rebuild();
@@ -263,7 +266,7 @@ public class ScriptPanel extends JPanel
         this.stopLabel.setIcon(STOP_ICON);
         this.stopLabel.setDisabledIcon(STOP_DISABLED_ICON);
         this.stopLabel.setToolTipText("Stop script");
-        this.stopLabel.setEnabled(running());
+        this.stopLabel.setEnabled(!runtime.isDone());
         this.stopLabel.addMouseListener(new MouseAdapter() {
             public void mousePressed(MouseEvent mouseEvent) {
                 stop();
@@ -272,7 +275,7 @@ public class ScriptPanel extends JPanel
         this.runLabel.setIcon(RUN_ICON);
         this.runLabel.setDisabledIcon(RUN_DISABLED_ICON);
         this.runLabel.setToolTipText("Run script");
-        this.runLabel.setEnabled(!running());
+        this.runLabel.setEnabled(runtime.isDone());
         this.runLabel.addMouseListener(new MouseAdapter() {
             public void mousePressed(MouseEvent mouseEvent) {
                 start();
@@ -523,7 +526,7 @@ public class ScriptPanel extends JPanel
      */
     public void stop()
     {
-        plugin.stopScript(getScriptName());
+        runtime.killScript();
     }
 
     /**
@@ -532,24 +535,14 @@ public class ScriptPanel extends JPanel
     public void start()
     {
         try {
-            if(!plugin.canIRun())
+            if(!runtime.isDone())
                 return;
             String path = profile + getScriptName() + ".script";
             String code = Files.readString(Paths.get(path));
             Scope scope = Adapter.parse(code);
-            plugin.getRuntime().execute(scope, getScriptName(), plugin.getProfile());
+            runtime.execute(scope, getScriptName(), plugin.getProfile());
         } catch (Exception ex) {
             Logging.errorLog(ex);
         }
-    }
-
-    /**
-     * Checks if the script is running
-     *
-     * @return whether the script is running
-     */
-    public boolean running()
-    {
-        return plugin.amIRunning(getScriptName());
     }
 }

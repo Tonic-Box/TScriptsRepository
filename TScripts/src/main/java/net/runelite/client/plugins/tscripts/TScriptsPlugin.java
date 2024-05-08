@@ -73,12 +73,12 @@ public class TScriptsPlugin  extends Plugin {
     private NavigationButton navButton;
     public HashMap<String, KeyListener> hotKeyListeners = new HashMap<>();
     @Getter
-    private Runtime runtime;
-    @Getter
     private CompletionProvider baseCompletion;
     public static final String START_DIR = RuneLite.RUNELITE_DIR + File.separator + "HPQScripts" + File.separator;
     public static String HOME_DIR;
     private MulticastReceiver multicastReceiver;
+    @Getter
+    private TScriptsPanel panel;
 
     @Provides
     TScriptsConfig provideConfig(ConfigManager configManager)
@@ -104,7 +104,6 @@ public class TScriptsPlugin  extends Plugin {
         configHandler.validateConfig();
         ScriptEventService.init(this);
         new MethodManager(this);
-        this.runtime = new Runtime();
         this.baseCompletion = CompletionSupplier.createBaseCompletionProvider();
         sidePanel(true);
         GameCache.get();
@@ -136,7 +135,6 @@ public class TScriptsPlugin  extends Plugin {
      */
     public void sidePanel(Boolean show)
     {
-        TScriptsPanel panel;
         if(show)
         {
             panel = injector.getInstance(TScriptsPanel.class);
@@ -218,41 +216,9 @@ public class TScriptsPlugin  extends Plugin {
     /**
      * Unregisters a key listener.
      */
-    public void unregister(KeyListener KL) {
+    public void unregister(KeyListener KL)
+    {
         keyManager.unregisterKeyListener(KL);
-    }
-
-    /**
-     * Checks if a script is running.
-     *
-     * @param scriptName the script name
-     * @return true if the script is running, false otherwise
-     */
-    public boolean amIRunning(String scriptName) {
-        return this.runtime.getScriptName().equals(scriptName) && this.getRuntime().getProfile().equals(profile) && !canIRun();
-    }
-
-    /**
-     * Checks if a script can be run.
-     *
-     * @return true if the script can be run, false otherwise
-     */
-    public boolean canIRun() {
-        return this.runtime.isDone();
-    }
-
-    /**
-     * Stops a script.
-     * @param scriptName the script name
-     */
-    public void stopScript(String scriptName) {
-        if(this.runtime != null && this.runtime.getScriptName().equals(scriptName)) {
-            this.runtime.killScript();
-        }
-    }
-
-    public void stopScript() {
-        this.runtime.killScript();
     }
 
     //events

@@ -43,7 +43,6 @@ public class ScriptEventService
                 Scope scope = Adapter.parse(code);
                 Runtime runtime = new Runtime();
                 runtime.setAnonymous(true);
-                System.out.println(2);
                 ThreadPool.submit(() -> runtime.execute(scope, "TS_EVENT", "TS_EVENT"));
             } catch (Exception ex) {
                 Logging.errorLog(ex);

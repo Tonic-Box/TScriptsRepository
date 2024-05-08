@@ -3,6 +3,7 @@ package net.runelite.client.plugins.tscripts.ui.editor.debug;
 import net.runelite.client.plugins.tscripts.adapter.models.Scope.Scope;
 import net.runelite.client.plugins.tscripts.adapter.Adapter;
 import net.runelite.client.plugins.tscripts.runtime.Runtime;
+import net.runelite.client.plugins.tscripts.ui.ScriptPanel;
 import net.runelite.client.plugins.tscripts.util.Logging;
 import javax.swing.*;
 import java.awt.*;
@@ -81,10 +82,10 @@ public class DebugToolPanel extends JPanel {
         buttonPanel.add(toolingList, BorderLayout.CENTER);
     }
 
-    public void update(Path scriptPath, String name)
+    public void update(ScriptPanel panel, Path scriptPath, String name)
     {
         this.scriptPath = scriptPath;
-        controlFlowGraphVisualizer.changeScript(name);
+        controlFlowGraphVisualizer.changeScript(panel.getRuntime(), name);
         controlFlowGraphVisualizer.updateGraph(getScope());
     }
 

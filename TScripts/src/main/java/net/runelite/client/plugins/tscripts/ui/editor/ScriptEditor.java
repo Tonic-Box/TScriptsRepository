@@ -10,6 +10,8 @@ import net.runelite.client.plugins.tscripts.sevices.eventbus.events.BreakpointUn
 import net.runelite.client.plugins.tscripts.sevices.eventbus.events.ScriptStateChanged;
 import net.runelite.client.plugins.tscripts.adapter.models.Scope.Scope;
 import net.runelite.client.plugins.tscripts.types.BreakPoint;
+import net.runelite.client.plugins.tscripts.ui.ScriptPanel;
+import net.runelite.client.plugins.tscripts.ui.TScriptsPanel;
 import net.runelite.client.plugins.tscripts.ui.editor.debug.DebugToolPanel;
 import net.runelite.client.plugins.tscripts.util.Logging;
 import net.runelite.client.util.ImageUtil;
@@ -32,6 +34,8 @@ import java.io.IOException;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
+import java.util.ArrayList;
+import java.util.List;
 import java.util.Objects;
 
 /**
@@ -47,11 +51,14 @@ public class ScriptEditor extends JFrame implements ActionListener {
     private final JButton breakpoint;
     private final JLabel running = new JLabel();
     private final TScriptsPlugin plugin;
+    private final TScriptsPanel sidePanel;
+    private final List<ScriptPanel> scriptPanels;
+    private ScriptPanel currentScriptPanel;
     private final DebugToolPanel debugToolPanel;
     private final JSplitPane splitPane; // Add a split pane
     private final JList<String> scriptList;
     private final DefaultListModel<String> scriptListModel = new DefaultListModel<>();
-    private int runningIndex = -1;
+    private final List<Integer> runningIndexs = new ArrayList<>();
     private String name = null;
     private String profile = null;
     private boolean updatingList = false;
@@ -102,6 +109,8 @@ public class ScriptEditor extends JFrame implements ActionListener {
         super(name);
         generateFrame();
         this.plugin = plugin;
+        this.sidePanel = plugin.getPanel();
+        this.scriptPanels = sidePanel.getScriptPanels();
         this.name = name;
         this.profile = profile;
         String path = plugin.getScriptPath(name, profile);
@@ -111,17 +120,18 @@ public class ScriptEditor extends JFrame implements ActionListener {
         CompletionProvider provider = plugin.getBaseCompletion();
         generateAutoCompletion(provider).install(textArea);
         this.run = generateButton("Run Script");
-        if(plugin.getRuntime().getScriptName().equals(name) && !plugin.getRuntime().isDone())
+        this.currentScriptPanel = getScriptPanel(name);
+        if(!currentScriptPanel.getRuntime().isDone())
         {
             ImageIcon running_icon = new ImageIcon(ImageUtil.loadImageResource(TScriptsPlugin.class, "running.gif"));
             running.setIcon(running_icon);
-            this.run.setText("Stop Script [" + plugin.getRuntime().getProfile() + "::" + plugin.getRuntime().getScriptName() + "]");
+            this.run.setText("Stop Script [" + currentScriptPanel.getRuntime().getScriptName() + "]");
         }
         this.breakpoint = generateButton("Untrip Breakpoint");
         this.breakpoint.setForeground(Color.RED);
         this.breakpoint.setVisible(false);
         generateMenu();
-        debugToolPanel = new DebugToolPanel(plugin.getRuntime(), Paths.get(path), name);
+        debugToolPanel = new DebugToolPanel(currentScriptPanel.getRuntime(), Paths.get(path), name);
         debugToolPanel.setPreferredSize(new Dimension(600, getHeight()));
         splitPane = generateSplitPane();
         consoleArea = generateConsole();
@@ -133,13 +143,14 @@ public class ScriptEditor extends JFrame implements ActionListener {
 
     private void updateScriptList() {
         updatingList = true;
-        runningIndex = -1;
+        runningIndexs.clear();
         scriptListModel.clear();
         File dir = new File(plugin.getProfilePath(profile));
         File[] directoryListing = dir.listFiles();
         assert directoryListing != null;
         String selected = "";
         int i = 0;
+        ScriptPanel panel;
         for (File script : directoryListing) {
             if (script.getName().toLowerCase().endsWith(".script")) {
                 String s = script.getName().split("\\.")[0];
@@ -147,8 +158,9 @@ public class ScriptEditor extends JFrame implements ActionListener {
                     selected = s;
                 }
 
-                if (plugin.getRuntime().getScriptName().equals(s) && plugin.getRuntime().getProfile().equals(profile) && !plugin.getRuntime().isDone()) {
-                    runningIndex = i;
+                panel = getScriptPanel(s);
+                if (!panel.getRuntime().isDone()) {
+                    runningIndexs.add(i);
                 }
                 scriptListModel.addElement(s);
                 i++;
@@ -163,7 +175,9 @@ public class ScriptEditor extends JFrame implements ActionListener {
         setTitle("[" + profile + "] " + name);
         String path = plugin.getScriptPath(name, profile);
         Path scriptPath = Paths.get(path);
-        debugToolPanel.update(scriptPath, name);
+        currentScriptPanel = getScriptPanel(name);
+        toggleButtonState(!currentScriptPanel.getRuntime().isDone());
+        debugToolPanel.update(currentScriptPanel, scriptPath, name);
         textArea.setScript(path);
         updateScriptList();
     }
@@ -219,7 +233,7 @@ public class ScriptEditor extends JFrame implements ActionListener {
     public void start()
     {
         try {
-            if(!plugin.canIRun())
+            if(!currentScriptPanel.getRuntime().isDone())
                 return;
             Path path = Paths.get(plugin.getScriptPath(name, profile));
             String code = Files.readString(path);
@@ -230,7 +244,7 @@ public class ScriptEditor extends JFrame implements ActionListener {
             }
 
             Scope scope = Adapter.parse(code);
-            plugin.getRuntime().execute(scope, name, profile);
+            currentScriptPanel.getRuntime().execute(scope, name, profile);
         } catch (Exception ex) {
             Logging.errorLog(ex);
         }
@@ -244,27 +258,32 @@ public class ScriptEditor extends JFrame implements ActionListener {
 
     public void stop()
     {
-        plugin.stopScript();
+        currentScriptPanel.stop();
     }
 
     @_Subscribe
     public void onScriptStateChanged(ScriptStateChanged event)
     {
-        if(event.getRunning())
+        if(event.getProfile().equals(profile) && event.getScriptName().equals(name))
+        {
+            toggleButtonState(event.getRunning());
+        }
+        updateScriptList();
+    }
+
+    public void toggleButtonState(boolean isRunning)
+    {
+        if(isRunning)
         {
             ImageIcon running_icon = new ImageIcon(ImageUtil.loadImageResource(TScriptsPlugin.class, "running.gif"));
             running.setIcon(running_icon);
-            getContentPane().repaint();
-            this.run.setText("Stop Script [" + event.getProfile() + "::" + event.getScriptName() + "]");
+            this.run.setText("Stop Script [" + currentScriptPanel.getRuntime().getScriptName() + "]");
         }
         else
         {
             running.setIcon(null);
-            getContentPane().repaint();
-            breakpoint.setVisible(false);
             this.run.setText("Run Script");
         }
-        updateScriptList();
     }
 
     @_Subscribe
@@ -442,11 +461,21 @@ public class ScriptEditor extends JFrame implements ActionListener {
         return pane;
     }
 
+    public ScriptPanel getScriptPanel(String name)
+    {
+        for(ScriptPanel panel : scriptPanels)
+        {
+            if(panel.getScriptName().equals(name))
+                return panel;
+        }
+        return null;
+    }
+
     class CustomListCellRenderer extends DefaultListCellRenderer {
         @Override
         public Component getListCellRendererComponent(JList<?> list, Object value, int index, boolean isSelected, boolean cellHasFocus) {
             JLabel label = (JLabel) super.getListCellRendererComponent(list, value, index, isSelected, cellHasFocus);
-            if (index == runningIndex) {
+            if (runningIndexs.contains(index)) {
                 label.setForeground(Color.GREEN);
             }
             return label;
