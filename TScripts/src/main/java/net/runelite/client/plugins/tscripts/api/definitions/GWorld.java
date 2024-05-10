@@ -63,6 +63,11 @@ public class GWorld implements GroupDefinition
                 },
                 "Hops to a random f2p world"
         );
+        addMethod(methods, "getWorld", Type.INT,
+                ImmutableMap.of(),
+                function -> Static.getClient().getWorld(),
+                "Returns the current world"
+        );
         return methods;
     }
 }
