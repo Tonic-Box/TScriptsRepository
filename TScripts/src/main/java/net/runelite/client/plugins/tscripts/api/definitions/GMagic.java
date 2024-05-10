@@ -104,10 +104,10 @@ public class GMagic implements GroupDefinition {
 
                     Magic.cast(spell, npc);
                 }, "Casts a spell on an npc");
-        addMethod(methods, "spellOnNpc",
+        addMethod(methods, "spellOnObject",
                 ImmutableMap.of(
                         0, Pair.of("spell", Type.STRING),
-                        1, Pair.of("npc", Type.ANY)
+                        1, Pair.of("object", Type.ANY)
                 ),
                 function ->
                 {
