@@ -133,7 +133,7 @@ public class GBank implements GroupDefinition
                 function -> TBank.depositAllInventory(), "Deposit all items in the inventory into the bank");
         addMethod(methods, "depositAllEquipment",
                 ImmutableMap.of(),
-                function -> TBank.depositAllInventory(), "Deposit all items in the equipment into the bank");
+                function -> TBank.depositAllEquipment(), "Deposit all items in the equipment into the bank");
         addMethod(methods, "bankIsOpen", Type.BOOL,
                 ImmutableMap.of(),
                 function -> TBank.isOpen(), "Check if the bank is open");

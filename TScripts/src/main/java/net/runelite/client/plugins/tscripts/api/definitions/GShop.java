@@ -79,7 +79,7 @@ public class GShop implements GroupDefinition
         addMethod(methods, "isShopOpen", Type.BOOL,
                 ImmutableMap.of(),
                 function -> ShopID.getCurrent() != null,
-                "Buys 50 of an item from a shop"
+                "Returns true if a shop is open"
         );
 
         addMethod(methods, "shopQuantityOf", Type.BOOL,
@@ -96,7 +96,7 @@ public class GShop implements GroupDefinition
                     else
                         return 0;
                 },
-                "Buys 50 of an item from a shop"
+                "Returns the quantity of an item in the shop"
         );
 
         addMethod(methods, "shopContains", Type.BOOL,
@@ -113,7 +113,7 @@ public class GShop implements GroupDefinition
                     else
                         return 0;
                 },
-                "Buys 50 of an item from a shop"
+                "Returns true if a shop contains an item"
         );
 
         return methods;

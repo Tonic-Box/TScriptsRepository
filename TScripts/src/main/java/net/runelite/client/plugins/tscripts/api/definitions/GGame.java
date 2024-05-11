@@ -28,6 +28,10 @@ public class GGame implements GroupDefinition
                 function -> TGame.invoke(() -> Static.getClient().getVarbitValue(Static.getClient().getVarps(), function.getArg(0, manager))),
                 "fetches a varbit value"
         );
+        addMethod(methods, "getVarPlayer", Type.INT, ImmutableMap.of(0, Pair.of("id", Type.INT)),
+                function -> TGame.invoke(() -> Static.getClient().getVarpValue(Static.getClient().getVarps(),function.getArg(0, manager))),
+                "fetches a varplayer value"
+        );
         addMethod(methods, "getGameState", Type.INT, ImmutableMap.of(),
                 function -> TGame.invoke(Static.getClient().getGameState()::getState),
                 "fetches the game state", false
