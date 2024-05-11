@@ -28,10 +28,15 @@ public class TDialogue
 
     public static void makeX(int quantity)
     {
-        TGame.invoke(() -> {
-            TPackets.sendClickPacket();
-            TPackets.sendResumePauseWidgetPacket(17694734, quantity);
-        });
+        TPackets.sendClickPacket();
+        TPackets.sendResumePauseWidgetPacket(17694734, quantity);
+    }
+
+    public static void numericInput(int number)
+    {
+        TPackets.sendClickPacket();
+        TPackets.sendResumeCountDialoguePacket(number);
+        TClientScript.closeNumericInputDialogue();
     }
 
     /**
@@ -185,7 +190,8 @@ public class TDialogue
                     }
                 }
             }
-            TDelay.tick(1);
+            if(!TDelay.tick(1))
+                break;
         }
     }
 

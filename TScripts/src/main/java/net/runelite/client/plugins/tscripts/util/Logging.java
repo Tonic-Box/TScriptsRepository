@@ -33,11 +33,21 @@ public class Logging {
     }
 
     /**
+     * Logs an info message to the console.
+     * @param message the message to log
+     */
+    public static void info(String message)
+    {
+        logToEditor(message, Color.YELLOW);
+    }
+
+    /**
      * Logs a message to the chat as trade request.
      *
      * @param message the message to log
      */
     public static void logToChat(String message) {
+        System.out.println(message);
         Static.getClientThread().invoke(() -> {
             try {
                 Static.getClient().addChatMessage(ChatMessageType.TRADEREQ, "TSCRIPTS_LOGGER:" + message, message, "", true);

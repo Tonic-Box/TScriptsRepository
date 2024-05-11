@@ -100,6 +100,8 @@ public class TWorldPoint
                 }
             }
         }
+        if(worldPoints.isEmpty())
+            worldPoints.add(worldPoint);
         return worldPoints;
     }
 

@@ -4,6 +4,7 @@ import lombok.Getter;
 import net.runelite.client.plugins.tscripts.adapter.models.ElementType;
 import net.runelite.client.plugins.tscripts.api.MethodManager;
 import net.runelite.client.plugins.tscripts.adapter.models.Element;
+import net.runelite.client.plugins.tscripts.runtime.Runtime;
 
 /**
  * Represents a method call in the script
@@ -39,7 +40,7 @@ public class MethodCall extends Element
 
         if (args[index] instanceof MethodCall)
         {
-            return (T) methodManager.call((MethodCall)args[index]);
+            return (T) methodManager.call(((MethodCall)args[index]));
         }
 
         return (T) args[index];

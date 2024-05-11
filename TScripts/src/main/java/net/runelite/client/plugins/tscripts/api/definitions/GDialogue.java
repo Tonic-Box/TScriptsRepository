@@ -44,12 +44,12 @@ public class GDialogue implements GroupDefinition
                 "Returns true if a dialogue is open"
         );
         addMethod(methods, "interact", ImmutableMap.of(0, Pair.of("option", Type.ANY)),
-                function ->
-                {
-                    Object object = function.getArg(0, manager);
-                    TDialogue.interact(object);
-                },
+                function -> TDialogue.interact(function.getArg(0, manager)),
                 "Interacts with the dialogue."
+        );
+        addMethod(methods, "numericInput", ImmutableMap.of(0, Pair.of("option", Type.INT)),
+                function -> TDialogue.numericInput(function.getArg(0, manager)),
+                "Submits a numeric input."
         );
         addMethod(methods, "makeX", ImmutableMap.of(0, Pair.of("quantity", Type.INT)),
                 function ->
@@ -84,7 +84,8 @@ public class GDialogue implements GroupDefinition
                                 continue;
                             }
                         }
-                        TDelay.tick(1);
+                        if(!TDelay.tick(1))
+                            break;
                     }
                     TDelay.tick(1);
                 },

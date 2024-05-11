@@ -1,7 +1,7 @@
 import org.gradle.kotlin.dsl.dependencies
 
 //Major Release - Feature Addition - Bug Fix
-version = "1.13.11"
+version = "1.14.12"
 
 plugins {
     id("java")
@@ -11,6 +11,7 @@ project.extra["PluginName"] = "TScripts"
 project.extra["PluginDescription"] = "Stuff and Things"
 
 dependencies {
+    val kotlinVersion = "1.2.71"
     annotationProcessor(group = "org.projectlombok", name = "lombok", version = "1.18.20")
     annotationProcessor(group = "org.pf4j", name = "pf4j", version = "3.6.0")
     compileOnly(group = "com.google.code.gson", name = "gson", version = "2.8.5")
@@ -21,6 +22,12 @@ dependencies {
     implementation("com.github.vlsi.mxgraph:jgraphx:4.2.2")
     implementation("ch.obermuhlner:java-scriptengine:1.0.1")
     implementation("org.antlr:antlr4:4.13.1")
+    implementation("it.unimi.dsi:fastutil:8.5.11")
+    implementation("org.jetbrains.kotlin:kotlin-stdlib:$kotlinVersion")
+    implementation("org.jetbrains.kotlin:kotlin-script-util:$kotlinVersion")
+    implementation("org.jetbrains.kotlin:kotlin-script-runtime:$kotlinVersion")
+    implementation("org.jetbrains.kotlin:kotlin-compiler-embeddable:$kotlinVersion")
+
     compileOnly(group = "com.fifesoft", name = "rsyntaxtextarea", version = "3.1.2")
     compileOnly(group = "com.fifesoft", name = "autocomplete", version = "3.1.1")
 }

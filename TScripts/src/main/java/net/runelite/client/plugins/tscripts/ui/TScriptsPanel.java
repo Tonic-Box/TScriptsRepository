@@ -421,11 +421,9 @@ public class TScriptsPanel extends PluginPanel
     @_Subscribe
     public void onIpcPacket(IPCPacket event)
     {
-        ThreadPool.submit(() -> {
-            Scope scope = Adapter.parse(event.getData());
-            Runtime runtime = new Runtime();
-            runtime.setChild(true);
-            runtime.execute(scope, "TS_EVENT", "TS_EVENT");
-        });
+        Scope scope = Adapter.parse(event.getData());
+        Runtime runtime = new Runtime();
+        runtime.setChild(true);
+        runtime.execute(scope, "TS_EVENT", "TS_EVENT");
     }
 }

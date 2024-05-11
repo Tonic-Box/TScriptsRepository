@@ -3,6 +3,7 @@ package net.runelite.client.plugins.tscripts.runtime;
 import lombok.Getter;
 import lombok.Setter;
 import net.runelite.client.eventbus.EventBus;
+import net.runelite.client.plugins.tscripts.adapter.Adapter;
 import net.runelite.client.plugins.tscripts.adapter.Unparser;
 import net.runelite.client.plugins.tscripts.adapter.models.Expression;
 import net.runelite.client.plugins.tscripts.adapter.models.OperatorType;
@@ -24,7 +25,6 @@ import net.runelite.client.plugins.tscripts.adapter.models.variable.VariableAssi
 import net.runelite.client.plugins.tscripts.sevices.eventbus.events.*;
 import net.runelite.client.plugins.tscripts.sevices.ipc.MulticastSender;
 import net.runelite.client.plugins.tscripts.sevices.ipc.packets.IPCPacket;
-import net.runelite.client.plugins.tscripts.sevices.ipc.packets.PacketOpcodes;
 import net.runelite.client.plugins.tscripts.types.Pair;
 import net.runelite.client.plugins.tscripts.util.Logging;
 import net.runelite.client.plugins.tscripts.util.ThreadPool;
@@ -33,12 +33,25 @@ import net.runelite.client.plugins.tscripts.sevices.eventbus._Subscribe;
 import org.antlr.v4.runtime.tree.ParseTree;
 
 import java.util.*;
+import java.util.concurrent.CopyOnWriteArrayList;
 
 /**
  * Responsible for executing scripts.
  */
 public class Runtime
 {
+    private final static CopyOnWriteArrayList<String> interrupted = new CopyOnWriteArrayList<>();
+
+    public static boolean isInterrupted()
+    {
+        if(interrupted.contains(Thread.currentThread().getName()))
+        {
+            interrupted.remove(Thread.currentThread().getName());
+            return true;
+        }
+        return false;
+    }
+
     @Getter
     private final VariableMap variableMap;
     private final List<EventBus.Subscriber> subscribers = new ArrayList<>();
@@ -57,6 +70,7 @@ public class Runtime
     @Getter
     @Setter
     private boolean anonymous = false;
+    private ScriptThread scriptThread;
 
     /**
      * Creates a new instance of the Runtime class.
@@ -73,14 +87,6 @@ public class Runtime
         this.methodManager = MethodManager.getInstance();
         this.variableMap = variableMap;
         TEventBus.register(this);
-    }
-
-    private Runtime(VariableMap variableMap, boolean sub)
-    {
-        this.methodManager = MethodManager.getInstance();
-        this.variableMap = variableMap;
-        if(sub)
-            TEventBus.register(this);
     }
 
     public Runtime getRuntimeChild()
@@ -109,7 +115,7 @@ public class Runtime
         this.breakpointTripped = false;
         this.userDefinedFunctions.clear();
         this.variableMap.clear();
-        ThreadPool.submit(() ->
+        scriptThread = new ScriptThread(() ->
         {
             postFlags();
             try
@@ -126,6 +132,7 @@ public class Runtime
             postScriptStateChanged(false);
             postFlags();
         });
+        ThreadPool.submit(scriptThread);
     }
 
     /**
@@ -274,6 +281,18 @@ public class Runtime
                         currentFunction.setReturnValue("null");
                     _return = true;
                 }
+                break;
+            case "eval":
+                if(call.getArgs().length == 0) {
+                    break;
+                }
+                Object code = getValue(call.getArgs()[0]);
+                if(!(code instanceof String))
+                {
+                    return;
+                }
+                Scope scope = Adapter.parse((String)code);
+                processScope(scope);
                 break;
             default:
                 if(userDefinedFunctions.containsKey(call.getName()))
@@ -744,7 +763,7 @@ public class Runtime
 
                     Scope eventScope = scope.clone();
                     eventScope.setConditions(null);
-                    ThreadPool.submit(() -> runtime.execute(eventScope, "TS_EVENT", "TS_EVENT"));
+                    runtime.execute(eventScope, "TS_EVENT", "TS_EVENT");
                 }
                 catch (Exception ex)
                 {
@@ -807,6 +826,7 @@ public class Runtime
      */
     public void killScript()
     {
+        interrupted.add(scriptThread.getName());
         _die = true;
     }
 

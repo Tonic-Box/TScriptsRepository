@@ -75,7 +75,8 @@ public class GMovement implements GroupDefinition
                         while(!destination.equals(Static.getClient().getLocalPlayer().getWorldLocation()))
                         {
                             Movement.walkTo(destination);
-                            TDelay.tick(Rand.nextInt(1, 3));
+                            if(!TDelay.tick(Rand.nextInt(1, 3)))
+                                break;
                         }
                     }
                     catch (Exception ex)
