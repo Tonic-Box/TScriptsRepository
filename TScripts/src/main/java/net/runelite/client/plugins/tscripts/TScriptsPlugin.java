@@ -19,9 +19,7 @@ import net.runelite.client.plugins.PluginDescriptor;
 import net.runelite.client.plugins.tscripts.api.MethodManager;
 import net.runelite.client.plugins.tscripts.api.library.TWorldPoint;
 import net.runelite.client.plugins.tscripts.sevices.ScriptEventService;
-import net.runelite.client.plugins.tscripts.sevices.TileOverlay;
 import net.runelite.client.plugins.tscripts.sevices.ipc.MulticastReceiver;
-import net.runelite.client.plugins.tscripts.sevices.localpathfinder.LocalPathfinder;
 import net.runelite.client.plugins.tscripts.ui.TScriptsPanel;
 import net.runelite.client.plugins.tscripts.util.*;
 import net.runelite.client.plugins.tscripts.sevices.cache.GameCache;
@@ -43,8 +41,10 @@ import java.awt.image.BufferedImage;
 import java.io.File;
 import java.nio.file.Files;
 import java.nio.file.Paths;
+import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.HashMap;
+import java.util.List;
 
 /**
  * The main plugin class for TScripts.
@@ -81,8 +81,6 @@ public class TScriptsPlugin  extends Plugin {
     public static final String START_DIR = RuneLite.RUNELITE_DIR + File.separator + "HPQScripts" + File.separator;
     public static String HOME_DIR;
     private MulticastReceiver multicastReceiver;
-    private LocalPathfinder localPathfinder;
-    private TileOverlay overlays;
     @Getter
     private TScriptsPanel panel;
 
@@ -124,9 +122,6 @@ public class TScriptsPlugin  extends Plugin {
         clientToolbar.addNavigation(headlessToggleButton);
         this.multicastReceiver = new MulticastReceiver();
         ThreadPool.submit(this.multicastReceiver);
-        localPathfinder = new LocalPathfinder();
-        overlays = new TileOverlay(client);
-        overlayManager.add(overlays);
     }
 
     /**
@@ -472,18 +467,6 @@ public class TScriptsPlugin  extends Plugin {
                             .setTarget(color + name + " ")
                             .setType(MenuAction.RUNELITE)
                             .onClick(c -> Logging.copyToClipboard(worldPoint.getX() + ", " + worldPoint.getY()));
-
-                    /*client.createMenuEntry(1)
-                            .setOption("Generate Local Path")
-                            .setTarget(color + entry.getItemId() + " ")
-                            .setType(MenuAction.RUNELITE)
-                            .onClick(c -> {
-                                ThreadPool.submit(() ->
-                                {
-                                    List<Step> path = localPathfinder.pathTo(30, worldPoint, new ArrayList<>(), overlays);
-                                    overlays.updatePath(path);
-                                });
-                            });*/
                 }
             }
         }
