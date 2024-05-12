@@ -106,6 +106,14 @@ public class GMisc implements GroupDefinition
                 "Creates a new array with the given values", false
         );
 
+        addMethod(methods, "eval",
+                ImmutableMap.of(
+                        0, Pair.of("code", Type.STRING)
+                ),
+                function -> {},
+                "Evaluates the code.", false
+        );
+
         return methods;
     }
 }
