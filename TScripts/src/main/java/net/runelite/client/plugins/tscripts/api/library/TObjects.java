@@ -1,5 +1,6 @@
 package net.runelite.client.plugins.tscripts.api.library;
 
+import net.runelite.api.GameObject;
 import net.runelite.api.TileObject;
 import net.runelite.api.coords.WorldPoint;
 import net.runelite.client.plugins.tscripts.util.Compare;
@@ -13,6 +14,16 @@ public class TObjects
     public static void interact(TileObject object, int action)
     {
         WorldPoint worldPoint = object.getWorldLocation();
+        if(object instanceof GameObject)
+        {
+            GameObject gameObject = (GameObject) object;
+            worldPoint = WorldPoint.fromScene(
+                    Static.getClient(),
+                    gameObject.getSceneMinLocation().getX(),
+                    gameObject.getSceneMinLocation().getY(),
+                    gameObject.getPlane()
+            );
+        }
         TPackets.sendClickPacket(-1, -1);
         TPackets.sendObjectActionPacket(action, object.getId(), worldPoint.getX(), worldPoint.getY(), false);
     }
