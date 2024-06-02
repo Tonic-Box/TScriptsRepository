@@ -20,6 +20,10 @@ import net.runelite.client.plugins.tscripts.api.MethodManager;
 import net.runelite.client.plugins.tscripts.api.library.TWorldPoint;
 import net.runelite.client.plugins.tscripts.sevices.ScriptEventService;
 import net.runelite.client.plugins.tscripts.sevices.ipc.MulticastReceiver;
+import net.runelite.client.plugins.tscripts.sevices.localpathfinder.LocalPathfinder;
+import net.runelite.client.plugins.tscripts.sevices.localpathfinder.Step;
+import net.runelite.client.plugins.tscripts.sevices.localpathfinder.TileOverlay;
+import net.runelite.client.plugins.tscripts.sevices.localpathfinder.WorldPointUtil;
 import net.runelite.client.plugins.tscripts.ui.TScriptsPanel;
 import net.runelite.client.plugins.tscripts.util.*;
 import net.runelite.client.plugins.tscripts.sevices.cache.GameCache;
@@ -83,6 +87,7 @@ public class TScriptsPlugin  extends Plugin {
     private MulticastReceiver multicastReceiver;
     @Getter
     private TScriptsPanel panel;
+    private TileOverlay overlays;
 
     @Provides
     TScriptsConfig provideConfig(ConfigManager configManager)
@@ -122,6 +127,8 @@ public class TScriptsPlugin  extends Plugin {
         clientToolbar.addNavigation(headlessToggleButton);
         this.multicastReceiver = new MulticastReceiver();
         ThreadPool.submit(this.multicastReceiver);
+        this.overlays = new TileOverlay(this.client);
+        this.overlayManager.add(this.overlays);
     }
 
     /**
@@ -235,7 +242,8 @@ public class TScriptsPlugin  extends Plugin {
         int id = event.getPacketBufferNode().getClientPacket().getId();
         byte[] payload = Arrays.copyOfRange(
                 event.getPacketBufferNode().getPacketBuffer().getPayload(),
-                1, event.getPacketBufferNode().getPacketBuffer().getOffset());
+                1, event.getPacketBufferNode().getPacketBuffer().getOffset()
+        );
 
         PacketBuffer pb = new PacketBuffer(id, payload);
         PacketDefinition pd = null;
@@ -467,6 +475,22 @@ public class TScriptsPlugin  extends Plugin {
                             .setTarget(color + name + " ")
                             .setType(MenuAction.RUNELITE)
                             .onClick(c -> Logging.copyToClipboard(worldPoint.getX() + ", " + worldPoint.getY()));
+
+                    /*client.createMenuEntry(1)
+                            .setOption("Generate Local Path")
+                            .setTarget(color + entry.getItemId() + " ")
+                            .setType(MenuAction.RUNELITE)
+                            .onClick(c -> {
+                                ThreadPool.submit(() ->
+                                {
+                                    LocalPathfinder localPathfinder = new LocalPathfinder();
+                                    overlays.updatePath(new ArrayList<>());
+                                    WorldPoint wp = Static.getClient().getLocalPlayer().getWorldLocation();
+                                    overlays.setDest(new Step(WorldPointUtil.fromCord(wp.getX(), wp.getY())));
+                                    overlays.updatePath(localPathfinder.findPath(worldPoint, wp));
+                                    System.out.println("::: DONE!");
+                                });
+                            });*/
                 }
             }
         }
