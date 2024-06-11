@@ -59,9 +59,9 @@ subprojects {
     apply(plugin = "com.github.andygoossens.gradle-modernizer-plugin")
 
     dependencies {
-        compileOnly(group = "net.unethicalite", name = "http-api", version = "1.0.20-STABLE")
-        compileOnly(group = "net.unethicalite", name = "runelite-api", version = "1.0.20-STABLE")
-        compileOnly(group = "net.unethicalite", name = "runelite-client", version = "1.0.20-STABLE")
+        compileOnly(group = "net.unethicalite", name = "http-api", version = "1.0.20-EXPERIMENTAL")
+        compileOnly(group = "net.unethicalite", name = "runelite-api", version = "1.0.20-EXPERIMENTAL")
+        compileOnly(group = "net.unethicalite", name = "runelite-client", version = "1.0.20-EXPERIMENTAL")
 
         compileOnly(group = "org.apache.commons", name = "commons-text", version = "1.9")
         compileOnly(group = "com.google.guava", name = "guava", version = "30.1.1-jre") {
