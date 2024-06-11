@@ -1,7 +1,7 @@
 import org.gradle.kotlin.dsl.dependencies
 
 //Major Release - Feature Addition - Bug Fix
-version = "2.15.13"
+version = "2.15.14"
 
 plugins {
     id("java")
