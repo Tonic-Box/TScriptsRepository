@@ -6,6 +6,7 @@ import net.runelite.api.Actor;
 import net.runelite.api.NPC;
 import net.runelite.api.queries.NPCQuery;
 import net.runelite.client.plugins.tscripts.api.library.TMovement;
+import net.unethicalite.api.entities.NPCs;
 import net.unethicalite.client.Static;
 import org.apache.commons.lang3.ArrayUtils;
 
@@ -47,7 +48,7 @@ public enum NpcFilter
     public static NPC filter(Object identifier, NpcFilter... filter)
     {
         BiPredicate<Object, NPC> by = identifier instanceof String ? byName : (identifier instanceof Integer ? byId : null);
-        return new NPCQuery()
+        /*new NPCQuery()
                 .filter(n -> {
                     if(by != null && !by.test(identifier, n))
                     {
@@ -63,7 +64,22 @@ public enum NpcFilter
                     return true;
                 })
                 .result(Static.getClient())
-                .nearestTo(Static.getClient().getLocalPlayer());
+                .nearestTo(Static.getClient().getLocalPlayer());*/
+
+        return NPCs.getNearest(n -> {
+            if(by != null && !by.test(identifier, n))
+            {
+                return false;
+            }
+            for (NpcFilter f : filter)
+            {
+                if (f != null && !f.getCondition().test(n))
+                {
+                    return false;
+                }
+            }
+            return true;
+        });
     }
 
     public static NPC filter(Object identifier, String... filter)

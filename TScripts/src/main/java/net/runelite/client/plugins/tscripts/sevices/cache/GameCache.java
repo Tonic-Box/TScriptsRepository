@@ -21,6 +21,8 @@ public class GameCache
     }
     private static GameCache instance;
     private final List<TileObject> objectCache = Collections.synchronizedList(new ArrayList<>());
+    private final List<NPC> npcCache = Collections.synchronizedList(new ArrayList<>());
+    private final List<Player> playerCache = Collections.synchronizedList(new ArrayList<>());
     private Actor lastInteracting = null;
     @Getter
     private int tickCount = 0;
@@ -51,6 +53,74 @@ public class GameCache
         if(interacting == null)
             interacting = lastInteracting;
         return interacting;
+    }
+
+    public Stream<Player> playerStream()
+    {
+        synchronized (playerCache)
+        {
+            return new ArrayList<>(playerCache).stream();
+        }
+    }
+
+    public Stream<NPC> npcStream()
+    {
+        synchronized (npcCache)
+        {
+            return new ArrayList<>(npcCache).stream();
+        }
+    }
+
+    public ArrayList<Player> playerList()
+    {
+        synchronized (playerCache)
+        {
+            return new ArrayList<>(playerCache);
+        }
+    }
+
+    public ArrayList<NPC> npcList()
+    {
+        synchronized (npcCache)
+        {
+            return new ArrayList<>(npcCache);
+        }
+    }
+
+    @Subscribe
+    public void onPlayerSpawned(PlayerSpawned event)
+    {
+        synchronized (npcCache)
+        {
+            playerCache.add(event.getPlayer());
+        }
+    }
+
+    @Subscribe
+    public void onNpcSpawned(NpcSpawned event)
+    {
+        synchronized (npcCache)
+        {
+            npcCache.add(event.getNpc());
+        }
+    }
+
+    @Subscribe
+    public void onPlayerDespawned(PlayerDespawned event)
+    {
+        synchronized (npcCache)
+        {
+            playerCache.remove(event.getPlayer());
+        }
+    }
+
+    @Subscribe
+    public void onNpcDespawned(NpcDespawned event)
+    {
+        synchronized (npcCache)
+        {
+            npcCache.remove(event.getNpc());
+        }
     }
 
     @Subscribe
