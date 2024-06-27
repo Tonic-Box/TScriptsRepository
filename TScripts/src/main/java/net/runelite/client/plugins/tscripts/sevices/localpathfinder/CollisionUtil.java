@@ -1,5 +1,6 @@
 package net.runelite.client.plugins.tscripts.sevices.localpathfinder;
 
+import lombok.Getter;
 import net.runelite.client.plugins.tscripts.sevices.cache.GameCache;
 import org.jetbrains.kotlin.gnu.trove.TIntIntHashMap;
 import java.util.*;
@@ -8,6 +9,7 @@ import java.util.stream.Collectors;
 public class CollisionUtil
 {
     private final TIntIntHashMap collisionMap;
+    @Getter
     private final List<Integer> ignoreTiles;
     CollisionUtil(TIntIntHashMap collisionMap)
     {

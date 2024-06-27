@@ -20,10 +20,7 @@ import net.runelite.client.plugins.tscripts.api.MethodManager;
 import net.runelite.client.plugins.tscripts.api.library.TWorldPoint;
 import net.runelite.client.plugins.tscripts.sevices.ScriptEventService;
 import net.runelite.client.plugins.tscripts.sevices.ipc.MulticastReceiver;
-import net.runelite.client.plugins.tscripts.sevices.localpathfinder.LocalPathfinder;
-import net.runelite.client.plugins.tscripts.sevices.localpathfinder.Step;
-import net.runelite.client.plugins.tscripts.sevices.localpathfinder.TileOverlay;
-import net.runelite.client.plugins.tscripts.sevices.localpathfinder.WorldPointUtil;
+import net.runelite.client.plugins.tscripts.sevices.localpathfinder.*;
 import net.runelite.client.plugins.tscripts.ui.TScriptsPanel;
 import net.runelite.client.plugins.tscripts.util.*;
 import net.runelite.client.plugins.tscripts.sevices.cache.GameCache;
@@ -483,12 +480,12 @@ public class TScriptsPlugin  extends Plugin {
                             .onClick(c -> {
                                 ThreadPool.submit(() ->
                                 {
-                                    LocalPathfinder localPathfinder = new LocalPathfinder();
+                                    TWalker walker = new TWalker(worldPoint);
                                     overlays.updatePath(new ArrayList<>());
-                                    WorldPoint wp = Static.getClient().getLocalPlayer().getWorldLocation();
-                                    overlays.setDest(new Step(WorldPointUtil.fromCord(wp.getX(), wp.getY())));
-                                    overlays.updatePath(localPathfinder.findPath(worldPoint, wp));
-                                    System.out.println("::: DONE!");
+                                    List<Step> path = walker.getPath();
+                                    overlays.setDest(path.get(path.size() - 1));
+                                    overlays.updatePath(path);
+                                    walker.walkThreaded();
                                 });
                             });*/
                 }

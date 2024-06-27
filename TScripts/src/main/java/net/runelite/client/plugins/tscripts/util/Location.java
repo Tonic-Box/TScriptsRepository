@@ -9,6 +9,7 @@ import net.runelite.api.coords.WorldArea;
 import net.runelite.api.coords.WorldPoint;
 import net.unethicalite.client.Static;
 
+import java.util.ArrayList;
 import java.util.List;
 
 public class Location {
@@ -122,6 +123,33 @@ public class Location {
             return isReachable(sourceTile, targetTile);
         } catch (Exception ignored) {
             return false;
+        }
+    }
+
+    public static List<Tile> pathTo(WorldPoint start, WorldPoint end) {
+        if (start.getPlane() != end.getPlane()) {
+            return new ArrayList<>();
+        }
+
+        Client client = Static.getClient();
+        LocalPoint sourceLp = LocalPoint.fromWorld(client, start.getX(), start.getY());
+        LocalPoint targetLp = LocalPoint.fromWorld(client, end.getX(), end.getY());
+        if (sourceLp == null || targetLp == null) {
+            return new ArrayList<>();
+        }
+
+        int thisX = sourceLp.getSceneX();
+        int thisY = sourceLp.getSceneY();
+        int otherX = targetLp.getSceneX();
+        int otherY = targetLp.getSceneY();
+
+        try {
+            Tile[][][] tiles = client.getScene().getTiles();
+            Tile sourceTile = tiles[start.getPlane()][thisX][thisY];
+            Tile targetTile = tiles[end.getPlane()][otherX][otherY];
+            return sourceTile.pathTo(targetTile);
+        } catch (Exception ignored) {
+            return new ArrayList<>();
         }
     }
 

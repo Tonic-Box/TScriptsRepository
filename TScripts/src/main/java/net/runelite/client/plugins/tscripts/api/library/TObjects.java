@@ -95,4 +95,11 @@ public class TObjects
         }
         return null;
     }
+
+    public static TileObject getOpenableAt(int x, int y)
+    {
+        return GameCache.get().objectStream()
+                .filter(o -> (o.getName().toLowerCase().contains("door") || o.getName().toLowerCase().contains("gate")) && o.hasAction("Open") && o.getWorldLocation().getX() == x && o.getWorldLocation().getY() == y)
+                .findFirst().orElse(null);
+    }
 }

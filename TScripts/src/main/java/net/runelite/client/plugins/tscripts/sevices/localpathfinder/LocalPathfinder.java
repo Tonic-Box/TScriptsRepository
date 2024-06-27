@@ -1,6 +1,7 @@
 package net.runelite.client.plugins.tscripts.sevices.localpathfinder;
 
 import net.runelite.api.Client;
+import net.runelite.api.WorldView;
 import net.runelite.api.coords.WorldPoint;
 import net.runelite.client.plugins.tscripts.api.library.TObjects;
 import net.runelite.client.plugins.tscripts.util.Logging;
@@ -12,17 +13,24 @@ import java.util.List;
 
 public class LocalPathfinder
 {
-    private final CollisionUtil collisionUtil;
+    private static final LocalPathfinder instance = new LocalPathfinder();
+    public static LocalPathfinder get()
+    {
+        return instance;
+    }
+    private CollisionUtil collisionUtil;
     private int target;
     private final BFSCache visited = new BFSCache();
     private final IntQueue queue = new IntQueue(5000);
-    public LocalPathfinder()
+    private LocalPathfinder()
     {
-        collisionUtil = new CollisionUtil(getCollision());
     }
 
     public List<Step> findPath(WorldPoint start, WorldPoint end)
     {
+        collisionUtil = new CollisionUtil(getCollision());
+        visited.setDoors(collisionUtil.getIgnoreTiles());
+
         target = WorldPointUtil.fromCord(end.getX(), end.getY());
         visited.clear();
         visited.put(WorldPointUtil.fromCord(start.getX(), start.getY()), -1);
@@ -104,16 +112,17 @@ public class LocalPathfinder
     {
         Client client = Static.getClient();
         TIntIntHashMap collisionMap = new TIntIntHashMap();
-        if(client == null || client.getCollisionMaps() == null || client.getCollisionMaps()[client.getPlane()] == null)
+        WorldView wv = client.getTopLevelWorldView();
+        if(wv.getCollisionMaps() == null || wv.getCollisionMaps()[wv.getPlane()] == null)
             return collisionMap;
 
-        int[][] flags = client.getCollisionMaps()[client.getPlane()].getFlags();
+        int[][] flags = wv.getCollisionMaps()[wv.getPlane()].getFlags();
         WorldPoint point;
         for(int x = 0; x < flags.length; x++)
         {
             for(int y = 0; y < flags[x].length; y++)
             {
-                point = WorldPoint.fromScene(client, x, y, client.getPlane());
+                point = WorldPoint.fromScene(client, x, y, wv.getPlane());
                 collisionMap.put(WorldPointUtil.fromCord(point.getX(), point.getY()), flags[x][y]);
             }
         }
