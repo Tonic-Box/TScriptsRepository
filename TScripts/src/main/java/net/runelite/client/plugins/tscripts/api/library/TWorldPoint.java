@@ -22,7 +22,7 @@ public class TWorldPoint
     }
 
     /**
-     * Gets the coordinate of the tile that contains the passed local point,
+     * Gets the coordinate of the tile that contains the passed world point,
      * accounting for instances.
      *
      * @param worldPoint the instance worldpoint
