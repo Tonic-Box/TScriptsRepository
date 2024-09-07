@@ -37,6 +37,10 @@ public class GLocalPlayer implements GroupDefinition
                 function -> TWorldPoint.get(Static.getClient().getLocalPlayer().getWorldLocation()).getY(),
                 "Returns the y coordinate of the local player"
         );
+        addMethod(methods, "getPlane", Type.INT, ImmutableMap.of(),
+                function -> TWorldPoint.get(Static.getClient().getLocalPlayer().getWorldLocation()).getPlane(),
+                "Returns the plane of the local player"
+        );
         addMethod(methods, "inCombat", Type.BOOL, ImmutableMap.of(),
                 function -> TActor.isInCombat(Static.getClient().getLocalPlayer()),
                 "Returns true if the local player is in combat"
