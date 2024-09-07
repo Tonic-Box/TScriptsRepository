@@ -48,6 +48,10 @@ public class GGame implements GroupDefinition
                 function -> Static.getClientThread().invoke(() -> Static.getClient().setGameState(GameState.of(function.getArg(0, manager)))),
                 "sets the game state", false
         );
+        addMethod(methods, "setIdleTimeout", ImmutableMap.of(0, Pair.of("timeout", Type.INT)),
+                function -> Static.getClientThread().invoke(() -> Static.getClient().setIdleTimeout(function.getArg(0, manager))),
+                "sets the idle timeout", false
+        );
         addMethod(methods, "setTab", ImmutableMap.of(0, Pair.of("tab", Type.INT)),
                 function -> Static.getClientThread().invoke(() -> Static.getClient().runScript(915, function.getArg(0, manager))),
                 "sets current the tab"
