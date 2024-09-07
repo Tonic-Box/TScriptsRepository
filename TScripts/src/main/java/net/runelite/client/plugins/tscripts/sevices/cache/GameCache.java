@@ -90,7 +90,7 @@ public class GameCache
     @Subscribe
     public void onPlayerSpawned(PlayerSpawned event)
     {
-        synchronized (npcCache)
+        synchronized (playerCache)
         {
             playerCache.add(event.getPlayer());
         }
@@ -108,7 +108,7 @@ public class GameCache
     @Subscribe
     public void onPlayerDespawned(PlayerDespawned event)
     {
-        synchronized (npcCache)
+        synchronized (playerCache)
         {
             playerCache.remove(event.getPlayer());
         }
