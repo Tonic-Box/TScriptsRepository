@@ -364,16 +364,11 @@ public class TScriptsPlugin  extends Plugin {
             String name = TextUtil.sanitize(entry.getTarget()).split(" \\(")[0].trim();
             if(opcode == MenuAction.EXAMINE_NPC.getId())
             {
-                MenuEntry npcMenu = client.createMenuEntry(1)
-                        .setOption("Dev Helper ")
-                        .setTarget(color + name + " ")
-                        .setType(MenuAction.RUNELITE_SUBMENU);
 
                 client.createMenuEntry(1)
                         .setOption("Copy name ")
                         .setTarget(color + name + " ")
                         .setType(MenuAction.RUNELITE)
-                        .setParent(npcMenu)
                         .onClick(c -> Logging.copyToClipboard(name));
 
                 NPC npc = client.getCachedNPCs()[entry.getIdentifier()];
@@ -382,84 +377,61 @@ public class TScriptsPlugin  extends Plugin {
                         .setOption("Copy ID ")
                         .setTarget(color + npc.getId() + " ")
                         .setType(MenuAction.RUNELITE)
-                        .setParent(npcMenu)
                         .onClick(c -> Logging.copyToClipboard(npc.getId() + ""));
             }
             else if(opcode == MenuAction.EXAMINE_OBJECT.getId())
             {
-                MenuEntry objectHelper = client.createMenuEntry(1)
-                        .setOption("Dev Helper ")
-                        .setTarget(color + name + " ")
-                        .setType(MenuAction.RUNELITE_SUBMENU);
 
                 client.createMenuEntry(1)
                         .setOption("Copy name ")
                         .setTarget(color + name + " ")
                         .setType(MenuAction.RUNELITE)
-                        .setParent(objectHelper)
                         .onClick(c -> Logging.copyToClipboard(name));
 
                 client.createMenuEntry(1)
                         .setOption("Copy ID ")
                         .setTarget(color + entry.getIdentifier() + " ")
                         .setType(MenuAction.RUNELITE)
-                        .setParent(objectHelper)
                         .onClick(c -> Logging.copyToClipboard(entry.getIdentifier() + ""));
             }
             else if(opcode == MenuAction.TRADE.getId())
             {
                 MenuEntry objectHelper = client.createMenuEntry(1)
                         .setOption("Dev Helper ")
-                        .setTarget("<col=ffff00>" + name + " ")
-                        .setType(MenuAction.RUNELITE_SUBMENU);
+                        .setTarget("<col=ffff00>" + name + " ");
 
                 client.createMenuEntry(1)
                         .setOption("Copy name ")
                         .setTarget(color + name + " ")
                         .setType(MenuAction.RUNELITE)
-                        .setParent(objectHelper)
                         .onClick(c -> Logging.copyToClipboard(name));
             }
             else if(entry.getOption().equals("Use")) //items
             {
-                MenuEntry objectHelper = client.createMenuEntry(1)
-                        .setOption("Dev Helper ")
-                        .setTarget(color + name + " ")
-                        .setType(MenuAction.RUNELITE_SUBMENU);
-
                 client.createMenuEntry(1)
                         .setOption("Copy name ")
                         .setTarget(color + name + " ")
                         .setType(MenuAction.RUNELITE)
-                        .setParent(objectHelper)
                         .onClick(c -> Logging.copyToClipboard(name));
 
                 client.createMenuEntry(1)
                         .setOption("Copy ID ")
                         .setTarget(color + entry.getItemId() + " ")
                         .setType(MenuAction.RUNELITE)
-                        .setParent(objectHelper)
                         .onClick(c -> Logging.copyToClipboard(entry.getItemId() + ""));
             }
             else if(opcode == MenuAction.EXAMINE_ITEM_GROUND.getId())
             {
-                MenuEntry objectHelper = client.createMenuEntry(1)
-                        .setOption("Dev Helper ")
-                        .setTarget(color + name + " ")
-                        .setType(MenuAction.RUNELITE_SUBMENU);
-
                 client.createMenuEntry(1)
                         .setOption("Copy name ")
                         .setTarget(color + name + " ")
                         .setType(MenuAction.RUNELITE)
-                        .setParent(objectHelper)
                         .onClick(c -> Logging.copyToClipboard(name));
 
                 client.createMenuEntry(1)
                         .setOption("Copy ID ")
                         .setTarget(color + entry.getItemId() + " ")
                         .setType(MenuAction.RUNELITE)
-                        .setParent(objectHelper)
                         .onClick(c -> Logging.copyToClipboard(entry.getIdentifier() + ""));
             }
             else if(opcode == MenuAction.WALK.getId())

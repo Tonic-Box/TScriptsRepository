@@ -17,6 +17,8 @@ public class TEventBus
     {
         if (!subscribers.containsKey(obj))
             subscribers.put(obj, new ArrayList<>());
+        else
+            return;
 
         for (Method method : obj.getClass().getMethods())
         {
@@ -24,9 +26,7 @@ public class TEventBus
                 continue;
 
             method.setAccessible(true);
-
-            if (!subscribers.get(obj).contains(method))
-                subscribers.get(obj).add(method);
+            subscribers.get(obj).add(method);
         }
     }
 
