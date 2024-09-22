@@ -10,8 +10,8 @@ import java.net.InetAddress;
 import java.net.MulticastSocket;
 
 public class MulticastSender {
-    @Getter
-    private static final MulticastSender instance = new MulticastSender();
+    //@Getter
+    //private static final MulticastSender instance = new MulticastSender();
 
     public void send(IPCPacket ipcPacket) {
         try (MulticastSocket socket = new MulticastSocket()) {

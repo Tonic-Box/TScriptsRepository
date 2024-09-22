@@ -151,20 +151,20 @@ public class Runtime
         ConditionType type = scope.getConditions() != null ? scope.getConditions().getType() : ConditionType.NONE;
         switch (type)
         {
-            case IPC_POST:
-                String target;
-                if(scope.getConditions().getConditions().isEmpty())
-                {
-                    target = "NULL";
-                }
-                else
-                {
-                    target = (String) getValue(scope.getConditions().getConditions().get(0).getLeft());
-                }
-                String data = Unparser.revert((ParseTree) scope.getConditions().getConditions().get(0).getRight());
-                IPCPacket ipcPacket = new IPCPacket(target, data);
-                MulticastSender.getInstance().send(ipcPacket);
-                return;
+//            case IPC_POST:
+//                String target;
+//                if(scope.getConditions().getConditions().isEmpty())
+//                {
+//                    target = "NULL";
+//                }
+//                else
+//                {
+//                    target = (String) getValue(scope.getConditions().getConditions().get(0).getLeft());
+//                }
+//                String data = Unparser.revert((ParseTree) scope.getConditions().getConditions().get(0).getRight());
+//                IPCPacket ipcPacket = new IPCPacket(target, data);
+//                MulticastSender.getInstance().send(ipcPacket);
+//                return;
             case SUBSCRIBE:
                 addAnonymousEventSubscriber(scope);
                 scope.setCurrent(false);
