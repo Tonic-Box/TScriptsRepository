@@ -81,7 +81,7 @@ public class TScriptsPlugin  extends Plugin {
     private CompletionProvider baseCompletion;
     public static final String START_DIR = RuneLite.RUNELITE_DIR + File.separator + "HPQScripts" + File.separator;
     public static String HOME_DIR;
-    private MulticastReceiver multicastReceiver;
+    //private MulticastReceiver multicastReceiver;
     @Getter
     private TScriptsPanel panel;
     private TileOverlay overlays;
@@ -122,8 +122,8 @@ public class TScriptsPlugin  extends Plugin {
                 .onClick(baseClientUI::toggleHeadless)
                 .build();
         clientToolbar.addNavigation(headlessToggleButton);
-        this.multicastReceiver = new MulticastReceiver();
-        ThreadPool.submit(this.multicastReceiver);
+        //this.multicastReceiver = new MulticastReceiver();
+        //ThreadPool.submit(this.multicastReceiver);
         this.overlays = new TileOverlay(this.client);
         this.overlayManager.add(this.overlays);
     }
@@ -135,7 +135,7 @@ public class TScriptsPlugin  extends Plugin {
     protected void shutDown() {
         sidePanel(false);
         unregAllKeyListeners();
-        multicastReceiver.shutdown();
+        //multicastReceiver.shutdown();
     }
 
     /**
