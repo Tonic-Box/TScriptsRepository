@@ -37,41 +37,10 @@ public interface GroupDefinition
      * @param parameters the parameters of the method
      * @param function the function to call
      * @param description the description of the method
-     * @param requiresLoggedIn whether the method requires the user to be logged in
-     */
-    default void addMethod(List<MethodDefinition> methods, String name, Type returnType, ImmutableMap<Integer, Pair<String, Type>> parameters, Function<MethodCall, Object> function, String description, boolean requiresLoggedIn)
-    {
-        methods.add(new MethodDefinition(name, returnType, parameters, function, description, requiresLoggedIn));
-    }
-
-    /**
-     * Add a method without a return type to the group.
-     *
-     * @param methods the list of methods
-     * @param name the name of the method
-     * @param parameters the parameters of the method
-     * @param function the function to call
-     * @param description the description of the method
-     * @param requiresLoggedIn whether the method requires the user to be logged in
-     */
-    default void addMethod(List<MethodDefinition> methods, String name, ImmutableMap<Integer, Pair<String, Type>> parameters, Consumer<MethodCall> function, String description, boolean requiresLoggedIn)
-    {
-        methods.add(new MethodDefinition(name, Type.VOID, parameters, function, description, requiresLoggedIn));
-    }
-
-    /**
-     * Add a method with a return type to the group.
-     *
-     * @param methods the list of methods
-     * @param name the name of the method
-     * @param returnType the return type of the method
-     * @param parameters the parameters of the method
-     * @param function the function to call
-     * @param description the description of the method
      */
     default void addMethod(List<MethodDefinition> methods, String name, Type returnType, ImmutableMap<Integer, Pair<String, Type>> parameters, Function<MethodCall, Object> function, String description)
     {
-        methods.add(new MethodDefinition(name, returnType, parameters, function, description, true));
+        methods.add(new MethodDefinition(name, returnType, parameters, function, description));
     }
 
     /**
@@ -85,6 +54,6 @@ public interface GroupDefinition
      */
     default void addMethod(List<MethodDefinition> methods, String name, ImmutableMap<Integer, Pair<String, Type>> parameters, Consumer<MethodCall> function, String description)
     {
-        methods.add(new MethodDefinition(name, Type.VOID, parameters, function, description, true));
+        methods.add(new MethodDefinition(name, Type.VOID, parameters, function, description));
     }
 }

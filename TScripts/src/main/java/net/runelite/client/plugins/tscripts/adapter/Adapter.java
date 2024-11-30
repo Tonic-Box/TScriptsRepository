@@ -152,7 +152,7 @@ public class Adapter
 
     private static Element flushSubscriberDefinition(TScriptParser.SubscriberDefinitionContext ctx) {
         Conditions conditions = new Conditions();
-        conditions.setType(ConditionType.SUBSCRIBE);
+        //conditions.setType(ConditionType.SUBSCRIBE); //TODO: Nix this
         conditions.setUserFunctionName(ctx.ID().getText());
 
         if (ctx.array() != null) {

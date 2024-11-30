@@ -5,7 +5,6 @@ package net.runelite.client.plugins.tscripts.adapter.models;
  */
 public enum TokenType
 {
-    KEYWORD_SUBSCRIBE,
     KEYWORD_USER_DEFINED_FUNCTION,
     KEYWORD_IF,
     KEYWORD_WHILE,

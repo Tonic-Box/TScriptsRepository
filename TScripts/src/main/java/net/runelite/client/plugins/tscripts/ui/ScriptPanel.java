@@ -2,20 +2,15 @@ package net.runelite.client.plugins.tscripts.ui;
 
 import lombok.Getter;
 import lombok.SneakyThrows;
-import net.runelite.client.config.Keybind;
-import net.runelite.client.plugins.tscripts.TScriptsConfig;
 import net.runelite.client.plugins.tscripts.TScriptsPlugin;
 import net.runelite.client.plugins.tscripts.adapter.Adapter;
 import net.runelite.client.plugins.tscripts.api.MethodManager;
 import net.runelite.client.plugins.tscripts.runtime.Runtime;
 import net.runelite.client.plugins.tscripts.ui.editor.ScriptEditor;
-import net.runelite.client.plugins.tscripts.sevices.ScriptEventService;
 import net.runelite.client.plugins.tscripts.sevices.eventbus.events.ScriptStateChanged;
 import net.runelite.client.plugins.tscripts.adapter.models.Scope.Scope;
+import net.runelite.client.plugins.tscripts.util.ImageUtil;
 import net.runelite.client.plugins.tscripts.util.Logging;
-import net.runelite.client.ui.ColorScheme;
-import net.runelite.client.ui.FontManager;
-import net.runelite.client.ui.components.FlatTextField;
 import javax.swing.*;
 import javax.swing.border.Border;
 import javax.swing.border.CompoundBorder;
@@ -27,8 +22,6 @@ import java.io.File;
 import java.io.IOException;
 import java.nio.file.Files;
 import java.nio.file.Paths;
-import net.runelite.client.util.HotkeyListener;
-import net.runelite.client.util.ImageUtil;
 
 /**
  * The panel that holds the script name and the buttons to run, stop, edit, and delete the script
@@ -47,21 +40,17 @@ public class ScriptPanel extends JPanel
     private final ImageIcon DELETE_ICON;
     private final ImageIcon DELETE_HOVER_ICON;
     private TScriptsPlugin plugin;
-    private TScriptsConfig config;
     private TScriptsPanel panel;
     private String script;
     @Getter
     private final JLabel runLabel = new JLabel();
     private final JLabel stopLabel = new JLabel();
-    private final JButton bindkey = new JButton("...");
-    private final JComboBox<String> eventList = new JComboBox<>();
     private final JLabel editLabel = new JLabel();
     private final JLabel deleteLabel = new JLabel();
     private final FlatTextField nameInput = new FlatTextField();
     private final JLabel save = new JLabel("Save");
     private final JLabel cancel = new JLabel("Cancel");
     private final JLabel rename = new JLabel("Rename");
-    private final JLabel hotkeyLabel = new JLabel("Hotkey   ");
     private final JLabel minimizeLabel = new JLabel("--");
     private boolean minimized;
     private JPanel bottomContainer;
@@ -69,7 +58,6 @@ public class ScriptPanel extends JPanel
     private final Border blackline = BorderFactory.createLineBorder(Color.black);
     @Getter
     private final Runtime runtime = new Runtime();
-    private Keybind hke = Keybind.NOT_SET;
 
     {
         BufferedImage runImg =  ImageUtil.loadImageResource(TScriptsPlugin.class, "run_icon.png");
@@ -95,40 +83,34 @@ public class ScriptPanel extends JPanel
      * Creates a new script panel
      *
      * @param plugin the plugin
-     * @param config the config
      * @param script the script name
      * @param panel the panel
      * @param minimized whether the panel is minimized
      * @param edit whether the panel is in edit mode
      * @param profile the profile
      */
-    public ScriptPanel(TScriptsPlugin plugin, TScriptsConfig config, String script, TScriptsPanel panel, boolean minimized, boolean edit, String profile) {
-        init(plugin, config, script, panel, minimized, edit, profile);
+    public ScriptPanel(TScriptsPlugin plugin, String script, TScriptsPanel panel, boolean minimized, boolean edit, String profile) {
+        init(plugin, script, panel, minimized, edit, profile);
     }
 
     /**
      * Creates a new script panel
      *
      * @param plugin the plugin
-     * @param config the config
      * @param script the script name
      * @param panel the panel
      * @param minimized whether the panel is minimized
      * @param edit whether the panel is in edit mode
      */
-    private void init(TScriptsPlugin plugin, TScriptsConfig config, String script, TScriptsPanel panel, boolean minimized, boolean edit, String profile) {
+    private void init(TScriptsPlugin plugin, String script, TScriptsPanel panel, boolean minimized, boolean edit, String profile) {
         this.profile = plugin.getProfilePath(profile);
-        this.config = config;
         this.plugin = plugin;
         this.script = script;
-        this.bindkey.setText(hke.toString());
         this.minimized = minimized;
         if(this.minimized) {
             this.minimizeLabel.setText("+");
         }
-        addRemoveListener(false);
-        addRemoveListener(true);
-        plugin.keyManager.registerKeyListener(getKeyListener());
+
         setLayout(new BorderLayout());
         setBorder(new CompoundBorder(blackline, new EmptyBorder(0, 8, 0, 8)));
         setBackground(ColorScheme.DARKER_GRAY_COLOR);
@@ -138,7 +120,6 @@ public class ScriptPanel extends JPanel
         JPanel nameActions = new JPanel(new BorderLayout(3, 0));
         nameActions.setBorder(new EmptyBorder(0, 0, 0, 8));
         nameActions.setBackground(ColorScheme.DARKER_GRAY_COLOR);
-        this.save.setFont(FontManager.getRunescapeSmallFont());
         this.save.setForeground(ColorScheme.PROGRESS_COMPLETE_COLOR);
         this.save.addMouseListener(new MouseAdapter() {
             public void mousePressed(MouseEvent mouseEvent) {
@@ -186,7 +167,6 @@ public class ScriptPanel extends JPanel
                 save.setForeground(ColorScheme.PROGRESS_COMPLETE_COLOR);
             }
         });
-        this.cancel.setFont(FontManager.getRunescapeSmallFont());
         this.cancel.setForeground(ColorScheme.PROGRESS_ERROR_COLOR);
         this.cancel.addMouseListener(new MouseAdapter() {
             public void mousePressed(MouseEvent mouseEvent) {
@@ -205,7 +185,6 @@ public class ScriptPanel extends JPanel
                 cancel.setForeground(ColorScheme.PROGRESS_ERROR_COLOR);
             }
         });
-        this.rename.setFont(FontManager.getRunescapeSmallFont());
         this.rename.setForeground(ColorScheme.LIGHT_GRAY_COLOR.darker());
         this.rename.addMouseListener(new MouseAdapter() {
             public void mousePressed(MouseEvent mouseEvent) {
@@ -316,7 +295,6 @@ public class ScriptPanel extends JPanel
                         myObj.delete();
                     }
                     catch (Exception ignored) {}
-                    addRemoveListener(false);
                     System.out.println("[TScripts] Script '" + getScriptName() + "' deleted");
                     panel.rebuild();
                 }
@@ -330,62 +308,6 @@ public class ScriptPanel extends JPanel
                 deleteLabel.setIcon(DELETE_ICON);
             }
         });
-        hke = plugin.configHandler.getKeybind(getScriptName());
-        this.bindkey.setText(hke.toString());
-        bindkey.setToolTipText("Set Keybind");
-        this.bindkey.addActionListener(e -> {
-            plugin.unregister(getKeyListener());
-            hke = Keybind.NOT_SET;
-            bindkey.setText(hke.toString());
-            plugin.configHandler.setKeycode(getScriptName(), 0, 0);
-            this.bindkey.addKeyListener(new KeyAdapter()
-            {
-                @Override
-                public void keyPressed(KeyEvent e)
-                {
-                    plugin.unregister(getKeyListener());
-                    hke = new Keybind(e);
-                    bindkey.setText(hke.toString());
-                    bindkey.removeKeyListener(this);
-                    plugin.configHandler.setKeycode(getScriptName(), hke.getKeyCode(), hke.getModifiers());
-                    plugin.register(getKeyListener());
-                }
-            });
-        });
-
-        this.eventList.addItem("(No Event Set)");
-        for(Class<?> clazz : MethodManager.getInstance().getEventClasses())
-        {
-            this.eventList.addItem(clazz.getSimpleName());
-        }
-
-        this.eventList.setToolTipText("Set Event Trigger");
-        String event = plugin.configHandler.getEvent(getScriptName());
-        Class<?> clazz = MethodManager.getInstance().getEventClass(event);
-
-        if(clazz != null)
-        {
-            this.eventList.setSelectedItem(clazz.getSimpleName());
-            ScriptEventService.getInstance().registerSubscriber(getScriptName(), profile, clazz);
-        }
-
-        eventList.addActionListener(e -> {
-            JComboBox<?> cb = (JComboBox<?>) e.getSource();
-            String selectedItem = (String) cb.getSelectedItem();
-            if(selectedItem == null)
-                return;
-            plugin.configHandler.setEvent(getScriptName(), selectedItem);
-            Class<?> eventClass = MethodManager.getInstance().getEventClass(selectedItem);
-            if(selectedItem.equals("(No Event Set)") || eventClass == null)
-            {
-                ScriptEventService.getInstance().unregisterSubscriber(getScriptName());
-                return;
-            }
-            ScriptEventService.getInstance().registerSubscriber(getScriptName(), profile, eventClass);
-        });
-
-        this.hotkeyLabel.setFont(FontManager.getRunescapeFont());
-        this.hotkeyLabel.setForeground(ColorScheme.LIGHT_GRAY_COLOR.darker());
 
         leftActions.add(this.runLabel);
         leftActions.add(this.stopLabel);
@@ -399,13 +321,10 @@ public class ScriptPanel extends JPanel
         JPanel hotkeyPanel = new JPanel(new BorderLayout());
         hotkeyPanel.setBorder(new EmptyBorder(10, 0, 10, 5));
         hotkeyPanel.setBackground(ColorScheme.DARKER_GRAY_COLOR);
-        hotkeyPanel.add(hotkeyLabel, BorderLayout.WEST);
-        hotkeyPanel.add(bindkey, BorderLayout.CENTER);
 
         JPanel eventPanel = new JPanel(new BorderLayout());
         hotkeyPanel.setBorder(new EmptyBorder(10, 0, 10, 5));
         eventPanel.setBackground(ColorScheme.DARKER_GRAY_COLOR);
-        eventPanel.add(eventList, BorderLayout.CENTER);
 
         southActions.add(hotkeyPanel, BorderLayout.NORTH);
         southActions.add(eventPanel, BorderLayout.SOUTH);
@@ -470,36 +389,6 @@ public class ScriptPanel extends JPanel
     }
 
     /**
-     * Adds or removes the key listener
-     *
-     * @param add whether to add or remove the listener
-     */
-    private void addRemoveListener(boolean add) {
-        //true = add;
-        if(add) {
-            plugin.hotKeyListeners.put(script, new HotkeyListener(() -> hke)
-            {
-                @Override
-                public void hotkeyPressed() {
-                    start();
-                }
-            });
-        }
-        else {
-            plugin.hotKeyListeners.remove(script);
-        }
-    }
-
-    /**
-     * Gets the key listener
-     *
-     * @return the key listener
-     */
-    private net.runelite.client.input.KeyListener getKeyListener() {
-        return plugin.hotKeyListeners.get(script);
-    }
-
-    /**
      * Updates the ui to reflect changes
      *
      * @param saveAndCancel whether to save and cancel
@@ -508,7 +397,7 @@ public class ScriptPanel extends JPanel
         removeAll();
         repaint();
         revalidate();
-        init(this.plugin, this.config, this.script, this.panel, this.minimized, saveAndCancel, profile);
+        init(this.plugin, this.script, this.panel, this.minimized, saveAndCancel, profile);
     }
 
     /**

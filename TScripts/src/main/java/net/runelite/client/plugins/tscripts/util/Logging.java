@@ -1,8 +1,6 @@
 package net.runelite.client.plugins.tscripts.util;
 
-import net.runelite.api.ChatMessageType;
 import net.runelite.client.plugins.tscripts.ui.editor.ScriptEditor;
-import net.unethicalite.client.Static;
 import javax.swing.*;
 import java.awt.*;
 import java.awt.datatransfer.StringSelection;
@@ -48,12 +46,6 @@ public class Logging {
      */
     public static void logToChat(String message) {
         System.out.println(message);
-        Static.getClientThread().invoke(() -> {
-            try {
-                Static.getClient().addChatMessage(ChatMessageType.TRADEREQ, "TSCRIPTS_LOGGER:" + message, message, "", true);
-            }
-            catch(Exception ignored) {}
-        });
     }
 
     /**

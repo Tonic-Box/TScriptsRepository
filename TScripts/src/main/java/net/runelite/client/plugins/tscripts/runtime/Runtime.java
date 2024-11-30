@@ -2,9 +2,7 @@ package net.runelite.client.plugins.tscripts.runtime;
 
 import lombok.Getter;
 import lombok.Setter;
-import net.runelite.client.eventbus.EventBus;
 import net.runelite.client.plugins.tscripts.adapter.Adapter;
-import net.runelite.client.plugins.tscripts.adapter.Unparser;
 import net.runelite.client.plugins.tscripts.adapter.models.Expression;
 import net.runelite.client.plugins.tscripts.adapter.models.OperatorType;
 import net.runelite.client.plugins.tscripts.adapter.models.shorthand.NullCheckExpression;
@@ -12,7 +10,6 @@ import net.runelite.client.plugins.tscripts.adapter.models.shorthand.NullCoalesc
 import net.runelite.client.plugins.tscripts.adapter.models.shorthand.TernaryExpression;
 import net.runelite.client.plugins.tscripts.api.MethodManager;
 import net.runelite.client.plugins.tscripts.api.library.TDelay;
-import net.runelite.client.plugins.tscripts.api.library.TGame;
 import net.runelite.client.plugins.tscripts.adapter.models.method.MethodCall;
 import net.runelite.client.plugins.tscripts.adapter.models.Scope.Scope;
 import net.runelite.client.plugins.tscripts.adapter.models.condition.Condition;
@@ -23,14 +20,11 @@ import net.runelite.client.plugins.tscripts.adapter.models.Element;
 import net.runelite.client.plugins.tscripts.adapter.models.variable.ArrayAccess;
 import net.runelite.client.plugins.tscripts.adapter.models.variable.VariableAssignment;
 import net.runelite.client.plugins.tscripts.sevices.eventbus.events.*;
-import net.runelite.client.plugins.tscripts.sevices.ipc.MulticastSender;
-import net.runelite.client.plugins.tscripts.sevices.ipc.packets.IPCPacket;
 import net.runelite.client.plugins.tscripts.types.Pair;
 import net.runelite.client.plugins.tscripts.util.Logging;
 import net.runelite.client.plugins.tscripts.util.ThreadPool;
 import net.runelite.client.plugins.tscripts.sevices.eventbus.TEventBus;
 import net.runelite.client.plugins.tscripts.sevices.eventbus._Subscribe;
-import org.antlr.v4.runtime.tree.ParseTree;
 
 import java.util.*;
 import java.util.concurrent.CopyOnWriteArrayList;
@@ -54,7 +48,6 @@ public class Runtime
 
     @Getter
     private final VariableMap variableMap;
-    private final List<EventBus.Subscriber> subscribers = new ArrayList<>();
     private final Map<String, UserDefinedFunction> userDefinedFunctions = new HashMap<>();
     private Pair<String, Map<String,Object>> globalArrays;
     @Getter
@@ -127,7 +120,6 @@ public class Runtime
             {
                 Logging.errorLog(ex);
             }
-            TGame.unregister(subscribers);
             _done = true;
             postScriptStateChanged(false);
             postFlags();
@@ -151,25 +143,6 @@ public class Runtime
         ConditionType type = scope.getConditions() != null ? scope.getConditions().getType() : ConditionType.NONE;
         switch (type)
         {
-//            case IPC_POST:
-//                String target;
-//                if(scope.getConditions().getConditions().isEmpty())
-//                {
-//                    target = "NULL";
-//                }
-//                else
-//                {
-//                    target = (String) getValue(scope.getConditions().getConditions().get(0).getLeft());
-//                }
-//                String data = Unparser.revert((ParseTree) scope.getConditions().getConditions().get(0).getRight());
-//                IPCPacket ipcPacket = new IPCPacket(target, data);
-//                MulticastSender.getInstance().send(ipcPacket);
-//                return;
-            case SUBSCRIBE:
-                addAnonymousEventSubscriber(scope);
-                scope.setCurrent(false);
-                variableMap.popScope();
-                return;
             case USER_DEFINED_FUNCTION:
             case LAMBDA:
                 addUserDefinedFunction(scope);
@@ -740,40 +713,6 @@ public class Runtime
         userDefinedFunctions.put(name, new UserDefinedFunction(name, scope));
     }
 
-    /**
-     * Adds an anonymous event subscriber.
-     *
-     * @param scope The scope.
-     */
-    private void addAnonymousEventSubscriber(Scope scope)
-    {
-        Class<?> event = methodManager.getEventClass(scope.getConditions().getUserFunctionName());
-        if(event != null)
-        {
-            EventBus.Subscriber subscriber = TGame.register(event, object -> {
-                try
-                {
-                    Runtime runtime = getRuntimeChild();
-                    if(!scope.getConditions().getConditions().isEmpty() && methodManager.getEventDataClasses().containsKey(event.getSimpleName()))
-                    {
-                        Object varName = scope.getConditions().getConditions().get(0).getLeft();
-                        String dataVar = (String) varName;
-                        runtime.globalArrays = new Pair<>(dataVar, methodManager.getEventDataClasses().get(event.getSimpleName()).getEventData(object));
-                    }
-
-                    Scope eventScope = scope.clone();
-                    eventScope.setConditions(null);
-                    runtime.execute(eventScope, "TS_EVENT", "TS_EVENT");
-                }
-                catch (Exception ex)
-                {
-                    Logging.errorLog(ex);
-                }
-            });
-            subscribers.add(subscriber);
-        }
-    }
-
     private Object processTernary(TernaryExpression expression)
     {
         Object left = getValue(expression.getTrueValue());
@@ -852,7 +791,6 @@ public class Runtime
         flags.put("scriptName", scriptName);
         flags.put("profile", profile);
         flags.put("running", !_done);
-        flags.put("subscribers", subscribers.size());
         flags.put("variables", variableMap.getVariableMap().size());
         flags.put("done", _done);
         flags.put("die", _die);

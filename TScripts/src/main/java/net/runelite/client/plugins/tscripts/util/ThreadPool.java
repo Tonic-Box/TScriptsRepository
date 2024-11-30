@@ -1,7 +1,5 @@
 package net.runelite.client.plugins.tscripts.util;
 
-import net.unethicalite.client.Static;
-
 import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;

@@ -1,12 +1,10 @@
 package net.runelite.client.plugins.tscripts.util;
 
 import com.google.common.reflect.ClassPath;
-import net.runelite.api.Skill;
 import net.runelite.client.plugins.tscripts.api.MethodManager;
 import net.runelite.client.plugins.tscripts.types.GroupDefinition;
 import net.runelite.client.plugins.tscripts.types.MethodDefinition;
 import net.runelite.client.plugins.tscripts.types.Type;
-import net.runelite.client.plugins.tscripts.api.enums.NpcFilter;
 import org.fife.ui.autocomplete.BasicCompletion;
 import org.fife.ui.autocomplete.Completion;
 import org.fife.ui.autocomplete.CompletionProvider;
@@ -87,11 +85,6 @@ public class CompletionSupplier
             }
         }
 
-        for(var entry : Skill.values())
-        {
-            completions.add(new BasicCompletion(provider, entry.name(), " [skill]"));
-        }
-
         for(Class<?> event : MethodManager.getInstance().getEventClasses())
         {
             completions.add(new BasicCompletion(provider, event.getSimpleName(), " [event]"));
@@ -138,11 +131,6 @@ public class CompletionSupplier
         }
 
         //NpcFilters
-        docs.append("\n# ").append("NPC Filters").append("\n");
-        for(NpcFilter filter : NpcFilter.values())
-        {
-            docs.append("// " + filter.getDescription() + "\n" + filter.getName() + "\n");
-        }
 
         docs.append("\n# ").append("Built-In Constructs").append("\n");
         docs.append("// continue statement\ncontinue();\n");

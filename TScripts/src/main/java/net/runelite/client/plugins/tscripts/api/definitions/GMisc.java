@@ -1,17 +1,13 @@
 package net.runelite.client.plugins.tscripts.api.definitions;
 
 import com.google.common.collect.ImmutableMap;
-import net.runelite.api.ChatMessageType;
-import net.runelite.api.GameState;
 import net.runelite.client.plugins.tscripts.api.MethodManager;
 import net.runelite.client.plugins.tscripts.api.library.TDelay;
-import net.runelite.client.plugins.tscripts.sevices.cache.GameCache;
 import net.runelite.client.plugins.tscripts.types.GroupDefinition;
 import net.runelite.client.plugins.tscripts.types.MethodDefinition;
 import net.runelite.client.plugins.tscripts.types.Pair;
 import net.runelite.client.plugins.tscripts.types.Type;
 import net.runelite.client.plugins.tscripts.util.Logging;
-import net.unethicalite.client.Static;
 
 import java.awt.*;
 import java.awt.event.InputEvent;
@@ -32,11 +28,11 @@ public class GMisc implements GroupDefinition
         List<MethodDefinition> methods = new ArrayList<>();
         addMethod(methods, "isEven", Type.BOOL, ImmutableMap.of(0, Pair.of("number", Type.INT)),
                 function -> ((int) function.getArg(0, manager)) % 2 == 0,
-                "Returns true if the number is even, false otherwise", false
+                "Returns true if the number is even, false otherwise"
         );
         addMethod(methods, "isOdd", Type.BOOL, ImmutableMap.of(0, Pair.of("number", Type.INT)),
                 function -> ((int) function.getArg(0, manager)) % 2 != 0,
-                "Returns true if the number is odd, false otherwise", false
+                "Returns true if the number is odd, false otherwise"
         );
         addMethod(methods, "click",
                 ImmutableMap.of(),
@@ -48,7 +44,7 @@ public class GMisc implements GroupDefinition
                         TDelay.sleep(100);
                     } catch (AWTException ignored) { }
                 },
-                "Clicks the mouse", false
+                "Clicks the mouse"
         );
         addMethod(methods, "debug", ImmutableMap.of(0, Pair.of("args", Type.VARARGS)),
                 function ->
@@ -59,12 +55,8 @@ public class GMisc implements GroupDefinition
                         output.append(object);
                     }
                     String msg = output.toString();
-                    Static.getClientThread().invoke(() -> {
-                        if(Static.getClient().getGameState().equals(GameState.LOGGED_IN) || Static.getClient().getGameState().equals(GameState.LOADING) || Static.getClient().getGameState().equals(GameState.HOPPING))
-                            Static.getClient().addChatMessage(ChatMessageType.GAMEMESSAGE, msg, msg, "", true);
-                        Logging.logToEditor(msg, Color.WHITE);
-                    });
-                }, "Prints the arguments to the console and chatbox", false);
+                    Logging.logToEditor(msg, Color.WHITE);
+                }, "Prints the arguments to the console and chatbox");
         addMethod(methods, "rand", Type.INT,
                 ImmutableMap.of(0, Pair.of("args", Type.VARARGS)),
                 function ->
@@ -82,12 +74,7 @@ public class GMisc implements GroupDefinition
                         return (int) (Math.random() * ((int) function.getArg(1, manager) - (int) function.getArg(0, manager)) + (int) function.getArg(0, manager));
                     }
                 },
-                "Returns a random number. Overloads: rand(), rand(int max), rand(int min, int max)", false
-        );
-        addMethod(methods, "getTickCount", Type.INT,
-                ImmutableMap.of(),
-                function -> GameCache.get().getTickCount(),
-                "gets the game tick count since login", false
+                "Returns a random number. Overloads: rand(), rand(int max), rand(int min, int max)"
         );
         addMethod(methods, "array", Type.OBJECT,
                 ImmutableMap.of(
@@ -103,7 +90,7 @@ public class GMisc implements GroupDefinition
                     return values;
 
                 },
-                "Creates a new array with the given values", false
+                "Creates a new array with the given values"
         );
 
         addMethod(methods, "eval",
@@ -111,7 +98,7 @@ public class GMisc implements GroupDefinition
                         0, Pair.of("code", Type.STRING)
                 ),
                 function -> {},
-                "Evaluates the code.", false
+                "Evaluates the code."
         );
 
         return methods;

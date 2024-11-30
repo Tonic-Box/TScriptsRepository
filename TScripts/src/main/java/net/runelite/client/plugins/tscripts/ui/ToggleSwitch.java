@@ -1,7 +1,6 @@
 package net.runelite.client.plugins.tscripts.ui;
 
 import lombok.Getter;
-import net.runelite.client.ui.ColorScheme;
 
 import javax.swing.*;
 import java.awt.*;

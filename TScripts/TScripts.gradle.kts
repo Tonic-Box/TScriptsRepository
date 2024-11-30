@@ -1,7 +1,7 @@
 import org.gradle.kotlin.dsl.dependencies
 
 //Major Release - Feature Addition - Bug Fix
-version = "6.16.16"
+version = "7.16.16"
 
 plugins {
     id("java")
@@ -14,10 +14,9 @@ dependencies {
     val kotlinVersion = "1.2.71"
     annotationProcessor(group = "org.projectlombok", name = "lombok", version = "1.18.20")
     annotationProcessor(group = "org.pf4j", name = "pf4j", version = "3.6.0")
-    compileOnly(group = "com.google.code.gson", name = "gson", version = "2.8.5")
-    compileOnly(group = "com.squareup.okhttp3", name = "okhttp", version = "4.9.1")
-    compileOnly(group = "net.java.dev.jna", name = "jna", version = "5.9.0")
-    compileOnly(group = "net.java.dev.jna", name = "jna-platform", version = "5.9.0")
+    implementation(group = "com.google.code.gson", name = "gson", version = "2.8.5")
+    implementation(group = "net.java.dev.jna", name = "jna", version = "5.9.0")
+    implementation(group = "net.java.dev.jna", name = "jna-platform", version = "5.9.0")
     implementation("io.netty:netty-all:5.0.0.Alpha2")
     implementation("com.github.vlsi.mxgraph:jgraphx:4.2.2")
     implementation("ch.obermuhlner:java-scriptengine:1.0.1")
@@ -28,8 +27,14 @@ dependencies {
     implementation("org.jetbrains.kotlin:kotlin-script-runtime:$kotlinVersion")
     implementation("org.jetbrains.kotlin:kotlin-compiler-embeddable:$kotlinVersion")
 
-    compileOnly(group = "com.fifesoft", name = "rsyntaxtextarea", version = "3.1.2")
-    compileOnly(group = "com.fifesoft", name = "autocomplete", version = "3.1.1")
+    implementation(group = "org.apache.commons", name = "commons-text", version = "1.9")
+    implementation(group = "com.google.code.gson", name = "gson", version = "2.8.5")
+    implementation(group = "com.google.guava", name = "guava", version = "30.1.1-jre")
+
+    implementation(group = "com.fifesoft", name = "rsyntaxtextarea", version = "3.1.2")
+    implementation(group = "com.fifesoft", name = "autocomplete", version = "3.1.1")
+
+    implementation("com.formdev:flatlaf:2.4")
 }
 
 

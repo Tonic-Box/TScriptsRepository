@@ -7,8 +7,6 @@ import net.runelite.client.plugins.tscripts.types.GroupDefinition;
 import net.runelite.client.plugins.tscripts.types.MethodDefinition;
 import net.runelite.client.plugins.tscripts.types.Pair;
 import net.runelite.client.plugins.tscripts.types.Type;
-import net.unethicalite.client.Static;
-
 import java.util.ArrayList;
 import java.util.List;
 
@@ -29,7 +27,7 @@ public class GHttp implements GroupDefinition
                         1, Pair.of("timeoutMS", Type.INT)
                 ),
                 function -> THttp.get(function.getArg(0, manager), function.getArg(1, manager)),
-                "Sends a GET request to the specified URL", false
+                "Sends a GET request to the specified URL"
         );
 
         addMethod(methods, "httpPost", Type.STRING,
@@ -40,7 +38,7 @@ public class GHttp implements GroupDefinition
                 ),
                 function -> THttp.post(function.getArg(0, manager), function.getArg(1, manager), function.getArg(2, manager)),
                 "Sends a POST request to the specified URL. data in the form\n" +
-                        "of \"param1=value1&param2=value2\" an so on", false
+                        "of \"param1=value1&param2=value2\" an so on"
         );
 
         return methods;

@@ -18,7 +18,6 @@ public class MethodDefinition
     private final Type returnType;
     private final Function<MethodCall,Object> function;
     private final String description;
-    private final boolean requiresLoggedIn;
 
     /**
      * Creates a new method definition.
@@ -29,14 +28,13 @@ public class MethodDefinition
      * @param function the function that is called when the method is invoked
      * @param description the description of the method
      */
-    public MethodDefinition(String name, Type returnType, ImmutableMap<Integer, Pair<String,Type>> parameters, Function<MethodCall,Object> function, String description, boolean requiresLoggedIn)
+    public MethodDefinition(String name, Type returnType, ImmutableMap<Integer, Pair<String,Type>> parameters, Function<MethodCall,Object> function, String description)
     {
         this.name = name;
         this.parameters = parameters;
         this.returnType = returnType;
         this.function = function;
         this.description = description;
-        this.requiresLoggedIn = requiresLoggedIn;
     }
 
     /**
@@ -48,7 +46,7 @@ public class MethodDefinition
      * @param function the function that is called when the method is invoked
      * @param description the description of the method
      */
-    public MethodDefinition(String name, Type returnType, ImmutableMap<Integer, Pair<String,Type>> parameters, Consumer<MethodCall> function, String description, boolean requiresLoggedIn)
+    public MethodDefinition(String name, Type returnType, ImmutableMap<Integer, Pair<String,Type>> parameters, Consumer<MethodCall> function, String description)
     {
         this.name = name;
         this.parameters = parameters;
@@ -59,6 +57,5 @@ public class MethodDefinition
             return null;
         };
         this.description = description;
-        this.requiresLoggedIn = requiresLoggedIn;
     }
 }

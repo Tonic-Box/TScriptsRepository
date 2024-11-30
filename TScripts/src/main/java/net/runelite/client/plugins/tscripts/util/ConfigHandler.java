@@ -1,7 +1,5 @@
 package net.runelite.client.plugins.tscripts.util;
 
-import net.runelite.client.config.Keybind;
-
 import java.io.*;
 import java.util.Properties;
 import java.nio.file.Files;
@@ -144,24 +142,6 @@ public class ConfigHandler {
     public void setKeycode(String script, int code, int mod) {
         set(script, "keycode", String.valueOf(code));
         set(script, "mod", String.valueOf(mod));
-    }
-
-    /**
-     * Gets the keybind for the script
-     * @param script The name of the script
-     * @return The keybind
-     */
-    public Keybind getKeybind(String script) {
-        try
-        {
-            int keycode = Integer.parseInt(get(script, "keycode"));
-            int mod = Integer.parseInt(get(script, "mod"));
-            return new Keybind(keycode, mod);
-        }
-        catch (Exception ex) {
-            Logging.errorLog(ex);
-        }
-        return Keybind.NOT_SET;
     }
 
     /**

@@ -1,23 +1,19 @@
 package net.runelite.client.plugins.tscripts.ui;
+
 import lombok.Getter;
 import lombok.SneakyThrows;
 import static net.runelite.client.plugins.tscripts.TScriptsPlugin.*;
-import net.runelite.client.plugins.tscripts.TScriptsConfig;
 import net.runelite.client.plugins.tscripts.TScriptsPlugin;
 import net.runelite.client.plugins.tscripts.adapter.Adapter;
 import net.runelite.client.plugins.tscripts.adapter.models.Scope.Scope;
 import net.runelite.client.plugins.tscripts.runtime.Runtime;
-import net.runelite.client.plugins.tscripts.sevices.ScriptEventService;
 import net.runelite.client.plugins.tscripts.sevices.eventbus.TEventBus;
 import net.runelite.client.plugins.tscripts.sevices.eventbus._Subscribe;
 import net.runelite.client.plugins.tscripts.sevices.eventbus.events.ScriptStateChanged;
 import net.runelite.client.plugins.tscripts.sevices.ipc.packets.IPCPacket;
 import net.runelite.client.plugins.tscripts.util.ConfigHandler;
+import net.runelite.client.plugins.tscripts.util.ImageUtil;
 import net.runelite.client.plugins.tscripts.util.Logging;
-import net.runelite.client.plugins.tscripts.util.ThreadPool;
-import net.runelite.client.ui.ColorScheme;
-import net.runelite.client.ui.PluginPanel;
-import net.runelite.client.util.ImageUtil;
 import org.jetbrains.annotations.NotNull;
 import javax.swing.*;
 import javax.swing.border.Border;
@@ -34,33 +30,25 @@ import java.util.List;
 /**
  * The TScriptsPanel class contains the UI for the TScripts plugin side panel.
  */
-public class TScriptsPanel extends PluginPanel
+public class TScriptsPanel extends JPanel
 {
     private ImageIcon ADD_ICON;
     private ImageIcon ADD_HOVER_ICON;
     @Getter
     private final List<ScriptPanel> scriptPanels = new ArrayList<>();
-    private TScriptsConfig config;
     private TScriptsPlugin plugin;
-    public JCheckBox logActions = new JCheckBox("Menu Actions");
-    public JCheckBox logPackets = new JCheckBox("Packets");
-    public ToggleSwitch hotkeys = new ToggleSwitch();
-    public ToggleSwitch events = new ToggleSwitch();
-    public ToggleSwitch copyMenu = new ToggleSwitch();
     private final Border blackline = BorderFactory.createLineBorder(Color.black);
     public String editName = "";
     public String current_profile = "[Default]";
 
     /**
      * Initializes the TScriptsPanel
-     * @param config The TScriptsConfig
      * @param plugin The TScriptsPlugin
      */
-    public void init(TScriptsConfig config, TScriptsPlugin plugin)
+    public void init(TScriptsPlugin plugin)
     {
         try {
             this.plugin = plugin;
-            this.config = config;
             setLayout(new BorderLayout());
             setBorder(BorderFactory.createEmptyBorder(10, 10, 10, 10));
             setBackground(ColorScheme.DARKER_GRAY_COLOR);
@@ -81,31 +69,10 @@ public class TScriptsPanel extends PluginPanel
             panel.setLayout(new BorderLayout(0, 0));
             panel.setBorder(new EmptyBorder(1, 10, 1, 10));
 
-            JPanel loggingPanel = new JPanel(new BorderLayout());
-            loggingPanel.setBorder(new EmptyBorder(8, 0, 3, 0));
-            logActions.setSelected(config.melog());
-            logActions.addActionListener(e -> config.setMelog(logActions.isSelected()));
-            logActions.setToolTipText("Log Menu Actions");
-
-            logPackets.setSelected(config.packetLogger());
-            logPackets.addActionListener(e -> config.setPacketLogger(logPackets.isSelected()));
-            logPackets.setToolTipText("Log Packets");
-
-            JLabel logging_title = new JLabel();
-            logging_title.setForeground(Color.LIGHT_GRAY);
-            logging_title.setText("Logging Options");
-            logging_title.setFont(new Font("Impact", Font.PLAIN, 16));
-
             JPanel panel4 = new JPanel();
             panel4.setLayout(new BorderLayout(2, 0));
             panel4.setBorder(new EmptyBorder(5, 10, 1, 10));
 
-            panel4.add(logging_title, BorderLayout.WEST);
-
-            loggingPanel.add(panel4, BorderLayout.NORTH);
-            //loggingPanel.add(logPackets, BorderLayout.WEST);
-            loggingPanel.add(logActions, BorderLayout.WEST);
-            loggingPanel.add(logPackets, BorderLayout.EAST);
             JPanel topPanel = new JPanel(new BorderLayout());
             topPanel.setBorder(new EmptyBorder(0, 0, 0, 0));
             topPanel.add(title, BorderLayout.WEST);
@@ -115,39 +82,11 @@ public class TScriptsPanel extends PluginPanel
 
             JPanel hotkeyPanel = new JPanel(new FlowLayout(FlowLayout.LEFT,2,0));
             hotkeyPanel.setBackground(ColorScheme.DARK_GRAY_COLOR);
-            JLabel hktext = new JLabel("Hotkeys");
-            hktext.setBorder(new EmptyBorder(0, 5, 0, 8));
-            hotkeys.setBorder(new EmptyBorder(1, 10, 1, 10));
-            hotkeys.addActionListener(e -> {
-                config.setkeybindsEnabled(hotkeys.isActivated());
-                plugin.setListenersToggle(hotkeys.isActivated());
-            });
-            hotkeys.setActivated(config.keybindsEnabled());
-            hotkeyPanel.add(hotkeys);
-            hotkeyPanel.add(hktext);
 
             JPanel eventPanel = new JPanel(new FlowLayout(FlowLayout.LEFT,2,0));
             eventPanel.setBackground(ColorScheme.DARK_GRAY_COLOR);
-            JLabel eventText = new JLabel("Events");
-            eventText.setBorder(new EmptyBorder(0, 5, 0, 8));
-            events.setBorder(new EmptyBorder(1, 10, 1, 10));
-            events.addActionListener(e -> {
-                config.setEventsEnabled(events.isActivated());
-                //TODO: implement event listener
-            });
-            events.setActivated(config.eventsEnabled());
-            eventPanel.add(events);
-            eventPanel.add(eventText);
 
             JPanel copyMenuPanel = new JPanel(new FlowLayout(FlowLayout.LEFT,2,0));
-            copyMenuPanel.setBackground(ColorScheme.DARK_GRAY_COLOR);
-            JLabel cmtext = new JLabel("Helper Menus");
-            cmtext.setBorder(new EmptyBorder(0, 5, 0, 8));
-            copyMenu.setBorder(new EmptyBorder(1, 10, 1, 10));
-            copyMenu.setActivated(config.copyMenus());
-            copyMenu.addActionListener(e -> config.setCopyMenus(copyMenu.isActivated()));
-            copyMenuPanel.add(copyMenu);
-            copyMenuPanel.add(cmtext);
 
             JPanel renderPanel = new JPanel(new FlowLayout(FlowLayout.LEFT,2,0));
             renderPanel.setBackground(ColorScheme.DARK_GRAY_COLOR);
@@ -187,7 +126,6 @@ public class TScriptsPanel extends PluginPanel
                     plugin.setProfile(s);
                     HOME_DIR = plugin.getProfilePath(s);
                     plugin.configHandler = new ConfigHandler(plugin.getProfilePath(current_profile));
-                    ScriptEventService.getInstance().clearAllSubscribers();
                     rebuild();
                 }
             });
@@ -263,20 +201,12 @@ public class TScriptsPanel extends PluginPanel
                     }
                 });
             }
-
-            JLabel misc_title = new JLabel();
-            misc_title.setForeground(Color.LIGHT_GRAY);
-            misc_title.setText("Misc Options");
-            misc_title.setFont(new Font("Impact", Font.PLAIN, 16));
             JPanel panel3 = new JPanel();
             panel3.setLayout(new BorderLayout(2, 0));
             panel3.setBorder(new EmptyBorder(5, 10, 1, 10));
 
-            panel3.add(misc_title, BorderLayout.WEST);
-
             titlePanel.add(topPanel);
             titlePanel.add(panel);
-            titlePanel.add(loggingPanel);
             titlePanel.add(panel3);
             titlePanel.add(xPanel);
             titlePanel.add(panel2);
@@ -326,7 +256,6 @@ public class TScriptsPanel extends PluginPanel
             constraints.gridy = 0;
             scriptPanels.clear();
             plugin.configHandler.validateConfig();
-            plugin.unregAllKeyListeners();
             File dir = new File(plugin.getProfilePath(current_profile));
             File[] directoryListing = dir.listFiles();
             assert directoryListing != null;
@@ -335,11 +264,11 @@ public class TScriptsPanel extends PluginPanel
                     String s = script.getName().split("\\.")[0];
                     ScriptPanel scriptPanel;
                     if(s.equals(editName)) {
-                        scriptPanel = new ScriptPanel(this.plugin, this.config, s, this, plugin.configHandler.getMinimized(s), true, current_profile);
+                        scriptPanel = new ScriptPanel(this.plugin, s, this, plugin.configHandler.getMinimized(s), true, current_profile);
                         this.editName = "";
                     }
                     else {
-                        scriptPanel = new ScriptPanel(this.plugin, this.config, s, this, plugin.configHandler.getMinimized(s), false, current_profile);
+                        scriptPanel = new ScriptPanel(this.plugin, s, this, plugin.configHandler.getMinimized(s), false, current_profile);
                     }
 
                     this.scriptPanels.add(scriptPanel);
@@ -357,8 +286,6 @@ public class TScriptsPanel extends PluginPanel
         catch(Exception ex) {
             Logging.errorLog(ex);
         }
-
-        plugin.setListenersToggle(config.keybindsEnabled());
     }
 
     /**
@@ -392,7 +319,7 @@ public class TScriptsPanel extends PluginPanel
         removeAll();
         repaint();
         revalidate();
-        init(this.config, this.plugin);
+        init(this.plugin);
     }
 
     /**

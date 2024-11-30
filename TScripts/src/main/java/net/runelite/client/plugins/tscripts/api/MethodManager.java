@@ -2,14 +2,11 @@ package net.runelite.client.plugins.tscripts.api;
 
 import com.google.common.reflect.ClassPath;
 import lombok.Getter;
-import net.runelite.api.GameState;
 import net.runelite.client.plugins.tscripts.TScriptsPlugin;
 import net.runelite.client.plugins.tscripts.api.library.TDelay;
 import net.runelite.client.plugins.tscripts.types.*;
 import net.runelite.client.plugins.tscripts.adapter.models.method.MethodCall;
 import net.runelite.client.plugins.tscripts.util.Logging;
-import net.unethicalite.client.Static;
-import org.apache.commons.lang3.NotImplementedException;
 
 import java.io.IOException;
 import java.util.*;
@@ -56,7 +53,7 @@ public class MethodManager
             if (methods.containsKey(methodCall.getName().toLowerCase()))
             {
                 MethodDefinition method = methods.getOrDefault(methodCall.getName().toLowerCase(), null);
-                if (method == null || !shouldProcess(method))
+                if (method == null)
                     return "null";
                 out = method.getFunction().apply(methodCall);
                 if(methodCall.isNegate() && out instanceof Boolean)
@@ -66,7 +63,7 @@ public class MethodManager
             }
             else
             {
-                Logging.errorLog(new NotImplementedException("Method " + methodCall.getName() + " not found"));
+                Logging.errorLog(new NoSuchMethodException("Method " + methodCall.getName() + " not found"));
             }
         }
         catch(Exception e)
@@ -320,10 +317,5 @@ public class MethodManager
         }
 
         return eventDataClasses;
-    }
-
-    private boolean shouldProcess(MethodDefinition method)
-    {
-        return !method.isRequiresLoggedIn() || Static.getClient() != null && (Static.getClient().getGameState() == GameState.LOGGED_IN || Static.getClient().getGameState() == GameState.LOADING);
     }
 }
