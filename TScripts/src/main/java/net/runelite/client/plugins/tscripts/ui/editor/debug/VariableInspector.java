@@ -1,10 +1,13 @@
 package net.runelite.client.plugins.tscripts.ui.editor.debug;
 
-import net.runelite.client.plugins.tscripts.runtime.Variable;
+import net.runelite.client.plugins.tscripts.runtime.variables.ArrayVariable;
+import net.runelite.client.plugins.tscripts.runtime.variables.Frame;
+import net.runelite.client.plugins.tscripts.runtime.variables.Frames;
+import net.runelite.client.plugins.tscripts.runtime.variables.Variable;
 import net.runelite.client.plugins.tscripts.sevices.eventbus.TEventBus;
 import net.runelite.client.plugins.tscripts.sevices.eventbus._Subscribe;
+import net.runelite.client.plugins.tscripts.sevices.eventbus.events.FramePopped;
 import net.runelite.client.plugins.tscripts.sevices.eventbus.events.VariableUpdated;
-import net.runelite.client.plugins.tscripts.sevices.eventbus.events.VariablesCleaned;
 import net.runelite.client.plugins.tscripts.sevices.eventbus.events.VariablesCleared;
 import net.runelite.client.plugins.tscripts.runtime.Runtime;
 import javax.swing.*;
@@ -24,7 +27,7 @@ public class VariableInspector extends JPanel {
     private final DefaultTableModel tableModel;
     private int selectedRow = -1;
     private final List<Integer> frozenRows = new ArrayList<>();
-    private final Map<String, Variable> variableMap;
+    private final Frames variableMap;
 
     public static VariableInspector getInstance(Runtime runtime) {
         if (instance == null)
@@ -34,7 +37,7 @@ public class VariableInspector extends JPanel {
 
     private VariableInspector(Runtime runtime) {
         // Set up the table model
-        tableModel = new DefaultTableModel(new Object[]{"Variable", "Value", "Hash"}, 0) {
+        tableModel = new DefaultTableModel(new Object[]{"Variable", "Value", "Frame"}, 0) {
             @Override
             public boolean isCellEditable(int row, int column) {
                 return false;
@@ -92,7 +95,7 @@ public class VariableInspector extends JPanel {
             }
         });
 
-        this.variableMap = runtime.getVariableMap().getVariableMap();
+        this.variableMap = runtime.getVariableMap().getFrames();
         updateVariables();
         TEventBus.register(this);
     }
@@ -103,17 +106,37 @@ public class VariableInspector extends JPanel {
             tableModel.setRowCount(0);
             frozenRows.clear();
 
-            // Add new rows for each variable
-            for (Map.Entry<String, Variable> entry : variableMap.entrySet()) {
-                Vector<Object> row = new Vector<>();
-                if (entry.getValue().isFrozen())
-                    frozenRows.add(tableModel.getRowCount());
-                if(entry.getValue().getScopeHash() == null || entry.getValue().getScopeHash().isBlank())
-                    continue;
-                row.add(entry.getValue().getName());
-                row.add(entry.getValue().getValue());
-                row.add(entry.getValue().getScopeHash());
-                tableModel.addRow(row);
+            for (int i = 0; i < variableMap.getFrames().size(); i++) {
+                Frame frame = variableMap.getFrames().get(i);
+                for (Map.Entry<String, Variable> entry : frame.getVariableMap().entrySet()) {
+                    Vector<Object> row = new Vector<>();
+                    if (entry.getValue().isFrozen())
+                        frozenRows.add(tableModel.getRowCount());
+                    row.add(entry.getValue().getName());
+                    Object value = entry.getValue().getValue();
+                    Object trueValue;
+                    if(value instanceof Variable)
+                        trueValue = ((Variable) value).getValue();
+                    else
+                        trueValue = value;
+                    row.add(trueValue);
+                    row.add("Frame [" + i + "]");
+                    tableModel.addRow(row);
+                }
+
+//                for (Map.Entry<String, ArrayVariable> entry : frame.getArrayMap().entrySet()) {
+//                    Vector<Object> row = new Vector<>();
+//                    row.add(entry.getValue().getName());
+//                    Object value = entry.getValue().getValues();
+//                    Object trueValue;
+//                    if(value instanceof Variable)
+//                        trueValue = ((Variable) value).getValue();
+//                    else
+//                        trueValue = value;
+//                    row.add(trueValue);
+//                    row.add("Frame [" + i + "]");
+//                    tableModel.addRow(row);
+//                }
             }
         });
     }
@@ -121,33 +144,20 @@ public class VariableInspector extends JPanel {
     @_Subscribe
     public void onVariableUpdate(VariableUpdated event)
     {
-        variableMap.put(event.getName(), new Variable(event.getName(), event.getValue(), ""));
+        variableMap.put(event.getName(), new Variable(event.getName(), event.getValue()));
         updateVariables();
     }
 
     @_Subscribe
     public void onVariablesCleared(VariablesCleared event)
     {
-        variableMap.clear();
+        variableMap.clean();
         updateVariables();
     }
 
     @_Subscribe
-    public void onVariablesCleaned(VariablesCleaned event)
+    public void onFramePopped(FramePopped event)
     {
-        List<String> keysToRemove = new ArrayList<>();
-        String scope = event.getScopeHash();
-        for (var variable : variableMap.entrySet())
-        {
-            if (variable.getValue().getScopeHash().equals(scope))
-            {
-                keysToRemove.add(variable.getKey());
-            }
-        }
-        for (String key : keysToRemove)
-        {
-            variableMap.remove(key);
-        }
         updateVariables();
     }
 }

@@ -44,8 +44,6 @@ public class Scope extends Element
     private Map<Integer, Element> elseElements = null;
     @Setter
     private Conditions conditions = null;
-    @Getter
-    private String hash = UUID.randomUUID().toString();
 
     /**
      * Clones the scope

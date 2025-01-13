@@ -1,4 +1,4 @@
-package net.runelite.client.plugins.tscripts.runtime;
+package net.runelite.client.plugins.tscripts.runtime.variables;
 
 import lombok.Getter;
 import lombok.Setter;
@@ -9,14 +9,12 @@ public class Variable
     private final String name;
     @Setter
     private Object value;
-    private final String scopeHash;
     @Setter
     private boolean frozen;
 
-    public Variable(String name, Object value, String scopeHash)
+    public Variable(String name, Object value)
     {
         this.name = name;
         this.value = value;
-        this.scopeHash = scopeHash;
     }
 }

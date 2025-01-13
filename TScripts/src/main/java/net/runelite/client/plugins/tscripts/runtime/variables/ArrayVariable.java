@@ -1,4 +1,4 @@
-package net.runelite.client.plugins.tscripts.runtime;
+package net.runelite.client.plugins.tscripts.runtime.variables;
 
 import lombok.Getter;
 import lombok.RequiredArgsConstructor;
@@ -11,6 +11,5 @@ import java.util.Map;
 public class ArrayVariable
 {
     private final String name;
-    private final String scopeHash;
     private final Map<Object,Object> values = new HashMap<>();
 }

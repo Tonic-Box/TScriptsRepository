@@ -19,12 +19,15 @@ import net.runelite.client.plugins.tscripts.adapter.models.condition.Glue;
 import net.runelite.client.plugins.tscripts.adapter.models.Element;
 import net.runelite.client.plugins.tscripts.adapter.models.variable.ArrayAccess;
 import net.runelite.client.plugins.tscripts.adapter.models.variable.VariableAssignment;
+import net.runelite.client.plugins.tscripts.runtime.variables.Frame;
+import net.runelite.client.plugins.tscripts.runtime.variables.VariableMap;
 import net.runelite.client.plugins.tscripts.sevices.eventbus.events.*;
 import net.runelite.client.plugins.tscripts.types.Pair;
 import net.runelite.client.plugins.tscripts.util.Logging;
 import net.runelite.client.plugins.tscripts.util.ThreadPool;
 import net.runelite.client.plugins.tscripts.sevices.eventbus.TEventBus;
 import net.runelite.client.plugins.tscripts.sevices.eventbus._Subscribe;
+import net.runelite.client.plugins.tscripts.util.Values;
 
 import java.util.*;
 import java.util.concurrent.CopyOnWriteArrayList;
@@ -82,12 +85,6 @@ public class Runtime
         TEventBus.register(this);
     }
 
-    public Runtime getRuntimeChild()
-    {
-        Runtime runtime = new Runtime(variableMap);
-        runtime.child = true;
-        return runtime;
-    }
 
     /**
      * Executes the script.
@@ -136,7 +133,7 @@ public class Runtime
         if(_die || _return) return;
         scope.setCurrent(true);
         postCurrentInstructionChanged();
-        variableMap.pushScope(scope.getHash());
+        variableMap.pushScope();
 
         boolean isLoopScope = false;
         boolean isIf = false;
@@ -486,12 +483,11 @@ public class Runtime
         Scope scope = function.getScope().clone();
         scope.setConditions(null);
         currentFunction = function;
-        variableMap.pushScope(scope.getHash());
+        Frame frame = variableMap.pushScope();
         for (int i = 0; i < call.getArgs().length; i++)
         {
-            variableMap.put(function.getArguments().get(i), getValue(call.getArgs()[i]));
+            frame.put(function.getArguments().get(i), getValue(call.getArgs()[i]));
         }
-        variableMap.popScope2();
 
         processScope(scope);
         Object output = function.getReturnValue() == null ? "null" : function.getReturnValue();
@@ -535,25 +531,25 @@ public class Runtime
      */
     private void incrementVariable(String name, Object value) {
         if (value instanceof Integer) {
-            int integer = (int) value;
-            int prev = variableMap.containsKey(name) ? (int) variableMap.get(name) : 0;
-            variableMap.put(name, prev + integer);
+            int integer = Values.getAsInt(value);
+            int prev = Values.getAsInt(variableMap.get(name));
+            variableMap.getFrames().put(name, prev + integer);
         } else if (value instanceof String) {
             String string = (String) value;
-            String prev = variableMap.containsKey(name) ? (String) variableMap.get(name) : "";
-            variableMap.put(name, prev + string);
+            String prev = variableMap.getFrames().containsKey(name) ? (String) variableMap.get(name) : "";
+            variableMap.getFrames().put(name, prev + string);
         }
     }
 
     private void incrementVariable(String name, Object index, Object value) {
         if (value instanceof Integer) {
-            int integer = (int) value;
-            int prev = variableMap.containsKey(name, index) ? (int) variableMap.get(name, index) : 0;
-            variableMap.put(name, index, prev + integer);
+            int integer = Values.getAsInt(value);
+            int prev = Values.getAsInt(variableMap.get(name));
+            variableMap.getFrames().put(name, index, prev + integer);
         } else if (value instanceof String) {
             String string = (String) value;
-            String prev = variableMap.containsKey(name) ? (String) variableMap.get(name, index) : "";
-            variableMap.put(name, index, prev + string);
+            String prev = variableMap.getFrames().containsKey(name) ? (String) variableMap.get(name, index) : "";
+            variableMap.getFrames().put(name, index, prev + string);
         }
     }
 
@@ -564,19 +560,15 @@ public class Runtime
      * @param value The value.
      */
     private void decrementVariable(String name, Object value) {
-        if (value instanceof Integer) {
-            int integer = (int) value;
-            int prev = variableMap.containsKey(name) ? (int) variableMap.get(name) : 0;
-            variableMap.put(name, prev - integer);
-        }
+        int integer = Values.getAsInt(value);
+        int prev = Values.getAsInt(variableMap.get(name));
+        variableMap.put(name, prev - integer);
     }
 
     private void decrementVariable(String name, Object index, Object value) {
-        if (value instanceof Integer) {
-            int integer = (int) value;
-            int prev = variableMap.containsKey(name, index) ? (int) variableMap.get(name, index) : 0;
-            variableMap.put(name, index, prev - integer);
-        }
+        int integer = Values.getAsInt(value);
+        int prev= Values.getAsInt(variableMap.get(name, index));
+        variableMap.put(name, index, prev - integer);
     }
 
     /**
@@ -596,10 +588,6 @@ public class Runtime
             String string = (String) object;
             if (string.startsWith("$"))
             {
-                if(!variableMap.containsKey(string))
-                {
-                    return null;
-                }
                 return variableMap.get(string);
             }
             else if (string.startsWith("!$"))
@@ -791,7 +779,8 @@ public class Runtime
         flags.put("scriptName", scriptName);
         flags.put("profile", profile);
         flags.put("running", !_done);
-        flags.put("variables", variableMap.getVariableMap().size());
+        flags.put("frames", variableMap.getFrameCount());
+        flags.put("variables", variableMap.getVariableCount());
         flags.put("done", _done);
         flags.put("die", _die);
         flags.put("break", _break);
