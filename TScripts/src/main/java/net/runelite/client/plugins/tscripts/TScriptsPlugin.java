@@ -344,7 +344,7 @@ public class TScriptsPlugin  extends Plugin {
         }
         pb.release();
 
-        if(out.startsWith("[") || out.isBlank())
+        if(out.isBlank() || out.startsWith("[OP_MOUSE_CLICK") || out.startsWith("[OP_FOCUS_CHANGED"))
             return;
 
         if(!Static.getClient().getGameState().equals(GameState.LOGGED_IN))
